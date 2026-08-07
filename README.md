@@ -47,13 +47,31 @@ cd apps/web && npm install && npm run dev     # http://localhost:3100
 ## دیپلوی (فاز ۰ — فقط وب)
 
 ```bash
-rsync -avz --exclude node_modules --exclude .next --exclude .git \
+rsync -az --delete --exclude node_modules --exclude .next --exclude .git \
   ./ root@62.220.123.55:/opt/flowstudio/
-ssh root@62.220.123.55 'cd /opt/flowstudio && docker compose -f deploy/docker-compose.prod.yml up -d --build'
+ssh root@62.220.123.55 \
+  'cd /opt/flowstudio && docker compose -p flowstudio -f deploy/docker-compose.prod.yml up -d --build'
 ```
 
-سپس روی سرور: کپیِ `deploy/nginx/flowstudio.webcasting.ir.conf` در `conf.d`،
-گرفتنِ گواهی، و **`nginx -t && nginx -s reload`** — بدونِ reload هیچ اثری ندارد.
+نامِ پروژهٔ `-p flowstudio` مهم است: کانتینر، شبکه و والیومِ ما را از وبکستینگ جدا نگه می‌دارد.
+
+بررسی بدونِ DNS:
+
+```bash
+ssh root@62.220.123.55 'curl -s -o /dev/null -w "%{http_code}\n" http://172.18.0.1:3100/'
+```
+
+### سه گامِ باقی‌ماندهٔ رو‌آمدن روی زیردامنه
+
+۱. **DNS** — رکوردِ `A` برای `flowstudio.webcasting.ir` → `62.220.123.55` در Cloudflare.
+   (این تنها گامی است که از راهِ سرور انجام‌شدنی نیست.)
+۲. **گواهی** — با همان روشِ بقیهٔ زیردامنه‌ها؛ دستورش در
+   `deploy/nginx/flowstudio.webcasting.ir.conf` نوشته شده.
+۳. **بلوکِ nginx** — nginx روی این سرور **کانتینر** است و کلِ کانفیگش یک فایلِ
+   واحد است. محتوای همان فایل باید به انتهای
+   `/opt/webcasting-platform/deploy/turkey/nginx.conf` اضافه شود، سپس:
+   `docker exec wbc_nginx nginx -t && docker exec wbc_nginx nginx -s reload`
+   — **بدونِ reload هیچ اثری ندارد.**
 
 ---
 

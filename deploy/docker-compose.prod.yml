@@ -15,8 +15,14 @@ services:
       dockerfile: Dockerfile
     container_name: flowstudio_web
     restart: unless-stopped
+    # 172.18.0.1 = گیت‌ویِ شبکهٔ wbc_wbc روی هاست. nginxِ وبکستینگ کانتینر است،
+    # نه سرویسِ هاست؛ پس 127.0.0.1 برایش خودش می‌شود و ما را نمی‌بیند.
+    # از این آدرس ما را می‌بیند، ولی از بیرونِ سرور قابلِ دسترس نیست.
+    # عمداً به شبکهٔ wbc_wbc نمی‌پیوندیم — پروژه مستقل می‌ماند.
+    # ⚠️ اگر شبکهٔ wbc_wbc بازساخته شد، ساب‌نت را دوباره بگیر:
+    #   docker network inspect wbc_wbc --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
     ports:
-      - "127.0.0.1:3100:3100"
+      - "172.18.0.1:3100:3100"
     environment:
       NODE_ENV: production
       FLOWSTUDIO_LEADS_FILE: /data/leads.jsonl
