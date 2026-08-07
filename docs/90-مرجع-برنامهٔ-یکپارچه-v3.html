@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>برنامهٔ یکپارچهٔ تحقیق و اجرا — از کارخانهٔ محتوا تا سیستم‌عامل خلاقیت (نسخهٔ ۳٫۰)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazir-font/30.1.0/font-face.css">
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1d212a;--line:#2a2f3a;--tx:#e6e9ef;--tx2:#a8b0be;--tx3:#7a8394;--acc:#4ea3ff;--acc2:#39d3a0;--warn:#ffb547;--bad:#ff6b6b;--pur:#a78bfa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazir,"Vazirmatn","IRANSans",Tahoma,"Segoe UI",sans-serif;font-size:15px;line-height:2;direction:rtl}
+.wrap{max-width:1220px;margin:0 auto;padding:0 22px 90px}
+header.hero{background:linear-gradient(140deg,#0e1a2b 0%,#0f1115 48%,#1a1030 100%);border-bottom:1px solid var(--line);padding:56px 22px 42px;margin-bottom:30px}
+header.hero .inner{max-width:1220px;margin:0 auto}
+h1{font-size:30px;line-height:1.6;margin:0 0 10px;font-weight:800;letter-spacing:-.3px}
+.sub{color:var(--tx2);font-size:16px;margin:0;max-width:900px}
+.meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.chip{background:#1c2230;border:1px solid var(--line);color:var(--tx2);border-radius:999px;padding:4px 13px;font-size:12.5px}
+.chip.k{border-color:#2c4a6b;color:#8fc4ff}
+.chip.w{border-color:#6b5320;color:#ffc86b}
+.chip.p{border-color:#46337a;color:#c4b0ff}
+h2{font-size:23px;margin:56px 0 14px;padding-bottom:11px;border-bottom:2px solid var(--line);font-weight:800}
+h2 .n{color:var(--acc);font-weight:800;margin-left:9px;font-size:19px}
+h2.part{border-bottom:2px solid var(--pur);margin-top:70px}
+h2.part .n{color:var(--pur)}
+h3{font-size:18px;margin:32px 0 10px;color:#dbe3f0;font-weight:700}
+h4{font-size:15.5px;margin:20px 0 7px;color:var(--acc2);font-weight:700}
+p{margin:10px 0}
+ul,ol{padding-right:22px;margin:10px 0}li{margin:6px 0}
+b,strong{color:#fff;font-weight:700}
+code{background:#0b0d12;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;font-family:"SF Mono",Menlo,Consolas,monospace;direction:ltr;display:inline-block;color:#9fd0ff}
+pre{background:#0b0d12;border:1px solid var(--line);border-radius:10px;padding:15px 17px;overflow-x:auto;direction:ltr;text-align:left;font-size:12.5px;line-height:1.75;font-family:"SF Mono",Menlo,Consolas,monospace;color:#c9d4e5}
+pre .c{color:#6b7688}pre .k{color:#c4b0ff}pre .s{color:#8fe0b8}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.3px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:right;vertical-align:top;line-height:1.75}
+th{background:#1e2431;color:#cfe0f5;font-weight:700;font-size:13px}
+tr:nth-child(even) td{background:#151922}
+.tw{overflow-x:auto}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px 19px;margin:18px 0}
+.box.acc{border-right:4px solid var(--acc)}
+.box.good{border-right:4px solid var(--acc2)}
+.box.warn{border-right:4px solid var(--warn);background:#221c10}
+.box.bad{border-right:4px solid var(--bad);background:#241416}
+.box.pur{border-right:4px solid var(--pur);background:#1a1428}
+.box h4{margin-top:0}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+.card .t{font-weight:700;color:#fff;margin-bottom:5px;font-size:15px}
+.card .d{color:var(--tx2);font-size:13.3px;line-height:1.85}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:15px;text-align:center}
+.kpi .v{font-size:23px;font-weight:800;color:var(--acc2);line-height:1.35}
+.kpi .l{font-size:12.4px;color:var(--tx2);margin-top:4px;line-height:1.7}
+.tag{display:inline-block;border-radius:5px;padding:1px 8px;font-size:11.4px;font-weight:700;margin-left:5px;white-space:nowrap}
+.t-g{background:#123527;color:#5fe0b0;border:1px solid #1d5c43}
+.t-y{background:#33290f;color:#ffc86b;border:1px solid #6b5320}
+.t-r{background:#3a1518;color:#ff8f8f;border:1px solid #6e2529}
+.t-b{background:#10263d;color:#8fc4ff;border:1px solid #235079}
+.t-p{background:#241a3d;color:#c4b0ff;border:1px solid #46337a}
+.t-gr{background:#20242c;color:#9aa4b4;border:1px solid #333a46}
+.phase{background:var(--panel);border:1px solid var(--line);border-right:5px solid var(--acc);border-radius:12px;padding:0;margin:20px 0;overflow:hidden}
+.phase.k{border-right-color:var(--pur)}
+.phase.b{border-right-color:var(--acc2)}
+.phase .ph{background:#1b2130;padding:12px 18px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;border-bottom:1px solid var(--line)}
+.phase .ph .id{font-size:13px;font-weight:800;color:var(--acc);direction:ltr;background:#0f1620;border:1px solid #24405c;border-radius:6px;padding:1px 9px}
+.phase.k .ph .id{color:#c4b0ff;border-color:#46337a;background:#1a1428}
+.phase.b .ph .id{color:#5fe0b0;border-color:#1d5c43;background:#0f2119}
+.phase .ph .tt{font-size:16.5px;font-weight:800;color:#fff}
+.phase .ph .dur{font-size:12.3px;color:var(--tx3);margin-right:auto}
+.phase .pb{padding:14px 19px 18px}
+.phase .lbl{font-size:12.4px;font-weight:800;color:var(--acc2);margin:14px 0 3px}
+.phase .lbl:first-child{margin-top:0}
+.phase .val{font-size:13.6px;color:var(--tx2);line-height:1.95}
+.exitc{background:#0f1a16;border:1px dashed #1d5c43;border-radius:9px;padding:10px 14px;margin-top:14px;font-size:13.4px;color:#9fe0c4}
+.exitc b{color:#5fe0b0}
+.crit{background:var(--panel);border:1px solid var(--line);border-right:4px solid var(--bad);border-radius:11px;padding:15px 18px;margin:13px 0}
+.crit .h{font-weight:800;color:#ffb0b0;font-size:15.5px;margin-bottom:5px}
+.crit .why{color:var(--tx2);font-size:13.6px}
+.crit .fix{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:13.6px}
+.crit .fix b{color:var(--acc2)}
+.pipe{display:flex;flex-wrap:wrap;gap:0;margin:20px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pipe .st{flex:1 1 130px;background:var(--panel);padding:13px 12px;border-left:1px solid var(--line)}
+.pipe .st:last-child{border-left:0}
+.pipe .st .no{font-size:11px;color:var(--acc);font-weight:800;direction:ltr;text-align:right}
+.pipe .st .nm{font-weight:700;color:#fff;font-size:13.4px;margin:2px 0 4px}
+.pipe .st .dd{font-size:11.6px;color:var(--tx3);line-height:1.7}
+.tier{border:1px solid var(--line);border-radius:11px;margin-bottom:10px;overflow:hidden}
+.tier .th{background:#1e2431;padding:8px 14px;font-weight:800;font-size:13.5px;color:#cfe0f5}
+.tier .tb{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:9px;padding:12px}
+.comp{background:#131820;border:1px solid #26303e;border-radius:9px;padding:10px 12px}
+.comp .cn{font-weight:700;color:#fff;font-size:13.2px;direction:ltr;text-align:right}
+.comp .cd{font-size:11.9px;color:var(--tx3);line-height:1.7;margin-top:3px}
+.comp.hot{border-color:#3d6a99;background:#101c28}
+.comp.hot .cn{color:#8fc4ff}
+.comp.new{border-color:#46337a;background:#1a1428}
+.comp.new .cn{color:#c4b0ff}
+.src{font-size:12px;color:var(--tx3)}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:26px 0}
+.toc ol{columns:2;column-gap:34px;padding-right:20px;margin:6px 0}
+.toc li{margin:4px 0;font-size:13.8px}
+.note{font-size:12.6px;color:var(--tx3);line-height:1.85}
+hr{border:0;border-top:1px solid var(--line);margin:34px 0}
+.conf{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 6px;margin-right:5px;vertical-align:middle}
+.c1{background:#123527;color:#5fe0b0}.c2{background:#33290f;color:#ffc86b}.c3{background:#3a1518;color:#ff8f8f}
+.ltr{direction:ltr;text-align:left;display:inline-block}
+.srcbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin:11px 0}
+.srcbox .sn{font-weight:700;color:#fff;font-size:14px}
+.srcbox .sl{font-size:12px;color:var(--tx3);direction:ltr;text-align:left;word-break:break-all;margin:3px 0}
+.srcbox .sd{font-size:13px;color:var(--tx2);line-height:1.85}
+@media(max-width:700px){.toc ol{columns:1}h1{font-size:23px}.pipe{flex-direction:column}.pipe .st{border-left:0;border-bottom:1px solid var(--line)}}
+@media print{body{background:#fff;color:#111}.box,.card,.phase,.tier,table{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+<div class="inner">
+<h1>برنامهٔ یکپارچهٔ تحقیق و اجرا — از کارخانهٔ محتوا تا سیستم‌عامل خلاقیت</h1>
+<p class="sub">ادغام سه منبع: سند «کارخانهٔ محتوای تبلیغاتی» (نسخهٔ ۱٫۰)، سند «پلتفرم ارکستراسیون» (نسخهٔ ۲٫۰) و نقد «سیستم‌های پیچیده» — به‌علاوهٔ تحقیق تازه دربارهٔ لایهٔ دانش. این سند به سه پرسش پاسخ می‌دهد: <b>چه چیزی را تحقیق کنیم، به چه ترتیبی، و از کجا بفهمیم که به نتیجه رسیده‌ایم.</b></p>
+<div class="meta">
+<span class="chip k">نسخهٔ ۳٫۰ — مرداد ۱۴۰۵ / جولای ۲۰۲۶</span>
+<span class="chip">دو مسیر موازی: دانش + زیرساخت</span>
+<span class="chip p">۷ فاز تحقیق · ۵ فاز ساخت</span>
+<span class="chip w">مقایسهٔ بی‌طرفانهٔ سه استراتژی</span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+
+<div class="box warn" style="margin-top:0">
+<h4>دربارهٔ درجهٔ اطمینان و آنچه در این نسخه تازه است</h4>
+<p>مثل نسخه‌های قبلی، سه نشانگر در متن می‌بینید: <span class="conf c1">تأییدشده</span> با منبع اولیهٔ زنده بررسی شد · <span class="conf c2">جهت‌نما</span> وجودش تأیید شد ولی جزئیاتش از منبع اولیه خوانده نشد · <span class="conf c3">تأییدنشده</span> قبل از تصمیم مالی خودتان بررسی کنید.</p>
+<p>در تهیهٔ این نسخه یک دور تحقیق وب تازه روی <b>لایهٔ دانش</b> انجام شد — همان چیزی که هیچ‌کدام از دو سند قبلی پوشش نداده بودند. مهم‌ترین نتیجه‌اش این است که <b>بخشی از کاری که قرار بود سه ماه رویش وقت بگذارید، سه هفته پیش توسط استودیوهای هالیوود منتشر شده است</b> (بخش ۴). این تنها تغییر واقعاً استراتژیک نسبت به دو سند قبلی است.</p>
+</div>
+
+<div class="toc">
+<b>فهرست</b>
+<ol>
+<li><a href="#s0">خلاصهٔ اجرایی — ۱۲ تصمیم در یک صفحه</a></li>
+<li><a href="#s1">سه منبع، و آنچه هرکدام درست می‌گوید</a></li>
+<li><a href="#s2">مقایسهٔ بی‌طرفانهٔ سه مسیر استراتژیک</a></li>
+<li><a href="#s3">معماری کامل: پنج لایهٔ دانش روی پنج لایهٔ نرم‌افزار</a></li>
+<li><a href="#s4">یافتهٔ تعیین‌کنندهٔ تحقیق تازه — چرخ را دوباره اختراع نکنید</a></li>
+<li><a href="#s5">فازبندی تحقیق — هفت فاز از R0 تا R6</a></li>
+<li><a href="#s6">فازبندی ساخت — پنج فاز از B0 تا B4</a></li>
+<li><a href="#s7">چگونه دو مسیر به هم قفل می‌شوند</a></li>
+<li><a href="#s8">روش اجرای تحقیق — چگونه دانش را از سر آدم‌ها بیرون بکشیم</a></li>
+<li><a href="#s9">منابع تحقیقی طبقه‌بندی‌شده</a></li>
+<li><a href="#s10">چگونه بفهمیم به نتیجه رسیده‌ایم — معیارها در چهار سطح</a></li>
+<li><a href="#s11">تقویم ۱۲ ماههٔ یکپارچه</a></li>
+<li><a href="#s12">ریسک‌ها و آنچه این برنامه را می‌شکند</a></li>
+<li><a href="#sa">پیوست الف — اسکیمای اولیهٔ سه شیء بنیادی</a></li>
+<li><a href="#sb">پیوست ب — چک‌لیست هفتهٔ اول</a></li>
+<li><a href="#sc">پیوست ج — جدول ادغام ۱۰ موضوع نقد</a></li>
+</ol>
+</div>
+
+<!-- ============ 0 ============ -->
+<h2 id="s0"><span class="n">۰</span>خلاصهٔ اجرایی — ۱۲ تصمیم در یک صفحه</h2>
+
+<p>اگر فقط این صفحه را بخوانید، این‌ها تصمیم‌هایی است که بقیهٔ سند از آن دفاع می‌کند.</p>
+
+<div class="tw">
+<table>
+<tr><th style="width:36px">#</th><th>تصمیم</th><th>چرا</th><th>کجای سند</th></tr>
+<tr><td><b>۱</b></td><td><b>نقد «سیستم‌های پیچیده» درست است، اما نتیجه‌گیری «سه ماه هیچ کدی ننویس» درست نیست.</b> دانش و زیرساخت را موازی ببرید، نه پشت سر هم.</td><td>دانش خلاقیت بدون داده از پروژهٔ واقعی، به فهرست آرزو تبدیل می‌شود؛ کد بدون دانش، به wrapper. هرکدام ورودی اعتبارسنجی دیگری است.</td><td>بخش ۲</td></tr>
+<tr><td><b>۲</b></td><td><b>Creative Grammar را از صفر نسازید.</b> از MovieLabs Creative Vocabulary v1.0 (۸ جولای ۲۰۲۶) و AdA Filmontology شروع کنید.</td><td>۵۴ اصطلاح سینماتوگرافی با تعریف و «قصد خلاقانه»، با خروجی JSON، منتشرشده توسط آزمایشگاه تحقیقاتی استودیوهای بزرگ. <span class="conf c1">تأییدشده</span></td><td>بخش ۴</td></tr>
+<tr><td><b>۳</b></td><td><b>Ontology را هم از صفر نسازید.</b> MovieLabs OMC v2.8 موجودیت‌های تولید را تعریف کرده و تفکیک Narrative/Production و مفهوم Depiction دقیقاً همان چیزی است که لازم دارید.</td><td>هستان‌شناسی <i>فرآیند تولید</i> حل و استانداردسازی شده. هستان‌شناسی <i>تصمیم خلاقانه</i> حل نشده — آن سهم شماست.</td><td>بخش ۴</td></tr>
+<tr><td><b>۴</b></td><td><b>شکاف واقعی، «هستان‌شناسی تصمیم تبلیغاتی» است و هیچ‌جا وجود ندارد.</b> نه IAB، نه OMC، نه دانشگاه.</td><td>IAB فقط <i>معاملهٔ</i> تبلیغ را مدل می‌کند نه <i>خلق</i> آن؛ هستان‌شناسی‌های دانشگاهی تبلیغات یک‌بارمصرف و بی‌نگهدارنده‌اند. <span class="conf c1">تأییدشده</span></td><td>بخش ۴، ۹</td></tr>
+<tr><td><b>۵</b></td><td><b>Brand DNA را از Aaker بسازید، نه از آرکتایپ.</b> پنج بُعد شخصیت برند یک بردار عددی معتبر است؛ ۱۲ آرکتایپ یک enum بدون شواهد.</td><td>Aaker (1997) اعتبارسنجی عاملی دارد و Labrecque &amp; Milne (2012) پل تجربی از آن به رنگ می‌سازد. آرکتایپ رابط کاربری خوبی است، مبنای استدلال نیست. <span class="conf c1">تأییدشده</span></td><td>بخش ۵ / R2</td></tr>
+<tr><td><b>۶</b></td><td><b>Decision Rules را از سه منبع بسازید و هر قاعده را برچسب اعتبار بزنید:</b> شواهد تجربی · عرف صنعتی · فرض داخلی.</td><td>قواعد Google ABCD و TikTok عدد دارند؛ قواعد Bellantoni عرف است؛ نگاشت آرکتایپ به نور، فرض شماست. مخلوط کردنشان یعنی سیستمی که نمی‌داند چه چیزی را می‌داند.</td><td>بخش ۵ / R3</td></tr>
+<tr><td><b>۷</b></td><td><b>باریکهٔ ورود همان است که سند ۲٫۰ گفت: تیزر ۶ تا ۶۰ ثانیه با محصول فیزیکی.</b> نقد سیستم‌های پیچیده این را عوض نمی‌کند.</td><td>دانش عمومی «چگونه تبلیغ ساخته می‌شود» بی‌انتهاست. دانش «چگونه تیزر محصول فیزیکی ساخته می‌شود» تمام‌شدنی است و در ۹۰ روز قابل ساخت.</td><td>بخش ۲، ۵</td></tr>
+<tr><td><b>۸</b></td><td><b>Shot IR و Model Registry همچنان اولین کد شما هستند</b> — اما حالا Shot IR باید <i>گسترش</i> واژگان MovieLabs باشد، نه رقیبش.</td><td>هزینهٔ هم‌ترازی امروز نزدیک صفر است؛ شش ماه دیگر یعنی مهاجرت داده.</td><td>بخش ۶ / B0</td></tr>
+<tr><td><b>۹</b></td><td><b>دانش را با LinkML بنویسید، نه مستقیم با OWL یا JSON Schema.</b></td><td>یک منبع حقیقت که هم‌زمان JSON Schema (برای خط تولید)، OWL و SHACL (برای معنا و اعتبارسنجی) تولید می‌کند. دقیقاً مسئلهٔ دوگانگی OMC-JSON/OMC-RDF را حل می‌کند. <span class="conf c1">تأییدشده</span></td><td>بخش ۶ / B1</td></tr>
+<tr><td><b>۱۰</b></td><td><b>استخراج دانش از خبره روش دارد؛ مصاحبهٔ آزاد نکنید.</b> Repertory Grid برای کشف ابعاد، CDM برای استدلال تصمیم، Laddering برای وصل کردن تصمیم به ارزش برند.</td><td>خبره‌ها در «چرا این کار را کردی؟» بد و در «این سه نما، دوتاش شبیه هم است و یکی فرق دارد — چطور؟» عالی‌اند. Laddering اتفاقاً از خود صنعت تبلیغات آمده. <span class="conf c1">تأییدشده</span></td><td>بخش ۸</td></tr>
+<tr><td><b>۱۱</b></td><td><b>معیار موفقیت لایهٔ دانش، «حجم دانش» نیست — <span class="ltr">Competency Questions</span> است.</b></td><td>یک پایگاه دانش ۵۰۰ صفحه‌ای که به «برای مرسدس در کویر چه لنزی؟» جواب نمی‌دهد، شکست است. سؤال‌ها را <i>قبل از</i> ساخت بنویسید و آزمون پذیرش کنید.</td><td>بخش ۱۰</td></tr>
+<tr><td><b>۱۲</b></td><td><b>KPI نهایی همان است که سند ۲٫۰ گفت: نسبت تولید به پذیرش.</b> لایهٔ دانش وقتی ارزش دارد که این عدد را پایین بیاورد.</td><td>تنها عدد عمومی موجود ۵۶ به ۱ است (GWM برزیل). <span class="conf c1">تأییدشده</span> اگر Creative Grammar شما این را به ۲۰ نرساند، یک دایرةالمعارف ساخته‌اید نه محصول.</td><td>بخش ۱۰</td></tr>
+</table>
+</div>
+
+<div class="box acc">
+<h4>یک‌جمله‌ای که این نسخه اضافه می‌کند</h4>
+<p>سند ۲٫۰ گفت «ارزش در کاهش نسبت تولید به استفاده است». نقد سیستم‌های پیچیده می‌گوید «ارزش در مدل‌سازی هوش خلاق است». <b>هر دو یک چیز را می‌گویند از دو طرف:</b> تنها راه پایدارِ کاهش نسبت تولید به استفاده این است که سیستم <i>قبل از</i> تولید بداند چه می‌خواهد — و «دانستن قبل از تولید» دقیقاً همان Creative Grammar است. تفاوت این سند با نقد این است که می‌گوید این دانش را باید <b>در تماس با تولید واقعی</b> ساخت، نه در انزوا.</p>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1" class="part"><span class="n">۱</span>سه منبع، و آنچه هرکدام درست می‌گوید</h2>
+
+<p>قبل از ادغام، باید صریح باشیم که هر سه منبع چه چیزی را می‌بینند و چه چیزی را نمی‌بینند. ادغام کورکورانه یعنی سندی که سه صدای متناقض دارد.</p>
+
+<div class="tw">
+<table>
+<tr><th>منبع</th><th>پرسش محوری‌اش</th><th>قوی‌ترین سهم</th><th>نقطهٔ کور</th></tr>
+<tr><td><b>سند ۱٫۰ — کارخانهٔ محتوا</b></td><td>«امروز با ابزارهای موجود، چگونه یک تیزر در سطح برند بسازم؟»</td><td>واقع‌گرایی اجرایی. قانون طلایی «لنگر واقعی، محیط مصنوعی»؛ پلی‌بوک ۱۲ گامی؛ ماتریس ابزار با ستون ریسک حقوقی؛ استانداردهای تحویل و لادنس؛ مدل هزینهٔ عددی.</td><td>تاریخ انقضا دارد. جدول ابزارها ظرف چند ماه کهنه می‌شود و هیچ لایهٔ دانش پایداری زیرش نیست.</td></tr>
+<tr><td><b>سند ۲٫۰ — پلتفرم ارکستراسیون</b></td><td>«چگونه این کار را به سیستمی تبدیل کنم که با تعویض مدل‌ها نشکند؟»</td><td>معماری نرم‌افزاری. Shot IR، Model Registry به‌عنوان داده، Generation Ledger، سه‌لایهٔ ارزیابی، تفکیک موتور گردش کار از مجری گراف، KPI نسبت پذیرش.</td><td>لایهٔ <b>معنا</b> غایب است. IR ساختار دارد ولی نمی‌داند «Luxury» یعنی چه. Router قانون دارد ولی قانون‌ها از کجا می‌آیند؟</td></tr>
+<tr><td><b>نقد سیستم‌های پیچیده</b></td><td>«اصلاً ارزش واقعی این پروژه کجاست؟»</td><td>تشخیص لایهٔ غایب. Creative Grammar، Ontology، Brand DNA، Creative Memory، Prompt Compiler به‌جای Prompt Engineering، Creative Roles.</td><td>روش اجرا ندارد. «سه ماه دانش استخراج کن» یک آرزوست نه برنامه — با چه روشی؟ از چه منبعی؟ کِی تمام می‌شود؟ چطور می‌فهمی درست است؟</td></tr>
+</table>
+</div>
+
+<h3>جایی که هر سه یک چیز را می‌گویند</h3>
+<p>این هم‌پوشانی مهم است، چون نشان می‌دهد کدام تصمیم‌ها از سه زاویهٔ مستقل تأیید شده‌اند و بنابراین احتمالاً درست‌اند:</p>
+
+<div class="grid g2">
+<div class="card"><div class="t">کیفیت از بالا آبشار می‌کند</div><div class="d">سند ۱٫۰: «بریف بد ← شات‌لیست بد ← کی‌فریم بد». سند ۲٫۰: «۸۰٪ کیفیت در P1 تا P3 تعیین می‌شود». نقد: «قبل از انتخاب مدل، دانش را بساز». هر سه: <b>پول در بالادست است، نه در مدل ویدیو.</b></div></div>
+<div class="card"><div class="t">فرمت داخلی باید مستقل از ابزار باشد</div><div class="d">سند ۱٫۰: «رابط‌ها را استاندارد کن، لایه‌ها را عوض کن». سند ۲٫۰: «Shot IR، وگرنه مسئلهٔ n×m». نقد: «Prompt Compiler، کاربر اصلاً پرامپت ننویسد». <b>یک تصمیم واحد با سه نام.</b></div></div>
+<div class="card"><div class="t">حافظه، دارایی است</div><div class="d">سند ۱٫۰: «ثبت پرامپت + سید + نسخهٔ مدل، تفاوت استودیو با آدم باتجربه». سند ۲٫۰: Generation Ledger و <code>human_reason_code</code>. نقد: Creative Memory و Asset Graph. <b>هر سه به یک پایگاه داده اشاره می‌کنند.</b></div></div>
+<div class="card"><div class="t">انسان در نقطهٔ تصمیم، نه اجرا</div><div class="d">سند ۱٫۰: گیت کی‌فریم در گام ۶. سند ۲٫۰: چهار گیت اجباری. نقد: Human in the Loop. <b>اختلاف فقط بر سر تعداد گیت‌هاست، نه اصل.</b></div></div>
+</div>
+
+<h3>جایی که واقعاً اختلاف دارند — و چه کسی درست می‌گوید</h3>
+
+<div class="tw">
+<table>
+<tr><th>موضوع</th><th>سند ۲٫۰ می‌گوید</th><th>نقد می‌گوید</th><th>داوری این سند</th></tr>
+<tr><td><b>ترتیب کار</b></td><td>هفتهٔ ۱: اسکیما بنویس. هفتهٔ ۳: CLI بساز. هفتهٔ ۷: ۵ پروژهٔ واقعی اجرا کن.</td><td>سه ماه اول هیچ کدی ننویس؛ فقط Creative Knowledge Base بساز.</td><td><b>نقد در «چه» درست است، سند ۲٫۰ در «چگونه».</b> دانش لازم است، اما دانشی که از تولید واقعی جدا باشد اعتبارسنجی نمی‌شود. بخش ۲ سه مسیر را کامل مقایسه می‌کند.</td></tr>
+<tr><td><b>دامنه</b></td><td>یک باریکه: تیزر ۶ تا ۶۰ ثانیه با محصول فیزیکی.</td><td>«کل یک آژانس تبلیغاتی را مدل‌سازی کن» — ۱۳ نقش، همهٔ انواع محتوا.</td><td><b>سند ۲٫۰ درست می‌گوید.</b> مدل‌سازی ۱۳ نقش برای یک باریکه شدنی است؛ برای «همهٔ محتوا» یک پروژهٔ پژوهشی ده‌ساله است. نقشِ Creative Director در تیزر خودرو را مدل کنید، نه Creative Director را.</td></tr>
+<tr><td><b>Knowledge Graph</b></td><td>PostgreSQL + pgvector؛ گراف اصلاً مطرح نیست.</td><td>«تمام مفاهیم باید در Knowledge Graph ذخیره شوند».</td><td><b>هر دو نیمی درست‌اند.</b> دادهٔ عملیاتی (پروژه، نما، تولید) در Postgres می‌ماند. دانش (واژگان، قواعد، هستان‌شناسی) در یک گراف/RDF جدا. تفکیک T-Box از A-Box — بخش ۶ / B1.</td></tr>
+<tr><td><b>Router یادگیرنده</b></td><td>فاز ۱ فقط قانون صریح؛ یادگیری بعد از چند هزار قضاوت انسانی.</td><td>مطرح نشده، ولی ضمنی: «Creative Reasoning» یعنی سیستم استدلال کند.</td><td><b>سند ۲٫۰ درست می‌گوید و نقد آن را تقویت می‌کند.</b> «استدلال» در فاز ۱ یعنی قواعد صریحِ قابل توضیح روی گراف دانش — نه شبکهٔ عصبی. این دقیقاً همان چیزی است که نقد می‌خواهد و اتفاقاً ساده‌تر است.</td></tr>
+<tr><td><b>«اصلاً وارد انتخاب مدل نشو»</b></td><td>Model Registry برای ۱۳ مدل در هفتهٔ ۱ و ۲.</td><td>«تا چند هفته اصلاً وارد انتخاب مدل‌های AI نمی‌شدم».</td><td><b>سوءتفاهم است.</b> پر کردن Registry «انتخاب مدل» نیست؛ <i>مستندسازی فضای امکان</i> است و ورودی لازم برای هر تصمیم خلاقانه. اینکه «کدام مدل برای این نما» تصمیم روز ۹۰ است، اما «کدام مدل اصلاً کنترل دوربین سه‌بعدی دارد» دادهٔ روز اول است.</td></tr>
+</table>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2"><span class="n">۲</span>مقایسهٔ بی‌طرفانهٔ سه مسیر استراتژیک</h2>
+
+<p>شما خواستید سه مسیر بی‌طرفانه مقایسه شوند و تصمیم با خودتان باشد. این بخش دقیقاً همین کار را می‌کند: هر مسیر با فرض‌های زیربنایی، هزینه، ریسک، و — مهم‌تر از همه — <b>شرایطی که تحت آن، آن مسیر واقعاً درست است</b>.</p>
+
+<div class="grid g3" style="margin:18px 0">
+<div class="kpi"><div class="v">مسیر الف</div><div class="l"><b>دانش‌اول</b><br>سه تا شش ماه فقط تحقیق و مدل‌سازی. کد بعد از آن.</div></div>
+<div class="kpi"><div class="v">مسیر ب</div><div class="l"><b>ساخت‌اول</b><br>از هفتهٔ اول اسکیما و CLI و پروژهٔ واقعی. دانش از دل داده.</div></div>
+<div class="kpi"><div class="v">مسیر ج</div><div class="l"><b>موازی قفل‌شده</b><br>دو مسیر هم‌زمان با نقاط همگام‌سازی اجباری.</div></div>
+</div>
+
+<h3>مقایسهٔ سربه‌سر</h3>
+<div class="tw">
+<table>
+<tr><th>معیار</th><th>الف — دانش‌اول</th><th>ب — ساخت‌اول</th><th>ج — موازی قفل‌شده</th></tr>
+<tr><td><b>فرض زیربنایی</b></td><td>دانش تولید محتوا وجود دارد و فقط باید استخراج و ساختارمند شود</td><td>دانشِ مفید فقط از تماس با مسئلهٔ واقعی بیرون می‌آید</td><td>بخشی از دانش بیرونی است (کتاب، استاندارد، پژوهش) و بخشی فقط از تولید بیرون می‌آید</td></tr>
+<tr><td><b>اولین خروجی قابل نمایش</b></td><td>ماه ۳ تا ۶ — یک پایگاه دانش</td><td>هفتهٔ ۶ تا ۸ — یک نمای تولیدشده با ردیابی کامل</td><td>هفتهٔ ۴ — واژگان v0 + اولین نمای ثبت‌شده</td></tr>
+<tr><td><b>ریسک اصلی</b></td><td><span class="tag t-r">بالا</span> ساخت دانشی که هیچ‌وقت به تصمیم تبدیل نمی‌شود. علائم: افزودن مدام موجودیت، بی‌میلی به بستن نسخه، صفحات زیاد و پرسش‌های بی‌جواب.</td><td><span class="tag t-r">بالا</span> ساخت یک wrapper با معماری تمیز که هیچ مزیت خلاقانه‌ای ندارد. علائم: Router با قوانین <code>if</code> دلبخواهی، پرامپت‌های دست‌ساز بی‌مبنا.</td><td><span class="tag t-y">متوسط</span> پراکندگی تمرکز و همگام نماندن دو مسیر. علائم: واژگانی که کد از آن استفاده نمی‌کند.</td></tr>
+<tr><td><b>هزینهٔ نقدی ۹۰ روز اول</b></td><td>کم — عمدتاً زمان و خرید منابع (WARC، ShotDeck، کتاب)</td><td>متوسط — اعتبار API + زمان مهندسی</td><td>متوسط — همان ب به‌علاوهٔ خرید منابع</td></tr>
+<tr><td><b>هزینهٔ فرصت</b></td><td><span class="tag t-r">بالا</span> در بازاری که هر شش هفته مدل جدید می‌آید، سه ماه سکوت یعنی سه نسل عقب‌افتادن</td><td><span class="tag t-y">متوسط</span> کد نوشته‌شده روی مدل داده‌ای که بعداً غلط از آب درمی‌آید، دور ریخته می‌شود</td><td><span class="tag t-g">کم</span></td></tr>
+<tr><td><b>چه زمانی اعتبارسنجی می‌شود</b></td><td>دیر — تازه در ماه ۶ می‌فهمید ontology شما به درد تصمیم نمی‌خورد</td><td>زود ولی سطحی — می‌فهمید که کار می‌کند، نمی‌فهمید چرا</td><td>پیوسته — هر واژه‌ای که اضافه می‌شود باید در یک تصمیم واقعی استفاده شود</td></tr>
+<tr><td><b>نیاز به تیم</b></td><td>۱ تا ۲ نفر (پژوهشگر/مدل‌ساز) — کم‌ترین</td><td>۱ مهندس + ۱ اپراتور خلاق</td><td>۲ تا ۳ نفر — بیشترین</td></tr>
+<tr><td><b>دفاع‌پذیری در ماه ۱۲</b></td><td>بالقوه بالاترین، اگر دانش به تصمیم وصل شده باشد</td><td>پایین‌ترین، مگر اینکه دیتاست قضاوت بزرگ شده باشد</td><td>بالا — هم دانش دارید هم دادهٔ اعتبارسنجی آن</td></tr>
+<tr><td><b>سازگاری با تیم تک‌نفره</b></td><td><span class="tag t-g">خوب</span></td><td><span class="tag t-y">سخت</span> — نیاز به دو مهارت متفاوت</td><td><span class="tag t-r">دشوار</span> — عملاً نیاز به دو نفر</td></tr>
+</table>
+</div>
+
+<h3>شرایطی که تحت آن هر مسیر واقعاً درست است</h3>
+
+<div class="box pur">
+<h4>مسیر الف (دانش‌اول) وقتی درست است که…</h4>
+<ul>
+<li>هدف نهایی شما <b>فروش دانش یا فناوری</b> است، نه فروش خروجی. اگر می‌خواهید در نهایت یک لایسنس یا یک استاندارد بفروشید، دانش خودش محصول است.</li>
+<li>به تیم تولید واقعی دسترسی <b>ندارید</b> و نمی‌توانید در سه ماه آینده پروژهٔ مشتری اجرا کنید.</li>
+<li>سرمایهٔ صبور دارید و فشار درآمدی در ۱۲ ماه آینده ندارید.</li>
+<li>تیم شما ترکیب مهندسی دانش/هستان‌شناسی دارد و کمبود مهندس نرم‌افزار.</li>
+</ul>
+<p class="note">هزینهٔ پنهانش: پژوهش بدون بازخورد به‌سرعت به کمال‌گرایی می‌لغزد. اگر این مسیر را انتخاب کردید، <b>حتماً</b> Competency Questions را در هفتهٔ اول قفل کنید و ماهانه در برابرشان آزمون بدهید (بخش ۱۰).</p>
+</div>
+
+<div class="box good">
+<h4>مسیر ب (ساخت‌اول) وقتی درست است که…</h4>
+<ul>
+<li>همین حالا مشتری یا پروژهٔ واقعی دارید و باید تحویل بدهید.</li>
+<li>می‌خواهید در ۶ ماه آینده درآمد داشته باشید.</li>
+<li>خودتان اپراتور خلاق هستید — یعنی دانش در سر خودتان هست و «استخراج» به معنای مصاحبه با دیگران بی‌معناست.</li>
+<li>ریسک اصلی‌ای که می‌ترسید، «هیچ‌وقت شروع نکردن» است نه «اشتباه ساختن».</li>
+</ul>
+<p class="note">هزینهٔ پنهانش: در ماه ۹ متوجه می‌شوید مدل داده‌تان معنا را نگه نمی‌دارد و مهاجرت لازم است. کاهش این ریسک: از روز اول <b>هر تصمیم را با کد دلیل ثبت کنید</b>، حتی اگر هنوز هستان‌شناسی ندارید. کد دلیل، دانشِ در حال جمع شدن است.</p>
+</div>
+
+<div class="box acc">
+<h4>مسیر ج (موازی قفل‌شده) وقتی درست است که…</h4>
+<ul>
+<li>حداقل دو نفر هستید یا می‌توانید یک همکار پژوهشی/خلاق اضافه کنید.</li>
+<li>هم دسترسی به پروژهٔ واقعی دارید و هم افق ۱۲ تا ۱۸ ماهه.</li>
+<li>می‌خواهید در نهایت پلتفرم بفروشید، نه فقط خروجی.</li>
+</ul>
+<p><b>مکانیزم قفل — این چیزی است که مسیر ج را از «هر دو کار را نصفه بکن» جدا می‌کند:</b> سه قاعدهٔ سخت.</p>
+<ol>
+<li><b>هیچ اصطلاحی وارد واژگان نمی‌شود مگر اینکه یک تصمیم واقعی را عوض کند.</b> اگر «Dutch angle» را اضافه می‌کنید، باید بگویید در کدام شرایط سیستم آن را انتخاب می‌کند و در کدام شرایط نه.</li>
+<li><b>هیچ فیلدی وارد اسکیمای کد نمی‌شود مگر اینکه در واژگان تعریف داشته باشد.</b> این جلوی رشد سرطانی JSON را می‌گیرد.</li>
+<li><b>هر دو هفته یک جلسهٔ همگام‌سازی</b> که فقط یک خروجی دارد: فهرست اصطلاحاتی که استفاده نشدند (حذف شوند) و فیلدهایی که تعریف ندارند (تعریف شوند).</li>
+</ol>
+</div>
+
+<div class="box warn">
+<h4>موضع صریح این سند — چون خواستید بی‌طرف مقایسه کنم، اما پنهان کردن نظر هم بی‌فایده است</h4>
+<p>اگر منابع اجازه بدهد، <b>مسیر ج</b> بهترین نسبت ریسک به بازده را دارد و بقیهٔ این سند بر اساس آن نوشته شده. اما یک تبصرهٔ مهم: <b>اگر تیم شما یک نفر است، مسیر ج توهم است.</b> در آن صورت مسیر ب را انتخاب کنید و لایهٔ دانش را به‌صورت «سبک» ببرید — یعنی فقط بخش‌های R0، R1 و R3 از فازبندی بخش ۵ را اجرا کنید و R2 و R4 و R5 را به بعد از اولین درآمد موکول کنید. این تصمیمِ منابع است، نه تصمیمِ فکری.</p>
+</div>
+
+<h3>آزمون تصمیم — چهار پرسش که مسیر شما را مشخص می‌کند</h3>
+<div class="tw">
+<table>
+<tr><th>پرسش</th><th>اگر «بله»</th><th>اگر «نه»</th></tr>
+<tr><td>در ۹۰ روز آینده حداقل ۳ پروژهٔ واقعی (مشتری یا نمونه‌کار جدی) در دست دارید؟</td><td>ب یا ج</td><td>الف</td></tr>
+<tr><td>بیش از یک نفر روی این پروژه کار می‌کند؟</td><td>ج ممکن است</td><td>ب (با لایهٔ دانش سبک)</td></tr>
+<tr><td>افق درآمدی شما بیش از ۱۲ ماه است؟</td><td>الف یا ج</td><td>ب</td></tr>
+<tr><td>هدف نهایی، فروش پلتفرم است نه فروش خروجی؟</td><td>ج (دانش دفاع‌پذیری می‌سازد)</td><td>ب</td></tr>
+</table>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3" class="part"><span class="n">۳</span>معماری کامل: پنج لایهٔ دانش روی پنج لایهٔ نرم‌افزار</h2>
+
+<p>سند ۲٫۰ معماری نرم‌افزاری را در پنج لایه داد. نقد می‌گوید یک لایهٔ کامل غایب است. درست می‌گوید — اما آن لایه خودش پنج طبقه دارد و اگر یکجا به آن نگاه کنید، ساختنی نیست. این بخش، نقشهٔ کامل است.</p>
+
+<h3>هرم دانش — از عام به خاص</h3>
+<p>ترتیب این پنج طبقه اتفاقی نیست: هر طبقه بر طبقهٔ زیرینش تکیه دارد و بدون آن معنا ندارد. ساخت از پایین به بالا انجام می‌شود.</p>
+
+<div class="tier">
+<div class="th">K5 — حافظهٔ خلاق <span class="tag t-p">خاص‌ترین · از تولید واقعی می‌آید</span></div>
+<div class="tb">
+<div class="comp new"><div class="cn">Generation Ledger</div><div class="cd">هر تولید، با پرامپت، سید، نسخهٔ مدل، قضاوت انسانی و <b>کد دلیل رد</b></div></div>
+<div class="comp new"><div class="cn">Campaign Memory</div><div class="cd">هر آنچه برای این برند قبلاً ساخته شده؛ چه پذیرفته شد و چه نه</div></div>
+<div class="comp new"><div class="cn">Recipe Library</div><div class="cd">گردش‌کارهای اثبات‌شده با نرخ موفقیت ثبت‌شده، نسخه‌دار و قابل fork</div></div>
+<div class="comp new"><div class="cn">Performance Loop</div><div class="cd">CTR، نرخ تکمیل، هزینهٔ تبدیل — بازگشته به گراف</div></div>
+</div>
+</div>
+
+<div class="tier">
+<div class="th">K4 — DNA برند <span class="tag t-p">خاص هر مشتری</span></div>
+<div class="tb">
+<div class="comp new"><div class="cn">Brand Personality Vector</div><div class="cd">پنج بُعد Aaker به‌صورت عددی — نه یک برچسب</div></div>
+<div class="comp new"><div class="cn">Distinctive Brand Assets</div><div class="cd">هر دارایی با دو نمرهٔ Fame و Uniqueness (Romaniuk)</div></div>
+<div class="comp new"><div class="cn">Visual &amp; Sonic Codes</div><div class="cd">پالت، فونت، آرم، سونیک‌لوگو، کادربندی، سرعت تدوین</div></div>
+<div class="comp new"><div class="cn">Prohibitions</div><div class="cd">آنچه هرگز نباید — ادعای عملکردی، لحن، چهره، رنگ ممنوع</div></div>
+</div>
+</div>
+
+<div class="tier">
+<div class="th">K3 — موتور تصمیم خلاق <span class="tag t-p">قلب ادعای پروژه</span></div>
+<div class="tb">
+<div class="comp new"><div class="cn">Decision Rules</div><div class="cd">قواعد شرطی روی گراف، هرکدام با برچسب اعتبار و منبع</div></div>
+<div class="comp new"><div class="cn">Creative Roles Model</div><div class="cd">هر نقش (کارگردان، DOP، تدوینگر…) چه تصمیم‌هایی و با چه ورودی</div></div>
+<div class="comp new"><div class="cn">Constraint Solver</div><div class="cd">وقتی قواعد تعارض دارند، کدام برنده است — و چرا</div></div>
+<div class="comp new"><div class="cn">Rationale Trace</div><div class="cd">هر تصمیم باید بتواند بگوید «چون…» — وگرنه قابل اصلاح نیست</div></div>
+</div>
+</div>
+
+<div class="tier">
+<div class="th">K2 — هستان‌شناسی <span class="tag t-b">تا حد زیادی از بیرون قابل تأمین</span></div>
+<div class="tb">
+<div class="comp hot"><div class="cn">Production Ontology</div><div class="cd">MovieLabs OMC — Context/Asset/Task/Participant/Depiction</div></div>
+<div class="comp hot"><div class="cn">Product &amp; Category Graph</div><div class="cd">Mercedes ← Luxury ← Automotive ← German… (باید بسازید)</div></div>
+<div class="comp hot"><div class="cn">Concept Graph</div><div class="cd">Elegance، Confidence، Status — و اینکه هرکدام بصری‌اش چیست</div></div>
+<div class="comp hot"><div class="cn">Rights Ontology</div><div class="cd">لایسنس، مصونیت، منطقه، سیاست محتوایی — به‌عنوان داده</div></div>
+</div>
+</div>
+
+<div class="tier">
+<div class="th">K1 — دستور زبان تولید محتوا <span class="tag t-g">عام‌ترین · تا حد زیادی موجود است</span></div>
+<div class="tb">
+<div class="comp hot"><div class="cn">Cinematography Vocabulary</div><div class="cd">MovieLabs CV v1.0 — لنز، اندازهٔ نما، زاویه، حرکت</div></div>
+<div class="comp hot"><div class="cn">Lighting &amp; Color Grammar</div><div class="cd">Bruce Block + Bellantoni + Labrecque &amp; Milne</div></div>
+<div class="comp hot"><div class="cn">Editing &amp; Rhythm Grammar</div><div class="cd">Murch Rule of Six + Barry Salt + Lang LC4MP</div></div>
+<div class="comp hot"><div class="cn">Sound Grammar</div><div class="cd">Chion (empathetic/anempathetic) + Sonnenschein</div></div>
+<div class="comp hot"><div class="cn">Narrative Structure</div><div class="cd">قوس، ضرب‌آهنگ، ساختار زمانی تیزر ۶/۱۵/۳۰ ثانیه</div></div>
+</div>
+</div>
+
+<div class="box acc">
+<h4>قاعده‌ای که این هرم را از یک نمودار زیبا به یک ابزار تبدیل می‌کند</h4>
+<p><b>هرچه پایین‌تر، عمومی‌تر و قابل خریدنی‌تر. هرچه بالاتر، اختصاصی‌تر و دفاع‌پذیرتر.</b> K1 را تقریباً می‌توانید دانلود کنید (بخش ۴). K2 نیمی موجود است. K3 هیچ‌جا نیست و سهم شماست. K4 با هر مشتری جدید ساخته می‌شود. K5 فقط با اجرای واقعی به دست می‌آید و <b>تنها دارایی‌ای است که رقیب نمی‌تواند کپی کند</b>.</p>
+<p>پیامد استراتژیک: صرف کردن سه ماه روی K1 خطای منابع است — چون قابل تأمین از بیرون است. صرف نکردن هیچ وقتی روی K3 خطای استراتژیک است — چون تنها جایی است که سیستم شما «فکر» می‌کند.</p>
+</div>
+
+<h3>اتصال به معماری نرم‌افزاری سند ۲٫۰</h3>
+<p>لایهٔ دانش یک معماری موازی نیست؛ به مؤلفه‌های موجود <b>تغذیه</b> می‌کند. این جدول نشان می‌دهد هر طبقهٔ دانش کدام مؤلفهٔ نرم‌افزاری را تغییر می‌دهد:</p>
+
+<div class="tw">
+<table>
+<tr><th>طبقهٔ دانش</th><th>مؤلفهٔ نرم‌افزاری که تغذیه می‌کند</th><th>بدون آن، آن مؤلفه چه می‌شود</th></tr>
+<tr><td><b>K1 دستور زبان</b></td><td><code>Shot IR</code> · <code>Prompt Compiler</code></td><td>IR به یک JSON دلبخواهی تبدیل می‌شود که فیلدهایش را کسی تعریف نکرده. کامپایلر پرامپت به قالب‌های دست‌ساز.</td></tr>
+<tr><td><b>K2 هستان‌شناسی</b></td><td><code>Brief → Treatment</code> · <code>Brand Vault</code> · <code>Rights &amp; Compliance</code></td><td>سیستم نمی‌فهمد «S500» یعنی لوکس نه اسپرت. بریف فقط متن است، نه ورودی استدلال.</td></tr>
+<tr><td><b>K3 موتور تصمیم</b></td><td><code>AI Router</code> · <code>Recipe Library</code> · <code>Shot IR Builder</code></td><td>Router فقط «کدام مدل» را حل می‌کند، نه «کدام نما». همان wrapper.</td></tr>
+<tr><td><b>K4 DNA برند</b></td><td><code>Brand Vault</code> · <code>Evaluation Service (L1 برند)</code></td><td>ثبات برند به سلیقهٔ اپراتور وابسته می‌ماند و قابل خودکارسازی نیست.</td></tr>
+<tr><td><b>K5 حافظهٔ خلاق</b></td><td><code>Generation Ledger</code> · <code>Router (امتیازدهی)</code> · <code>FinOps</code></td><td>سیستم یادگیرنده نیست. هر پروژه از صفر شروع می‌شود.</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<h4>هشدار معماری: گراف دانش و پایگاه دادهٔ عملیاتی یکی نیستند</h4>
+<p>رایج‌ترین خطای این حوزه بعد از خواندن یک نقد مثل نقد شما این است که تیم می‌رود Neo4j نصب می‌کند و <b>همه‌چیز</b> را در گراف می‌ریزد — پروژه، نما، فایل، کاربر. نتیجه: یک گراف کند و شکننده که نه پرس‌وجوهای تراکنشی را خوب می‌دهد نه استدلال معنایی را.</p>
+<p><b>تفکیک درست:</b> واژگان، هستان‌شناسی و قواعد (T-Box) در RDF/OWL یا یک گراف دانش جدا؛ دادهٔ عملیاتی (پروژه، نما، تولید، دارایی — A-Box) در PostgreSQL. اتصال از طریق <b>شناسه</b>: هر <code>ShotIR</code> در Postgres به اصطلاحات واژگان با IRI ارجاع می‌دهد. اگر بعدها حجم پرس‌وجوی گرافی زیاد شد، نمونه‌ها را به یک property graph <i>پروجکت</i> کنید. <span class="conf c2">جهت‌نما</span></p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4"><span class="n">۴</span>یافتهٔ تعیین‌کنندهٔ تحقیق تازه — چرخ را دوباره اختراع نکنید</h2>
+
+<p>نقد می‌گوید «سه ماه بگذارید و دستور زبان تولید محتوا را پیدا کنید» و صریحاً می‌نویسد «این دانش تقریباً هیچ‌جا به‌صورت ساختاریافته وجود ندارد». <b>این جمله تا سه هفته پیش درست بود.</b></p>
+
+<div class="box pur">
+<h4>MovieLabs Creative Vocabulary v1.0 — منتشرشده ۸ جولای ۲۰۲۶ <span class="conf c1">تأییدشده</span></h4>
+<p>MovieLabs — آزمایشگاه تحقیق و توسعهٔ مشترک استودیوهای بزرگ هالیوود — نسخهٔ ۱٫۰ «واژگان خلاق» را منتشر کرده، با هدف اعلام‌شدهٔ <b>«رسمی‌سازی زبانی که حرفه‌ای‌های فیلم و تلویزیون استفاده می‌کنند، برای هدایت سیستم‌های هوش مصنوعی»</b> — یعنی دقیقاً همان چیزی که نقد شما توصیف می‌کند.</p>
+<p><b>محتوای نسخهٔ ۱٫۰ (فقط سینماتوگرافی): ۵۴ اصطلاح در چهار محور.</b></p>
+<div class="grid g4" style="margin:12px 0">
+<div class="card"><div class="t">لنز — ۱۰ اصطلاح</div><div class="d">Fisheye، Ultra Wide، Wide، Medium، Telephoto، Super Telephoto + گونه‌های آنامورفیک</div></div>
+<div class="card"><div class="t">اندازهٔ نما — ۱۱</div><div class="d">Establishing، Extreme Wide، Wide، Full، Medium، Close-Up، Extreme Close-Up، Macro…</div></div>
+<div class="card"><div class="t">زاویهٔ دوربین — ۱۰</div><div class="d">Overhead، High، Eye Level، Low، Hip Level، Ground Level، Worm's Eye، Dutch…</div></div>
+<div class="card"><div class="t">حرکت دوربین — ۲۳</div><div class="d">Static، Pan، Whip Pan، Tilt، Push In، Tracking، Dolly، Zoom، Vertigo، Handheld، Crane، Drone…</div></div>
+</div>
+<p>هر اصطلاح <b>تعریف و «قصد خلاقانه»</b> دارد — یعنی نه فقط «Dutch angle چیست» بلکه «چرا کارگردان از آن استفاده می‌کند». خروجی <b>JSON و XLSX</b> مستقیماً از سایت قابل دانلود است. لایسنس CC-BY-4.0. نقشهٔ راه اعلام‌شده: ترکیب‌بندی، کادربندی، عمق میدان، سپس دامنه‌های فراتر از سینماتوگرافی.</p>
+<p class="sl src ltr">https://cv-mc.movielabs.com/cinematography.html</p>
+<p><b>پیامد برای شما:</b> فاز «Creative Grammar» نقد، از «سه ماه ساخت از صفر» به <b>«دو هفته هم‌ترازی و گسترش»</b> تبدیل می‌شود. و مهم‌تر: اگر واژگان خودتان را بسازید، در برابر واژگانی که استودیوها پشتش هستند بازنده‌اید. هم‌ترازی امروز تقریباً رایگان است.</p>
+<p class="note">تبصرهٔ صادقانه: این نسخه ۲۰ روز سن دارد، هیچ سابقهٔ پذیرشی ندارد، و یک <b>فهرست اصطلاح</b> است نه یک هستان‌شناسی اصل‌بندی‌شده (SKOS/RDF نیست). یعنی پایه است، نه راه‌حل.</p>
+</div>
+
+<div class="box pur">
+<h4>MovieLabs Ontology for Media Creation (OMC) v2.8 — ژانویهٔ ۲۰۲۶ <span class="conf c1">تأییدشده</span></h4>
+<p>هستان‌شناسی رسمی تولید رسانه، با انتشار منظم هر شش ماه، و v3.0 در راه. موجودیت‌های سطح بالا: <code>Context</code>، <code>Asset</code>، <code>Participant</code>، <code>Task</code>، <code>CreativeWork</code>، <code>Relationship</code>، <code>Infrastructure</code>، <code>Utility</code>. پارتیشن‌های تولید (Scene، Shot، Sequence، Slate، Set) زیر <code>Context</code> با تخصص‌های Editorial/VFX/Animation.</p>
+<p><b>مهم‌ترین ایدهٔ ساختاری‌اش برای شما — تفکیک روایت از تولید:</b> OMC عمداً یک لایهٔ <b>روایی</b> (<code>NarrativeScene</code>، <code>NarrativeCharacter</code>، <code>NarrativeLocation</code>، <code>NarrativeObject</code> — آنچه فیلمنامه می‌گوید) از یک لایهٔ <b>تولیدی</b> (<code>Participant</code> = بازیگر واقعی، <code>ProductionLocation</code>، <code>Prop</code>) جدا می‌کند و رابطهٔ <code>Depiction</code> این دو را به هم می‌بندد.</p>
+<p>این دقیقاً مسئلهٔ شماست: «خودروی قهرمانِ روایت» یک چیز است، «عکس واقعی S500 که لنگر است» چیز دیگری، و رابطهٔ بینشان همان چیزی است که سند ۱٫۰ «قانون طلایی» نامید. OMC برایش کلمه دارد.</p>
+<p class="sl src ltr">https://movielabs.com/ontology-for-media-creation/ · https://github.com/MovieLabs/OMC</p>
+<p class="note">دو نکتهٔ عملی: (۱) OMC دو سریال‌سازی موازی دارد — OMC-JSON (JSON Schema) و OMC-RDF (سه فایل Turtle). یک <code>@context</code> رسمی JSON-LD که این دو را پل بزند <b>تأیید نشد</b> <span class="conf c2">جهت‌نما</span> — احتمالاً باید خودتان بنویسید. (۲) OMC <i>فرآیند</i> را مدل می‌کند، نه <i>قصد خلاقانه</i> را. خود MovieLabs با انتشار Creative Vocabulary این شکاف را پذیرفت.</p>
+</div>
+
+<div class="box acc">
+<h4>AdA Filmontology — تنها هستان‌شناسی OWL واقعی برای تحلیل فیلم <span class="conf c1">تأییدشده</span></h4>
+<p>پروژهٔ دانشگاهی FU Berlin + HPI Potsdam. <b>۸ سطح حاشیه‌نویسی، ۷۸ نوع، ۵۰۱ مقدار</b> — کار دوربین، تدوین، صوت و موسیقی (شامل mood و accent)، بازی، رنگ. به‌صورت OWL روی RDF/RDFS، نسخهٔ ۱٫۸، قابل ویرایش در Protégé. به‌علاوهٔ پیکره‌ای با <b>بیش از ۹۲٬۰۰۰ حاشیه‌نویسی ریزدانه روی ۴۹ ویدیو</b>، با لایسنس CC BY-SA 3.0.</p>
+<p class="sl src ltr">https://projectada.github.io/ontology/ · https://github.com/ProjectAdA/public</p>
+<p>جهت‌گیری‌اش تحلیل عاطفی-بلاغی فیلم است نه برنامه‌ریزی تولید، و پیکره‌اش کوچک است — اما <b>تنها اسکلت OWL قابل دانلود برای توصیف سطح‌نما است</b> و بهترین کار این است که با واژگان MovieLabs متقاطع شود.</p>
+</div>
+
+<h3>سه یافتهٔ دیگر که برنامهٔ تحقیق را تغییر می‌دهند</h3>
+
+<div class="tw">
+<table>
+<tr><th>یافته</th><th>وضعیت</th><th>پیامد برای برنامهٔ شما</th></tr>
+<tr><td><b>Prose Storyboard Language</b> — دستور زبان رسمی که هر نما را دقیقاً با یک جمله توصیف می‌کند، با نحو و واژگان برگرفته از عمل حرفه‌ای، طراحی‌شده برای پارس ماشینی. (Ronfard و همکاران، arXiv:1508.07593)</td><td><span class="conf c1">تأییدشده</span> · دانشگاهی، بدون پیاده‌سازی تولیدی</td><td>نزدیک‌ترین کار آکادمیک به «Creative Grammar» نقد شما. طراحی‌اش را بخوانید حتی اگر پیاده‌سازی‌اش را استفاده نمی‌کنید. مرور جامع: Ronfard 2021 STAR در Computer Graphics Forum.</td></tr>
+<tr><td><b>ShotBench / ShotVL</b> (NeurIPS 2025) — ۳٬۵۰۰+ پرسش‌وپاسخ خبره‌نویس از ۲۰۰+ فیلم در ۸ بُعد سینماتوگرافی. یافتهٔ کلیدی: <b>GPT-4o زیر ۶۰٪ امتیاز می‌گیرد.</b></td><td><span class="conf c1">تأییدشده</span></td><td>هر بخشی از برنامهٔ شما که فرض کند «مدل بینایی می‌تواند سبک سینمایی را بخواند» باید آزمون خودش را داشته باشد. این عدد، ریسک لایهٔ ارزیابی خودکار سند ۲٫۰ را تأیید می‌کند.</td></tr>
+<tr><td><b>هیچ اسکیمای منتشرشدهٔ ماشین‌خوان برای حاشیه‌نویسی نما در تولید حرفه‌ای وجود ندارد.</b> StudioBinder = ستون‌های اکسل؛ ShotDeck و Shot Lister = تاکسونومی اختصاصی و مستندنشده.</td><td><span class="conf c1">تأییدشده به‌عنوان غایب</span></td><td>این یک <b>شکاف واقعی</b> است، نه فقط برای شما. MovieLabs CV اولین تلاش جدی برای پر کردنش است و ۲۰ روز سن دارد. اگر زودتر از بقیه هم‌تراز شوید، مزیت دارید.</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<h4>و مهم‌ترین شکاف: هستان‌شناسی تصمیم تبلیغاتی وجود ندارد <span class="conf c1">تأییدشده به‌عنوان غایب</span></h4>
+<p>جست‌وجو شد و پیدا نشد. آنچه هست، سه دستهٔ بی‌ربط است:</p>
+<ol>
+<li><b>تاکسونومی‌های ad-tech</b> (IAB Content/Audience/Ad Product Taxonomy، AdCOM) — واقعی و پذیرفته‌شده، اما لایهٔ اشتباه: <i>چه چیزی تبلیغ می‌شود</i> و <i>چگونه ایمپرشن معامله می‌شود</i> را طبقه‌بندی می‌کنند، نه اینکه چرا یک تیزر با پوش‌این آرام باز می‌شود.</li>
+<li><b>بحث‌های فلسفی/بازاریابی دربارهٔ «برند»</b> (Grassl، گروه Barry Smith در بوفالو) — وجود دارند، اما هیچ فایل OWL قابل دانلودی نمی‌دهند.</li>
+<li><b>هستان‌شناسی‌های دانشگاهی تک‌مقاله‌ای تبلیغات</b> — منتشرشده، بدون نگهداری، بدون پذیرش، غیرقابل استفادهٔ مجدد.</li>
+</ol>
+<p><b>معنایش برای شما دو چیز است.</b> خوب: این همان جای خالی است که پروژه‌تان می‌تواند پرش کند و دلیل واقعی دفاع‌پذیری است. بد: <b>هیچ استانداردی برای تکیه کردن ندارید</b> — پس باید Competency Questions و اعتبارسنجی را خودتان بسازید، وگرنه هیچ‌وقت نمی‌فهمید که کارتان درست است.</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5" class="part"><span class="n">۵</span>فازبندی تحقیق — هفت فاز از R0 تا R6</h2>
+
+<p>این ستون فقرات سند است. هفت فاز تحقیقی، هرکدام با هدف، ورودی، <b>روش اجرای مشخص</b>، خروجی قابل تحویل، منابع، مدت و <b>معیار خروج قابل آزمون</b>. فازها کاملاً پشت سر هم نیستند — نمودار زیر هم‌پوشانی‌ها را نشان می‌دهد.</p>
+
+<div class="pipe">
+<div class="st"><div class="no">R0</div><div class="nm">قلمرو و پرسش</div><div class="dd">هفتهٔ ۱–۲<br>قفل کردن دامنه و پرسش‌های صلاحیت</div></div>
+<div class="st"><div class="no">R1</div><div class="nm">دستور زبان</div><div class="dd">هفتهٔ ۲–۵<br>هم‌ترازی با MovieLabs و گسترش</div></div>
+<div class="st"><div class="no">R2</div><div class="nm">هستان‌شناسی</div><div class="dd">هفتهٔ ۴–۹<br>برند، محصول، مفهوم</div></div>
+<div class="st"><div class="no">R3</div><div class="nm">قواعد تصمیم</div><div class="dd">هفتهٔ ۵–۱۲<br>از منابع تجربی و عرفی</div></div>
+<div class="st"><div class="no">R4</div><div class="nm">دانش خبره</div><div class="dd">هفتهٔ ۸–۱۶<br>آنچه در کتاب نیست</div></div>
+<div class="st"><div class="no">R5</div><div class="nm">نقش و گردش کار</div><div class="dd">هفتهٔ ۱۲–۲۰<br>مدل‌سازی آژانس</div></div>
+<div class="st"><div class="no">R6</div><div class="nm">اعتبارسنجی</div><div class="dd">هفتهٔ ۱۰ به بعد<br>پیوسته، تا همیشه</div></div>
+</div>
+
+<!-- R0 -->
+<div class="phase k">
+<div class="ph"><span class="id">R0</span><span class="tt">قلمرو، پرسش‌های صلاحیت و قرارداد شکست</span><span class="dur">هفتهٔ ۱ تا ۲ · ~۴۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">چرا این فاز اول است</div>
+<div class="val">این تنها فازی است که اگر حذفش کنید، همهٔ فازهای بعدی بی‌معنا می‌شوند. بدون پرسش‌های صلاحیت، «تحقیق تمام شد» تعریف ندارد و پروژه تا ابد ادامه پیدا می‌کند. این دقیقاً همان چیزی است که مسیر الف را خطرناک می‌کند و R0 پادزهر آن است.</div>
+
+<div class="lbl">ورودی</div>
+<div class="val">دو سند موجود · نقد سیستم‌های پیچیده · یک تصمیم صریح از شما دربارهٔ باریکهٔ بازار</div>
+
+<div class="lbl">فعالیت‌ها و روش اجرا</div>
+<div class="val">
+<b>۱. قفل کردن دامنه در سه جمله.</b> دقیقاً بنویسید: چه نوع خروجی، برای چه صنعتی، در چه بازاری. پیشنهاد این سند: «تیزر تجاری ۶ تا ۶۰ ثانیه، برای محصول فیزیکی مشخص، با قابلیت تحویل فارسی و انگلیسی». هرچیزی خارج از این، در فاز ۱ «خارج از قلمرو» است — و باید مکتوب باشد، وگرنه دوباره برمی‌گردد.<br><br>
+<b>۲. نوشتن ۳۰ تا ۵۰ پرسش صلاحیت (Competency Question).</b> روش استاندارد مهندسی هستان‌شناسی (Grüninger &amp; Fox): هستان‌شناسی را با پرسش‌هایی که باید جواب بدهد مشخص کنید، و بعد همان‌ها را آزمون پذیرش کنید. <span class="conf c1">تأییدشده</span> نمونه:
+<ul style="margin-top:6px">
+<li>«برای یک برند با نمرهٔ Sophistication بالا و Ruggedness پایین، سرعت پیش‌فرض حرکت دوربین در نمای ریوایل چیست؟»</li>
+<li>«کدام اصطلاحات حرکت دوربین با مدت نمای زیر ۳ ثانیه ناسازگارند؟»</li>
+<li>«اگر هدف کمپین Consideration باشد نه Ad Recall، آرم باید در روایت ادغام شود یا به‌صورت سوپر بیاید؟»</li>
+<li>«برای این برند، کدام دارایی متمایز (DBA) نمرهٔ Fame بالای ۰٫۶ دارد و بنابراین نباید تغییر کند؟»</li>
+<li>«چه چیزی باعث رد شدن نمای ۷ پروژهٔ قبلی این برند شد و آیا این نما همان ریسک را دارد؟»</li>
+</ul>
+<b>۳. نوشتن «قرارداد شکست».</b> صریحاً بنویسید که چه چیزی اثبات می‌کند این رویکرد کار نمی‌کند. مثلاً: «اگر در ماه ۶، سیستم قواعد نتواند نرخ پذیرش را نسبت به انتخاب دستی اپراتور بهبود بدهد، لایهٔ دانش ارزش سرمایه‌گذاری بیشتر ندارد.» بدون این بند، سه ماه به شش ماه و شش ماه به دو سال تبدیل می‌شود.<br><br>
+<b>۴. انتخاب متدولوژی.</b> پیشنهاد: NeOn برای مهندسی هستان‌شناسی (چون شما در حال <i>استفادهٔ مجدد</i> از OMC و AdA و MovieLabs CV هستید، نه ساخت از صفر — و NeOn دقیقاً برای همین سناریو طراحی شده) <span class="conf c1">تأییدشده</span>، و CommonKADS برای ساختار کلی مدل دانش (لایه‌بندی domain / inference / task).
+</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val">یک سند ۵ تا ۸ صفحه‌ای: <code>scope.md</code> (دامنه و خارج‌از‌دامنه) · <code>competency-questions.yaml</code> (پرسش‌ها با شناسه، دسته و وضعیت پاسخ) · <code>failure-contract.md</code></div>
+
+<div class="lbl">منابع</div>
+<div class="val"><i>Ontology Development 101</i> (Noy &amp; McGuinness, Stanford — رایگان، ۳۰ صفحه، بهترین شروع) · متدولوژی NeOn (Suárez-Figueroa و همکاران، Applied Ontology 2015) · CommonKADS (Schreiber و همکاران، MIT Press 2000) · مرور Competency Questions (ER 2023)</div>
+
+<div class="exitc"><b>معیار خروج:</b> ۳۰ پرسش صلاحیت نوشته شده، هرکدام به یکی از پنج طبقهٔ دانش (K1..K5) نسبت داده شده، و هیچ‌کدام امروز جواب ندارند. اگر پرسشی <i>امروز</i> جواب دارد، پرسش خوبی نیست.</div>
+</div>
+</div>
+
+<!-- R1 -->
+<div class="phase k">
+<div class="ph"><span class="id">R1</span><span class="tt">دستور زبان تولید محتوا — هم‌ترازی و گسترش</span><span class="dur">هفتهٔ ۲ تا ۵ · ~۹۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">هدف</div>
+<div class="val">داشتن یک واژگان کنترل‌شده و ماشین‌خوان برای توصیف هر نما، که (الف) با استاندارد در حال ظهور صنعت هم‌تراز باشد، (ب) برای دامنهٔ تیزر محصول کامل باشد، (ج) چیزهایی که MovieLabs ندارد را اضافه کند.</div>
+
+<div class="lbl">ورودی</div>
+<div class="val">MovieLabs CV v1.0 (JSON) · AdA Filmontology (OWL) · Prose Storyboard Language · Shot IR سند ۲٫۰ · کتاب‌های craft فهرست‌شده در بخش ۹</div>
+
+<div class="lbl">فعالیت‌ها و روش اجرا</div>
+<div class="val">
+<b>۱. دانلود و نگاشت (هفتهٔ ۲).</b> JSON واژگان MovieLabs را بگیرید، و کنار Shot IR سند ۲٫۰ بگذارید. یک جدول نگاشت سه‌ستونه بسازید: <span class="ltr">MovieLabs term ← Shot IR field ← AdA class</span>. هر جایی که سه‌تایی کامل نشد، یا شکاف است یا هم‌پوشانی.<br><br>
+<b>۲. شناسایی شکاف‌های دامنه (هفتهٔ ۳).</b> واژگان MovieLabs فقط سینماتوگرافی است. برای تیزر محصول، این محورها را <i>ندارید</i> و باید بسازید:
+<ul style="margin-top:6px">
+<li><b>نور</b> — کلید/فیل/بک، ارتفاع، دمای رنگ، نسبت، کیفیت (سخت/نرم)، فلر. مبنا: Blain Brown + John Alton برای نام‌گذاری چیدمان‌ها.</li>
+<li><b>رنگ</b> — پالت، رابطهٔ رنگی (Block: primary/secondary/tertiary)، گرید (warm highlight / cool shadow).</li>
+<li><b>ریتم و تدوین</b> — طول نما، نوع کات، ضرب‌آهنگ، نقطهٔ برش. مبنا: Murch + Salt.</li>
+<li><b>صدا</b> — نوع موسیقی، رابطهٔ empathetic/anempathetic (Chion)، لایه‌های فولی، حضور/غیاب گفتار.</li>
+<li><b>نقش نما در روایت</b> — establishing، build، reveal، detail، proof، end card. این محور در هیچ واژگانی نیست و برای تیزر حیاتی است.</li>
+<li><b>رابطهٔ محصول با کادر</b> — قهرمان / حاضر / غایب. این تعیین می‌کند مسیر تولید «ترکیبی» است یا «AI خالص» (قانون طلایی سند ۱٫۰).</li>
+</ul>
+<b>۳. استخراج ساختاریافته از کتاب‌ها (هفتهٔ ۳–۴).</b> روش عملی: به‌جای خواندن آزاد، هر کتاب را با یک قالب ثابت پردازش کنید — <span class="ltr">{term, definition, axis, values[], stated effect, source, page, evidence class}</span>. <b>Bruce Block را اول بخوانید</b>، چون هفت مؤلفهٔ بصری‌اش (فضا، خط و شکل، تُن، رنگ، حرکت، ریتم، داستان) با یک اصل حاکم — شدت بصری متناسب با میزان کنتراست است — تنها متن craft است که واقعاً یک <b>سیستم قاعده‌مند با مقیاس عددی</b> می‌دهد نه مجموعه‌ای از توصیه. <span class="conf c1">تأییدشده</span><br><br>
+<b>۴. نوشتن واژگان در LinkML (هفتهٔ ۴–۵).</b> نه مستقیم OWL، نه مستقیم JSON Schema. LinkML را در YAML بنویسید و از آن هم‌زمان JSON Schema (برای اعتبارسنجی خط تولید)، OWL (برای معنا) و SHACL (برای محدودیت‌ها) تولید کنید. این دقیقاً همان مسئلهٔ دوگانگی OMC-JSON/OMC-RDF را حل می‌کند. <span class="conf c1">تأییدشده</span>
+</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val"><code>grammar/</code> — یک اسکیمای LinkML با ~۸ محور و ~۱۵۰ تا ۲۵۰ اصطلاح · جدول نگاشت به MovieLabs CV · <code>Shot IR v2</code> که اصطلاحاتش IRI دارند نه رشتهٔ آزاد</div>
+
+<div class="lbl">منابع</div>
+<div class="val">MovieLabs Creative Vocabulary · AdA Filmontology · Bruce Block «The Visual Story» ۳rd ed. · Mascelli «The Five C's» (نسخهٔ کامل در Internet Archive) · Murch «In the Blink of an Eye» · Chion «Audio-Vision» · Sonnenschein «Sound Design» · LinkML docs</div>
+
+<div class="exitc"><b>معیار خروج:</b> ۱۰ نمای واقعی از تیزرهای مرجع (نه تولیدشده — تیزرهای حرفه‌ای موجود) را فقط با این واژگان توصیف کنید و به یک نفر دیگر بدهید تا از روی توصیف، نما را از میان ۵۰ نما پیدا کند. اگر نرخ تشخیص زیر ۸۰٪ بود، واژگان ناکافی است.</div>
+
+<div class="lbl">ریسک اصلی</div>
+<div class="val"><span class="tag t-r">تورم واژگان</span> وسوسه می‌شوید هر اصطلاحی که در کتاب‌ها دیدید اضافه کنید. قاعدهٔ سخت: هیچ اصطلاحی بدون اینکه در یک پرسش صلاحیت R0 استفاده شود، وارد نمی‌شود.</div>
+</div>
+</div>
+
+<!-- R2 -->
+<div class="phase k">
+<div class="ph"><span class="id">R2</span><span class="tt">هستان‌شناسی برند، محصول و مفهوم</span><span class="dur">هفتهٔ ۴ تا ۹ · ~۱۲۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">هدف</div>
+<div class="val">پاسخ به مثال محوری نقد: کاربر می‌نویسد «Mercedes S500» و سیستم باید بفهمد این Luxury است نه Sport، و بداند این یعنی چه. یعنی نگاشت از <b>هویت برند</b> به <b>مختصات قابل استدلال</b>.</div>
+
+<div class="lbl">تصمیم بنیادی این فاز</div>
+<div class="val">نقد پیشنهاد می‌کند مرسدس را به زنجیره‌ای از مفاهیم بشکنید (Luxury ← Automotive ← Premium ← German ← Elegance ← Status…). این کار شدنی است اما <b>یک دام دارد</b>: زنجیرهٔ مفاهیمِ دلبخواهی، استدلال دلبخواهی می‌سازد. پیشنهاد این سند:
+<ul style="margin-top:6px">
+<li><b>ستون فقرات عددی:</b> پنج بُعد Aaker (Sincerity، Excitement، Competence، Sophistication، Ruggedness) به‌عنوان یک بردار امتیازدهی‌شده. این تنها چارچوب برند است که <b>اعتبارسنجی عاملی منتشرشده</b> دارد و بنابراین می‌شود رویش استدلال کرد. <span class="conf c1">تأییدشده</span></li>
+<li><b>لایهٔ دارایی:</b> Distinctive Brand Assets با دو نمرهٔ Fame و Uniqueness (Romaniuk). این یک شبکهٔ ۲×۲ می‌سازد که مستقیماً قابل پیاده‌سازی است: دارایی با Fame و Uniqueness بالا <b>باید بدون تغییر و زود</b> استفاده شود؛ دارایی با Fame پایین باید سرمایه‌گذاری شود تا بتواند بار برندینگ را ببرد. این یک قید سخت روی رنگ، موسیقی، فونت، شخصیت و زبان نما است که بر سلیقهٔ خلاق <b>اولویت دارد</b>. <span class="conf c1">تأییدشده</span></li>
+<li><b>لایهٔ روایی (اختیاری، به‌عنوان رابط):</b> ۱۲ آرکتایپ Mark &amp; Pearson. برای گفت‌وگو با مشتری عالی است، به‌عنوان مبنای استدلال ضعیف — چون <b>هیچ شاهد تجربی‌ای وجود ندارد</b> که آرکتایپ X، نور Y را ایجاب کند.</li>
+<li><b>لایهٔ مفهومی:</b> همان زنجیرهٔ نقد، اما به‌عنوان <i>برچسب قابل ردیابی</i> نه به‌عنوان منطق. هر مفهوم باید بگوید از کجا آمده: از بردار Aaker مشتق شده؟ از راهنمای برند مشتری؟ از حدس شما؟</li>
+</ul>
+</div>
+
+<div class="lbl">فعالیت‌ها و روش اجرا</div>
+<div class="val">
+<b>۱. ساخت اسکیمای Brand DNA</b> با چهار لایهٔ بالا، به‌علاوهٔ فیلدهای عملیاتی سند ۲٫۰ (پالت، فونت، آرم، لحن، ممنوعیت‌ها، دارایی‌های مرجع).<br>
+<b>۲. پر کردن آن برای ۵ تا ۸ برند واقعی</b> — دو تا سه‌تاش برندهایی که واقعاً برایشان کار می‌کنید، بقیه برندهای مرجع (مرسدس، اپل، ب‌ام‌و) از روی راهنمای برند عمومی و تحلیل تیزرهای موجودشان. <b>پر کردن، جایی است که اسکیما آزمون می‌شود.</b> اسکیمایی که فقط طراحی شده و پر نشده، همیشه غلط است.<br>
+<b>۳. ساخت گراف محصول/دسته</b> — سلسله‌مراتب دسته (خودرو ← سدان لوکس ← …) با ویژگی‌هایی که بر تصمیم بصری اثر دارند: مقیاس فیزیکی، ماده و سطح (بازتابنده؟ مات؟ شفاف؟)، اینکه محصول حرکت می‌کند یا ساکن است، اینکه جزئیات برند روی محصول حیاتی است یا نه. این ویژگی‌ها — نه نام برند — چیزی هستند که واقعاً تصمیم را عوض می‌کنند.<br>
+<b>۴. هم‌ترازی با OMC</b> — موجودیت‌های تولیدی خودتان را با OMC نگاشت کنید و جایی که OMC کلمه دارد، کلمهٔ خودتان را نسازید.
+</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val"><code>ontology/brand-dna.yaml</code> (LinkML) · ۸ نمونهٔ پرشده · <code>ontology/product-category.ttl</code> · جدول نگاشت به OMC</div>
+
+<div class="lbl">منابع</div>
+<div class="val">Aaker «Dimensions of Brand Personality» (JMR 1997) · Romaniuk «Building Distinctive Brand Assets» (OUP 2018) · Labrecque &amp; Milne «Exciting red and competent blue» (JAMS 2012 — پل تجربی از شخصیت برند به رنگ) · Kapferer Brand Identity Prism (به‌عنوان چارچوب ورودی) · MovieLabs OMC</div>
+
+<div class="exitc"><b>معیار خروج:</b> برای سه برندی که پر کرده‌اید، پنج پرسش صلاحیت دستهٔ K4 را بدون مراجعه به سلیقه پاسخ بدهید. و آزمون منفی: دو برند رقیب در یک دسته (مثلاً مرسدس و ب‌ام‌و) باید در بردار Aaker و DBA <b>عدد متفاوت</b> بدهند. اگر یکسان درآمدند، مدل شما تمایز را نمی‌بیند.</div>
+
+<div class="lbl">ریسک اصلی</div>
+<div class="val"><span class="tag t-y">علم‌نمایی</span> وسوسهٔ اینکه اعداد Aaker را از حدس خودتان پر کنید و بعد با آن‌ها مثل داده رفتار کنید. راه‌حل: هر نمرهٔ برند باید یک فیلد <code>source</code> داشته باشد — پژوهش منتشرشده / راهنمای برند مشتری / قضاوت تیم. سیستم باید بداند کدام است.</div>
+</div>
+</div>
+
+<!-- R3 -->
+<div class="phase k">
+<div class="ph"><span class="id">R3</span><span class="tt">قواعد تصمیم — قلب موتور استدلال خلاق</span><span class="dur">هفتهٔ ۵ تا ۱۲ · ~۱۸۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">هدف</div>
+<div class="val">تبدیل «Luxury → نور طلایی، لنز ۸۵، حرکت آرام، پیانوی مینیمال، کات کند» از یک <b>حدس</b> به یک <b>قاعدهٔ برچسب‌خورده و قابل ردیابی</b>. این مهم‌ترین و پرارزش‌ترین فاز کل برنامه است.</div>
+
+<div class="lbl">تصمیم بنیادی این فاز — سه ردهٔ اعتبار</div>
+<div class="val">هر قاعده باید یکی از این سه برچسب را داشته باشد و سیستم باید تفاوتشان را بداند. مخلوط کردنشان، مهم‌ترین خطای قابل تصور در این فاز است:
+<div class="grid g3" style="margin:12px 0">
+<div class="card"><div class="t"><span class="tag t-g">E</span> شواهد تجربی</div><div class="d">از پژوهش کمّی منتشرشده با نمونه و روش. مثال: «دو نما یا بیشتر در پنج ثانیهٔ اول با Ad Recall و Consideration بهتر همبسته است» (Google ABCD). این قواعد را می‌شود به کاربر <b>توصیه</b> کرد.</div></div>
+<div class="card"><div class="t"><span class="tag t-y">C</span> عرف صنعتی</div><div class="d">مشاهدهٔ نظام‌مند از عمل حرفه‌ای، بدون آزمایش. مثال: جدول هیو-به-معنای Bellantoni. این قواعد را می‌شود به‌عنوان <b>پیش‌فرض</b> گذاشت، نه به‌عنوان حقیقت.</div></div>
+<div class="card"><div class="t"><span class="tag t-r">A</span> فرض داخلی</div><div class="d">حدس شما یا تیم شما. مثال: «آرکتایپ Ruler یعنی دوربین ثابت». این قواعد را باید <b>علامت‌گذاری کرد و در R6 آزمود</b>. بیشتر قواعد شما در ماه اول از این نوع خواهند بود و اشکالی ندارد — پنهان کردنشان اشکال دارد.</div></div>
+</div>
+</div>
+
+<div class="lbl">فعالیت‌ها و روش اجرا — پنج جریان موازی</div>
+<div class="val">
+<b>جریان ۱ — استخراج قواعد کمّی پلتفرم‌ها (هفتهٔ ۵–۶).</b> این ارزان‌ترین و عددی‌ترین منبع است و اغلب نادیده گرفته می‌شود. از <b>Google ABCD playbook</b> (PDF رایگان) قواعد دقیق زیر قابل استخراج است <span class="conf c1">تأییدشده</span>:
+<ul style="margin-top:6px">
+<li>«دو نما یا بیشتر در پنج ثانیهٔ اول» → یک قاعدهٔ عددی برای سرعت تدوین</li>
+<li>«محصول یا برند را در پنج ثانیهٔ اول معرفی کنید»</li>
+<li>«کادربندی تنگ روی سوژه» → قاعدهٔ لنز/اندازهٔ نما</li>
+<li>«اگر آدم در ویدیو هست، با او باز کنید» → قاعدهٔ نمای افتتاحیه</li>
+<li><b>«ذکر برند توسط شخص روی تصویر بهتر از ذکر برند با وویس‌اور عمل می‌کند»</b> → یک قاعدهٔ بسیار مشخص برای انتخاب گویندگی</li>
+<li><b>رفتار با آرم مشروط به هدف است</b>: برای Ad Recall آرم را در روایت/محصول ادغام کنید؛ برای Consideration از سوپر/واترمارک استفاده کنید → یک شاخهٔ صریح در گراف قواعد</li>
+<li>موبایل: کادربندی تنگ‌تر، ریتم سریع‌تر، تایپ درشت، روشنایی و کنتراست بالاتر</li>
+</ul>
+از <b>TikTok</b>: ۹۰٪ اثر Ad Recall در شش ثانیهٔ اول؛ نمایش محصول روی تصویر +۶۵٪ brand affinity و +۲۵٪ recall؛ کارت CTA +۴۵٪ recall. <span class="conf c1">تأییدشده</span> — توجه کنید که TikTok هیچ عددی دربارهٔ طول ویدیو، نسبت تصویر یا نرخ تغییر نما منتشر <b>نکرده</b>، برخلاف آنچه منابع ثانویه ادعا می‌کنند.<br>
+<span class="conf c3">تأییدنشده</span> راهنمای خلاق متا از URL اصلی خودشان قابل واکشی نبود — قواعد رایج (۹:۱۶ تمام‌صفحه، هوک در سه ثانیهٔ اول، زیرنویس) واقعی‌اند اما باید دستی از Business Help Center تأیید شوند.<br><br>
+
+<b>جریان ۲ — استخراج از پژوهش اثربخشی (هفتهٔ ۶–۸).</b> این‌ها قواعد سطح استراتژی‌اند نه سطح نما، اما <b>شرط‌های بالادستی</b> می‌سازند که قواعد craft را مقید می‌کنند:
+<ul style="margin-top:6px">
+<li><b>Binet &amp; Field</b> — تقسیم برندسازی/فعال‌سازی و اینکه این نسبت <b>مشروط به دسته</b> است (طول چرخهٔ خرید، سطح تأمل، سهم بازار). این یعنی قاعدهٔ «لحن احساسی یا عقلانی» نباید ثابت باشد، باید تابع دسته باشد. <span class="conf c2">جهت‌نما</span> — اعداد دقیق داخل PDFهای پولی IPA است.</li>
+<li><b>IPA «بحران اثربخشی خلاق»</b> — مزیت کارزارهای جایزه‌گرفته از ~۱۲ برابر به زیر ۴ برابر سقوط کرده. <span class="conf c1">تأییدشده</span> پیامد مستقیم برای موتور شما: <b>توصیهٔ «کرافت بالا» باید مشروط به مدت و بودجهٔ کمپین باشد</b>، وگرنه سیستم چیزی توصیه می‌کند که شواهد می‌گوید برنمی‌گردد.</li>
+<li><b>System1</b> — سه‌گانهٔ Star (رشد بلندمدت) / Spike (اثر کوتاه‌مدت) / Fluency (درصد کسانی که تا انتها برند را تشخیص می‌دهند). این مستقیماً یک <b>بهینه‌سازی دوهدفه</b> می‌سازد که با تقسیم Binet &amp; Field هم‌راستاست. سنجش احساس، خوداظهاری روی هفت احساس اکمن است نه کدگذاری چهره. <span class="conf c1">تأییدشده</span></li>
+<li><b>Nelson-Field</b> — زنجیرهٔ تجربی «ثانیهٔ توجه ← قدرت کوتاه‌مدت آگهی ← فروش»، و اینکه توجه با <b>پوشش صفحه، حضور صدا و viewability</b> مقیاس می‌خورد. <span class="conf c1">تأییدشده</span> این یک لایهٔ قاعدهٔ <i>فرمتی</i> زیر قواعد craft می‌سازد.</li>
+<li><b>Annie Lang, LC4MP</b> — بنیان آکادمیک واقعی تصمیم سرعت تدوین: ویژگی‌های ساختاری (کات، تغییر دوربین، شروع حرکت) پاسخ جهت‌یابی ایجاد می‌کنند و منابع رمزگذاری تخصیص می‌دهند؛ اما از یک آستانه به بعد، پیچیدگی بالای پیام + ریتم بالا باعث <b>اضافه‌بار شناختی</b> می‌شود و بازشناسی را <i>کاهش</i> می‌دهد در حالی که برانگیختگی و پسند را همچنان بالا می‌برد. <span class="conf c1">تأییدشده</span><br><b>این مهم‌ترین قاعدهٔ کل این فاز است</b>، چون یک قاعدهٔ <b>غیریکنواخت U-وارونه مشروط به پیچیدگی پیام</b> می‌دهد — نه «کات سریع = پرانرژی» که همه می‌گویند.</li>
+</ul>
+
+<b>جریان ۳ — استخراج از کتاب‌های craft (هفتهٔ ۷–۹).</b> چهار متن بیشترین چگالی قاعده را دارند:
+<ul style="margin-top:6px">
+<li><b>Bruce Block</b> — هفت مؤلفهٔ بصری، هرکدام با حالت‌های شمارش‌پذیر، و اصل حاکم «شدت متناسب با کنتراست، هم‌خوانی شدت را کم می‌کند». به‌علاوهٔ قاعدهٔ ترکیب: برای اوج گرفتن، کنتراست را در چند مؤلفه هم‌جهت کنید. این یک <b>گراف واقعی</b> است.</li>
+<li><b>Mascelli، پنج C</b> — خط ۱۸۰ درجه، قاعدهٔ ۳۰ درجه، تاکسونومی اندازه و زاویه، چیدمان مثلثی. بهترین منبع برای لایهٔ <i>گرامر</i> قواعد. نسخهٔ کامل در Internet Archive.</li>
+<li><b>Murch، قاعدهٔ شش</b> — وزن‌دهی نقطهٔ برش: احساس ۵۱٪، داستان ۲۳٪، ریتم ۱۰٪، ردیابی چشم ۷٪، صفحهٔ دوبعدی ۵٪، فضای سه‌بعدی ۴٪. این <b>عیناً یک تابع امتیازدهی است</b>. <span class="conf c2">جهت‌نما</span> — درصدها را قبل از کدگذاری از خود کتاب تأیید کنید.</li>
+<li><b>Bellantoni</b> — جدول هیو به کارکرد روایی، فصل‌بندی‌شده بر اساس رنگ. به‌عنوان <b>عرف</b> برچسب بزنید نه شواهد.</li>
+</ul>
+
+<b>جریان ۴ — استخراج آماری از پیکرهٔ مرجع (هفتهٔ ۹–۱۱).</b> این جریان کم‌هزینه و بسیار پرارزش است و تقریباً هیچ‌کس انجامش نمی‌دهد:
+<ul style="margin-top:6px">
+<li>۳۰ تا ۵۰ تیزر مرجع در دستهٔ هدفتان جمع کنید (از Ads of the World، TikTok Creative Center، یوتیوب برندها).</li>
+<li>هرکدام را با واژگان R1 حاشیه‌نویسی کنید — دستی، یا نیمه‌خودکار.</li>
+<li>توزیع‌ها را دربیاورید: میانگین طول نما، توزیع اندازهٔ نما، نسبت حرکت دوربین، زمان تا اولین نمایش محصول، زمان تا اولین آرم.</li>
+<li>حالا بین برندهای Luxury و Performance مقایسه کنید. <b>هر تفاوت آماری معنادار، یک قاعدهٔ ردهٔ C است که خودتان کشف کرده‌اید</b> — و برخلاف قواعد کتابی، مختص دامنهٔ شماست.</li>
+</ul>
+روش‌شناسی مرجع: <b>Barry Salt</b> که توزیع اندازهٔ نما (مقیاس استاندارد ۹ نقطه‌ای)، نسبت حرکت دوربین و فراوانی کات معکوس را ثبت می‌کند — این خیلی مفیدتر از ASL تنهاست چون <i>پروفایل سبک</i> می‌دهد نه یک عدد. <span class="conf c1">تأییدشده</span><br><br>
+
+<b>جریان ۵ — نوشتن قواعد به‌صورت داده (هفتهٔ ۱۱–۱۲).</b> قواعد باید فایل باشند نه کد — دقیقاً به همان دلیلی که سند ۲٫۰ برای Model Registry گفت. هر قاعده: شرط، نتیجه، وزن، ردهٔ اعتبار، منبع، تاریخ بازبینی. نمونهٔ کامل در پیوست الف.
+</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val"><code>rules/</code> — ۸۰ تا ۱۵۰ قاعده به‌صورت YAML، طبقه‌بندی‌شده بر اساس محور تصمیم و ردهٔ اعتبار · <code>corpus/annotations.csv</code> — پیکرهٔ حاشیه‌نویسی‌شدهٔ ۳۰ تا ۵۰ تیزر · گزارش توزیع‌های آماری به تفکیک دستهٔ برند</div>
+
+<div class="exitc"><b>معیار خروج:</b> برای ۵ بریف واقعی که قبلاً تیزرشان ساخته شده، موتور قواعد را اجرا کنید و <b>قبل از دیدن تیزر واقعی</b> پیشنهاد بدهد. سپس با تیزر واقعی مقایسه کنید. لازم نیست یکی باشند — لازم است <b>اختلاف‌ها قابل توضیح باشند</b>. اگر موتور چیزی پیشنهاد داد که هیچ کارگردانی نمی‌کند و شما نمی‌توانید بگویید چرا، قاعده غلط است نه کارگردان.</div>
+
+<div class="lbl">ریسک اصلی</div>
+<div class="val"><span class="tag t-r">قاعدهٔ بی‌شرط</span> نوشتن «Luxury → لنز ۸۵» بدون گفتن اینکه در چه شرایطی. یک قاعدهٔ بی‌شرط، در اولین تعارض شکست می‌خورد و کل موتور را بی‌اعتبار می‌کند. هر قاعده باید شرط، استثنا و اولویت داشته باشد.</div>
+</div>
+</div>
+
+<!-- R4 -->
+<div class="phase k">
+<div class="ph"><span class="id">R4</span><span class="tt">استخراج دانش خبره — آنچه در هیچ کتابی نیست</span><span class="dur">هفتهٔ ۸ تا ۱۶ · ~۱۲۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">چرا این فاز اجتناب‌ناپذیر است</div>
+<div class="val">تحقیق تازه یک نتیجهٔ صریح داشت: <b>دانش تخصصی تیزر خودرو و محصول — نورپردازی با منبع طولانی و بازتاب نواری روی بدنه، تکرارپذیری موشن‌کنترل، دکترین لنز ماکرو و پروب، فیزیک استایلینگ مایعات و غذا — هرگز در یک اثر مرجع قابل استناد کدگذاری نشده است.</b> <span class="conf c1">تأییدشده به‌عنوان غایب</span> این دانش شاگردی‌به‌شاگردی منتقل می‌شود و در مقالات ASC پراکنده است. اگر موتور شما قرار است تصمیم‌های معتبر بگیرد، این لایه فقط از مصاحبه می‌آید.</div>
+
+<div class="lbl">روش‌ها — و اینکه هرکدام برای چه</div>
+<div class="val">این‌ها روش‌های نام‌دار با مرجع مشخص‌اند، نه «مصاحبهٔ خوب». استفاده از روش درست، بازده مصاحبه را چند برابر می‌کند. <span class="conf c1">تأییدشده</span>
+<div class="tw" style="margin-top:8px">
+<table>
+<tr><th>روش</th><th>برای چه</th><th>چگونه اجرا می‌شود</th><th>مرجع</th></tr>
+<tr><td><b>Repertory Grid</b></td><td><b>کشف ابعادی که خبره واقعاً روی آن تمایز می‌گذارد</b> — بدون اینکه ابعاد خودتان را تحمیل کنید</td><td>سه‌تایی از نماهای مرجع نشان بدهید و بپرسید «دوتای این‌ها شبیه هم‌اند و یکی فرق دارد — از چه نظر؟» تکرار روی ۲۰ تا ۳۰ سه‌تایی. محورهایی که بیرون می‌آید، محورهای واقعی واژگان شماست.</td><td>Kelly (1955) · Fransella, Bell &amp; Bannister «A Manual for Repertory Grid Technique»</td></tr>
+<tr><td><b>Critical Decision Method</b></td><td><b>بیرون کشیدن استدلال یک تصمیم واقعی</b></td><td>یک پروژهٔ غیرمعمول و به‌یادماندنی را انتخاب کنید و در چند دور متوالی عمیق‌ترش کنید: خط زمانی → نقاط تصمیم → گزینه‌های رد شده → «اگر X فرق می‌کرد چه می‌کردی؟». عمداً روی یک رویداد مشخص لنگر می‌اندازد، چون خبره‌ها در تعمیم بد و در یادآوری خوب‌اند.</td><td>Klein, Calderwood &amp; MacGregor (1989) · Crandall, Klein &amp; Hoffman «Working Minds» (MIT Press 2006)</td></tr>
+<tr><td><b>Laddering</b></td><td><b>وصل کردن تصمیم بصری به ارزش برند</b> — دقیقاً همان زنجیره‌ای که نقد می‌خواهد</td><td>از یک ویژگی اجرایی شروع کنید و مکرر بپرسید «چرا این برایت مهم است؟» تا به ارزش برسید. نتیجه را در یک <b>ماتریس دلالت</b> و <b>نقشهٔ ارزش سلسله‌مراتبی</b> جمع کنید — که ساختاراً همان گراف دانش است.</td><td>Reynolds &amp; Gutman, <i>Journal of Advertising Research</i> 28(1), 1988 — <b>و این روش از خود صنعت تبلیغات آمده</b></td></tr>
+<tr><td><b>Elicitation by critiquing</b></td><td><b>چگال‌ترین دانش با کم‌ترین زمان خبره</b></td><td>به‌جای اینکه از خبره بخواهید شات‌لیست بسازد، شات‌لیستِ تولیدشده توسط سیستم را به او بدهید تا نقد کند. نقدها به‌مراتب متراکم‌تر از توصیف آزادند.</td><td>Springer, <i>Cognition, Technology &amp; Work</i> (2005)</td></tr>
+<tr><td><b>Protocol Analysis</b></td><td>دیدن فرآیند در لحظه، نه بازسازی خاطره</td><td>حین شات‌لیست‌نویسی یا بازبینی بورد، خبره بلند فکر کند و ضبط شود.</td><td>Ericsson &amp; Simon «Protocol Analysis» (MIT Press 1984/1993)</td></tr>
+</table>
+</div>
+</div>
+
+<div class="lbl">برنامهٔ عملی</div>
+<div class="val"><b>۶ تا ۸ خبره</b> کافی است و بیشترش بازده نزولی دارد: ۲ کارگردان تیزر، ۱ مدیر فیلم‌برداری، ۱ تدوینگر، ۱ مدیر خلاق، ۱ طراح صدا، و ۱ تا ۲ نفر از سمت برند. هر نفر: یک جلسهٔ Repertory Grid (۹۰ دقیقه) + یک جلسهٔ CDM روی یک پروژهٔ واقعی (۱۲۰ دقیقه) + یک جلسهٔ critiquing (۶۰ دقیقه). مجموعاً ~۳۰ ساعت جلسه و ~۹۰ ساعت پردازش.<br><br>
+<b>نکتهٔ عملی مهم:</b> هر جلسه را ضبط و رونویسی کنید، اما <b>خروجی جلسه یک فایل متنی نیست</b> — باید مستقیماً به قواعد ردهٔ C یا A در فرمت R3 تبدیل شود. اگر رونویسی‌ها انبار شوند و «بعداً» پردازش شوند، هرگز پردازش نمی‌شوند.</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val">۳۰ تا ۶۰ قاعدهٔ تازه (عمدتاً ردهٔ C) · فهرست ابعاد کشف‌شده که در R1 نبودند · <b>فهرست کدهای دلیل رد</b> — یعنی دقیقاً ۱۵ تا ۲۵ دلیلی که خبره‌ها به‌خاطرش یک نما را رد می‌کنند. این فهرست ورودی مستقیم <code>human_reason_code</code> سند ۲٫۰ است و یکی از باارزش‌ترین خروجی‌های کل برنامه.</div>
+
+<div class="exitc"><b>معیار خروج:</b> در دو مصاحبهٔ آخر، بیش از ۸۰٪ آنچه گفته می‌شود قبلاً در پایگاه دانش هست — یعنی به اشباع رسیده‌اید. اگر هنوز چیز جدید می‌شنوید، مصاحبه‌های بیشتری لازم است (یا دامنه‌تان خیلی گسترده است).</div>
+</div>
+</div>
+
+<!-- R5 -->
+<div class="phase k">
+<div class="ph"><span class="id">R5</span><span class="tt">مدل‌سازی نقش‌های خلاق و گراف گردش کار</span><span class="dur">هفتهٔ ۱۲ تا ۲۰ · ~۹۰ ساعت</span></div>
+<div class="pb">
+<div class="lbl">هدف و تعدیل نسبت به نقد</div>
+<div class="val">نقد می‌گوید «کل یک آژانس تبلیغاتی را مدل‌سازی کن — ۱۳ نقش». این در دامنهٔ باز شدنی نیست. اما در دامنهٔ بستهٔ «تیزر محصول فیزیکی» کاملاً شدنی است و ارزشش دقیقاً همان چیزی است که نقد می‌گوید.<br><br>
+<b>بازتعریف:</b> نقش را به‌عنوان «آدم» مدل نکنید؛ به‌عنوان <b>مجموعه‌ای از تصمیم‌ها با ورودی و خروجی مشخص</b> مدل کنید. سؤال درست «کارگردان چه می‌کند» نیست؛ «چه تصمیم‌هایی در این پروژه گرفته می‌شود، هرکدام چه ورودی لازم دارد، و کدام تصمیم‌ها به هم وابسته‌اند» است.</div>
+
+<div class="lbl">فعالیت‌ها و روش اجرا</div>
+<div class="val">
+<b>۱. فهرست کامل تصمیم‌ها.</b> از خروجی R4 (به‌ویژه جلسات CDM) فهرست همهٔ تصمیم‌های یک تیزر ۳۰ ثانیه‌ای را دربیاورید. انتظار: ۴۰ تا ۸۰ تصمیم مجزا.<br>
+<b>۲. برای هر تصمیم چهار فیلد.</b> <span class="ltr">{decision, inputs[], output, owner_role, depends_on[], reversibility_cost}</span>. آخری حیاتی است: هزینهٔ برگشت از این تصمیم چقدر است؟ تصمیم‌های با هزینهٔ برگشت بالا، دقیقاً همان‌جایی‌اند که <b>گیت انسانی</b> باید باشد. این پاسخ کمّی به بحث «چند گیت» است.<br>
+<b>۳. ساخت گراف وابستگی.</b> نتیجه، گراف گردش کار نقد است — اما به‌جای اینکه از پیش تصور شود، از دادهٔ واقعی مصاحبه استخراج شده.<br>
+<b>۴. لایه‌بندی CommonKADS.</b> تصمیم‌ها را به سه لایه بشکنید: <i>domain</i> (چه چیزی می‌دانیم)، <i>inference</i> (چه استدلالی روی آن انجام می‌دهیم)، <i>task</i> (این استدلال در چه مرحله‌ای از گردش کار). این لایه‌بندی، تفاوت بین یک پایگاه دانش و یک انبار یادداشت است.<br>
+<b>۵. نگاشت به مؤلفه‌های نرم‌افزاری.</b> هر تصمیم را به یکی از سه دسته اختصاص بدهید: خودکار (سیستم می‌گیرد)، پیشنهادی (سیستم پیشنهاد می‌دهد، انسان تأیید)، انسانی (سیستم فقط اطلاعات فراهم می‌کند). این جدول، <b>نقشهٔ راه محصول</b> شماست — چون هر تصمیمی که از «انسانی» به «پیشنهادی» منتقل شود، یک قابلیت محصول است.</div>
+
+<div class="lbl">خروجی قابل تحویل</div>
+<div class="val"><code>workflow/decisions.yaml</code> — فهرست کامل تصمیم‌ها با وابستگی · گراف گردش کار (قابل رندر) · <b>جدول اتوماسیون</b> — هر تصمیم و اینکه امروز کجاست و هدف کجاست</div>
+
+<div class="exitc"><b>معیار خروج:</b> گراف را به یکی از خبره‌های R4 نشان بدهید و بپرسید «چه تصمیمی جا افتاده؟». اگر بیش از سه مورد گفت، ناقص است. و آزمون دوم: چهار گیت اجباری سند ۲٫۰ باید <b>به‌طور طبیعی</b> از ستون <code>reversibility_cost</code> بیرون بیایند. اگر نیامدند، یا مدل غلط است یا گیت‌ها.</div>
+</div>
+</div>
+
+<!-- R6 -->
+<div class="phase k">
+<div class="ph"><span class="id">R6</span><span class="tt">اعتبارسنجی و تحقیق پیوسته</span><span class="dur">از هفتهٔ ۱۰ · دائمی · ~۸ ساعت در هفته</span></div>
+<div class="pb">
+<div class="lbl">هدف</div>
+<div class="val">این فاز تمام نمی‌شود و نباید بشود. کارش این است که دانش را از تبدیل شدن به یک بنای تاریخی نجات بدهد. <b>بدون R6، هر پایگاه دانشی ظرف یک سال به یک سند بایگانی تبدیل می‌شود.</b></div>
+
+<div class="lbl">چهار حلقهٔ اعتبارسنجی</div>
+<div class="val">
+<b>۱. حلقهٔ پرسش صلاحیت (ماهانه).</b> پرسش‌های R0 را اجرا کنید. چند تا جواب دارند؟ چند تا جواب <i>درست</i> دارند؟ این تنها معیار پیشرفت لایهٔ دانش است. نمودارش را جایی بکشید که هر روز ببینید.<br><br>
+<b>۲. حلقهٔ ارتقای رده (پیوسته).</b> قواعد ردهٔ A (فرض داخلی) باید به‌تدریج یا به C ارتقا پیدا کنند (با مشاهدهٔ نظام‌مند) یا به E (با آزمون) یا <b>حذف شوند</b>. یک قاعدهٔ ردهٔ A که شش ماه است ردهٔ A مانده، یعنی هیچ‌کس آزمونش نکرده — احتمالاً چون قابل آزمون نیست، و آن‌وقت قاعده نیست، سلیقه است.<br><br>
+<b>۳. حلقهٔ آزمون A/B واقعی (از ماه ۴).</b> این جایی است که دانش به شواهد تبدیل می‌شود و هیچ‌کس دیگری این کار را نمی‌کند. الگو: همان بریف، دو مسیر — یکی با قاعده، یکی بدون — تولید، و بعد <b>داوری کور جفتی</b> (نه امتیاز ۱ تا ۱۰؛ انسان‌ها در «الف یا ب» به‌مراتب سازگارترند). ۲۰ جفت برای یک قاعده کافی است تا جهت را بفهمید. هر قاعده‌ای که این آزمون را رد کند، ردهٔ E می‌گیرد و <b>دارایی خصوصی شما</b> می‌شود — چون هیچ‌جا منتشر نشده.<br><br>
+<b>۴. حلقهٔ بازخورد عملکرد رسانه (از ماه ۶).</b> CTR، نرخ تکمیل، هزینهٔ تبدیل باید به گراف قواعد برگردد. این تنها راهی است که موتور از «آنچه حرفه‌ای‌ها می‌گویند» به «آنچه واقعاً کار می‌کند» حرکت می‌کند.</div>
+
+<div class="lbl">بازبینی فاسدشدنی‌ها (سه‌ماهه)</div>
+<div class="val">این‌ها تاریخ انقضا دارند و باید تقویم داشته باشند: پیوست ابزارهای سند ۱٫۰ و ۲٫۰ · قیمت‌ها و <code>price_verified_on</code> در Registry · وضعیت لایسنس و مصونیت مدل‌ها · قوانین برچسب‌گذاری AI (مادهٔ ۵۰ اتحادیهٔ اروپا از ۲ اوت ۲۰۲۶ لازم‌الاجرا می‌شود <span class="conf c1">تأییدشده</span> — یعنی چند روز دیگر) · نسخهٔ MovieLabs CV و OMC (v3.0 در ۲۰۲۶ اعلام شده)</div>
+
+<div class="exitc"><b>معیار خروج:</b> ندارد — اما یک <b>معیار سلامت</b> دارد: اگر در سه ماه گذشته هیچ قاعده‌ای حذف نشده، حلقهٔ اعتبارسنجی کار نمی‌کند. پایگاه دانشی که فقط رشد می‌کند و هرس نمی‌شود، بیمار است.</div>
+</div>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6" class="part"><span class="n">۶</span>فازبندی ساخت — پنج فاز از B0 تا B4</h2>
+
+<p>مسیر ساخت، همان نقشهٔ راه سند ۲٫۰ است با دو تغییر: اسکیماها حالا به واژگان استاندارد ارجاع می‌دهند، و یک مؤلفهٔ تازه (موتور قواعد) اضافه شده. اگر مسیر ب را انتخاب کردید، این تنها ستون شماست. اگر مسیر ج، این ستون موازی R است.</p>
+
+<div class="phase b">
+<div class="ph"><span class="id">B0</span><span class="tt">لایهٔ دادهٔ خسته‌کننده</span><span class="dur">هفتهٔ ۱ تا ۳</span></div>
+<div class="pb">
+<div class="lbl">کار</div>
+<div class="val">نوشتن سه فایل داده و هیچ کد اجرایی: <b>(۱)</b> اسکیمای <code>Shot IR v2</code> — همان ساختار سند ۲٫۰ اما با فیلدهایی که مقادیرشان به واژگان MovieLabs ارجاع IRI می‌دهند نه رشتهٔ آزاد. <b>(۲)</b> قرارداد قابلیت <code>Model Registry</code> — دقیقاً همان YAML سند ۲٫۰، بدون تغییر. <b>(۳)</b> اسکیمای <code>Generation</code> — رکورد تولید با تمام فیلدهای اجباری، به‌ویژه <code>human_reason_code</code>.<br><br>
+سپس Registry را برای ۸ مدل ویدیو و ۵ مدل تصویری که واقعاً استفاده می‌کنید پر کنید.</div>
+<div class="lbl">چرا اول</div>
+<div class="val">استدلال سند ۲٫۰ همچنان معتبر است: این دو سند معماری را قفل می‌کنند و هزینه‌شان تقریباً صفر است. تنها تغییر: حالا می‌دانید مقادیر فیلدها را از کجا بگیرید و مجبور نیستید اختراعشان کنید.</div>
+<div class="exitc"><b>معیار خروج:</b> یک نمای واقعی از یک تیزر مرجع را کامل در <code>Shot IR v2</code> بنویسید بدون اینکه هیچ فیلد <code>notes</code> آزادی لازم شود. هر جا مجبور به نوشتن متن آزاد شدید، یک شکاف واژگان است.</div>
+</div>
+</div>
+
+<div class="phase b">
+<div class="ph"><span class="id">B1</span><span class="tt">هستهٔ بازتولیدپذیری + زیرساخت دانش</span><span class="dur">هفتهٔ ۳ تا ۸</span></div>
+<div class="pb">
+<div class="lbl">کار</div>
+<div class="val"><b>مسیر عملیاتی (از سند ۲٫۰):</b> یک CLI که IR می‌گیرد، برای سه مدل کامپایل می‌کند، از طریق آداپتور اجرا می‌کند، و Generation Ledger کامل می‌نویسد. به‌علاوهٔ کش محتوایی و گیت‌های قطعی L1. بدون رابط کاربری.<br><br>
+<b>مسیر دانش (تازه):</b> راه‌اندازی زنجیرهٔ LinkML → تولید خودکار JSON Schema + OWL + SHACL. یک مخزن گیت برای واژگان و قواعد، با CI که در هر تغییر: (الف) اسکیما را می‌سازد، (ب) SHACL را اجرا می‌کند، (ج) پرسش‌های صلاحیت را آزمون می‌کند.<br><br>
+<b>تصمیم فناوری:</b> دادهٔ عملیاتی در PostgreSQL + pgvector (بدون تغییر از سند ۲٫۰). دانش در RDF — Apache Jena اگر JVM هستید، Oxigraph اگر پایتون (سبک، embeddable، JSON-LD دارد؛ اما توجه کنید عملاً تک‌نگهدارنده است <span class="conf c1">تأییدشده</span> و برای وابستگی بلندمدت ریسک دارد). اگر بعداً حجم پرس‌وجوی گرافی زیاد شد، به Neo4j پروجکت کنید. <b>TypeDB جذاب است اما اکوسیستم بسته دارد</b> — نمی‌توانید OMC-RDF یا AdA را مستقیم import کنید و باید بازمدل‌سازی کنید؛ این هزینه را قبل از انتخاب صریح کنید.</div>
+<div class="exitc"><b>معیار خروج:</b> هر نمای هر پروژه کاملاً بازتولیدپذیر است، و هر اصطلاح استفاده‌شده در هر IR یک تعریف قابل بازیابی دارد.</div>
+</div>
+</div>
+
+<div class="phase b">
+<div class="ph"><span class="id">B2</span><span class="tt">موتور قواعد و کامپایلر پرامپت</span><span class="dur">هفتهٔ ۸ تا ۱۶</span></div>
+<div class="pb">
+<div class="lbl">کار — این مؤلفه در سند ۲٫۰ نبود</div>
+<div class="val">یک موتور که ورودی‌اش <code>Brief + BrandDNA</code> است و خروجی‌اش <code>ShotIR[]</code> — یعنی جایی که «Creative Reasoning» نقد واقعاً اتفاق می‌افتد. سه بخش:
+<ul style="margin-top:6px">
+<li><b>ارزیابی قواعد</b> — قواعد YAML فاز R3 را روی ورودی اجرا می‌کند و مجموعه‌ای از پیشنهادها با وزن تولید می‌کند.</li>
+<li><b>حل تعارض</b> — وقتی دو قاعده نتیجهٔ متضاد می‌دهند، اولویت بر اساس ردهٔ اعتبار (E بر C، C بر A)، سپس بر اساس ویژگی شرط (قاعدهٔ خاص‌تر بر عام‌تر)، سپس بر اساس وزن.</li>
+<li><b>ردیابی استدلال</b> — خروجی باید همیشه بگوید «لنز ۸۵ چون: قاعدهٔ R3-042 (ردهٔ C، منبع Block فصل ۴) + قاعدهٔ R3-011 (ردهٔ E، منبع Google ABCD)». <b>بدون این، کاربر نمی‌تواند اصلاح کند و شما داده‌ای برای یادگیری جمع نمی‌کنید.</b></li>
+</ul>
+سپس کامپایلر پرامپت سند ۲٫۰ (سه گویش: veo_prose، sora_blocks، kling_shots) روی خروجی این موتور سوار می‌شود. توجه: JSON فرمت داخلی است، خروجی به مدل نثر توصیفی است — این تصمیم سند ۲٫۰ همچنان معتبر است.</div>
+<div class="exitc"><b>معیار خروج:</b> اپراتور خلاق برای ۵ بریف پشت سر هم، شات‌لیست تولیدشده را با کمتر از ۳۰٪ تغییر می‌پذیرد — و برای هر تغییر، دلیلش را به‌عنوان کد ثبت می‌کند.</div>
+</div>
+</div>
+
+<div class="phase b">
+<div class="ph"><span class="id">B3</span><span class="tt">استودیو — گیت‌ها، بوم، صف بازبینی</span><span class="dur">ماه ۴ تا ۸</span></div>
+<div class="pb">
+<div class="lbl">کار</div>
+<div class="val">بدون تغییر نسبت به فاز ۲ سند ۲٫۰: موتور گردش کار پایدار، چهار گیت انسانی، بوم استوری‌بورد، صف بازبینی <b>جفتی</b> (نه لیکرت)، لایهٔ ارزیابی L2، رسپی‌ها، خروجی چندنسخه‌ای، گیت حقوقی به‌عنوان کد.<br>
+<b>یک اضافه:</b> رابط بازبینی باید نشان بدهد سیستم <i>چرا</i> این نما را پیشنهاد داده، و اجازه بدهد کاربر با قاعده مخالفت کند — و آن مخالفت باید در Ledger ثبت شود. مخالفت‌های مکرر با یک قاعده، سیگنال اصلی هرس قواعد در R6 است.</div>
+<div class="exitc"><b>معیار خروج (از سند ۲٫۰):</b> یک اپراتور غیرفنی بدون کمک شما یک تیزر ۳۰ ثانیه‌ای تحویل می‌دهد.</div>
+</div>
+</div>
+
+<div class="phase b">
+<div class="ph"><span class="id">B4</span><span class="tt">پلتفرم — چندمستأجری، API، حلقهٔ عملکرد</span><span class="dur">ماه ۹ به بعد</span></div>
+<div class="pb">
+<div class="lbl">کار</div>
+<div class="val">بدون تغییر نسبت به فاز ۳ سند ۲٫۰: چندمستأجری، Brand Vault، API عمومی، Publisher و حلقهٔ بازخورد عملکرد، FinOps، Router امتیازی با دادهٔ واقعی، OTIO.<br>
+<b>یک هشدار تازه:</b> OpenTimelineIO از نوامبر ۲۰۲۴ هیچ انتشار تگ‌شده‌ای نداشته و به ۱٫۰ نرسیده <span class="conf c1">تأییدشده</span>، و آداپتورها بعد از v0.16 از هستهٔ آن جدا شده‌اند (بستهٔ <code>OpenTimelineIO-Plugins</code> لازم است). همچنان درست‌ترین نمایش داخلی تایم‌لاین است، اما ریسک نگهداری‌اش را در برنامه‌تان لحاظ کنید.</div>
+<div class="exitc"><b>معیار خروج:</b> ۱۰ مشتری بدون دخالت شما خروجی می‌سازند و حاشیهٔ سود مثبت است.</div>
+</div>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7"><span class="n">۷</span>چگونه دو مسیر به هم قفل می‌شوند</h2>
+
+<p>این جدول، مکانیزم عملی مسیر ج است. هر ردیف یک نقطهٔ همگام‌سازی اجباری است: خروجی یک فاز تحقیق، ورودی یک فاز ساخت می‌شود و برعکس.</p>
+
+<div class="tw">
+<table>
+<tr><th>هفته</th><th>مسیر تحقیق (R)</th><th>مسیر ساخت (B)</th><th>نقطهٔ قفل — چه چیزی رد و بدل می‌شود</th></tr>
+<tr><td><b>۱–۲</b></td><td>R0 — قلمرو و پرسش‌های صلاحیت</td><td>B0 — اسکیمای Shot IR و Registry</td><td>پرسش‌های صلاحیت تعیین می‌کنند <b>کدام فیلدها</b> باید در IR باشند. اسکیما تعیین می‌کند کدام پرسش‌ها اصلاً قابل پاسخ‌اند.</td></tr>
+<tr><td><b>۳–۵</b></td><td>R1 — واژگان از MovieLabs</td><td>B0/B1 — پر کردن Registry، CLI</td><td>واژگان، <b>مقادیر مجاز</b> فیلدهای IR را می‌دهد. Registry نشان می‌دهد کدام اصطلاح اصلاً توسط هیچ مدلی پشتیبانی نمی‌شود (و پس فعلاً بی‌فایده است).</td></tr>
+<tr><td><b>۶–۸</b></td><td>R2 — Brand DNA · R3 آغاز</td><td>B1 — Ledger، کش، گیت L1</td><td>گیت‌های L1 (فاصلهٔ هویت، Delta-E پالت) <b>مستقیماً</b> از Brand DNA تغذیه می‌شوند. اولین آزمون واقعی اینکه اسکیمای برند کار می‌کند.</td></tr>
+<tr><td><b>۹–۱۲</b></td><td>R3 — قواعد تصمیم</td><td>B2 — موتور قواعد</td><td>قواعد YAML مستقیماً به موتور می‌روند. <b>و موتور، قواعد ناقص را افشا می‌کند</b> — هر قاعده‌ای که شرطش کامل نباشد، اینجا خطا می‌دهد.</td></tr>
+<tr><td><b>۱۳–۱۶</b></td><td>R4 — مصاحبهٔ خبره</td><td>B2 — کامپایلر و اولین پروژه‌ها</td><td>خروجی موتور، مادهٔ خام جلسات critiquing می‌شود. <b>مصاحبه ارزان‌تر و چگال‌تر می‌شود چون چیزی برای نقد کردن هست.</b> و کدهای دلیل رد از مصاحبه به Ledger می‌روند.</td></tr>
+<tr><td><b>۱۷–۲۰</b></td><td>R5 — نقش‌ها و گردش کار</td><td>B3 — گیت‌ها و موتور گردش کار</td><td>ستون <code>reversibility_cost</code> تعیین می‌کند <b>گیت‌ها کجا باشند</b>. این تنها مبنای غیرسلیقه‌ای برای طراحی گیت است.</td></tr>
+<tr><td><b>۲۱+</b></td><td>R6 — اعتبارسنجی پیوسته</td><td>B3/B4 — استودیو و پلتفرم</td><td>Ledger داده می‌دهد، R6 قواعد را هرس می‌کند، موتور بهتر می‌شود، نرخ پذیرش بالا می‌رود. <b>این همان حلقه‌ای است که کل پروژه برایش ساخته می‌شود.</b></td></tr>
+</table>
+</div>
+
+<div class="box good">
+<h4>چرا این قفل، تصادفی نیست</h4>
+<p>در هر ردیف، مسیر ساخت <b>محدودیت واقع‌گرایی</b> به مسیر تحقیق تحمیل می‌کند و مسیر تحقیق <b>معنا</b> به مسیر ساخت. بدون ستون چپ، Router یک مشت <code>if</code> دلبخواهی می‌شود. بدون ستون راست، واژگان تا بی‌نهایت رشد می‌کند و هیچ‌وقت آزمون نمی‌شود. این دقیقاً همان چیزی است که هر دو نقد — نقد سیستم‌های پیچیده و نقد معماری — از دو طرف به آن اشاره می‌کنند.</p>
+</div>
+
+<!-- ============ 8 ============ -->
+<h2 id="s8" class="part"><span class="n">۸</span>روش اجرای تحقیق — چگونه دانش را از سر آدم‌ها و کتاب‌ها بیرون بکشیم</h2>
+
+<p>بخش ۵ گفت چه چیزی تحقیق شود. این بخش می‌گوید <b>عملاً چطور</b>. بیشتر پروژه‌های «تحقیق و مدل‌سازی دانش» نه به‌خاطر انتخاب اشتباه موضوع، بلکه به‌خاطر نداشتن آیین کاری شکست می‌خورند.</p>
+
+<h3>۸٫۱ ساختار مخزن — همه‌چیز یک فایل است</h3>
+<p>قاعدهٔ حاکم: <b>هیچ دانشی در Notion، Google Docs یا سر آدم‌ها نمی‌ماند.</b> همه‌چیز فایل متنی نسخه‌دار در گیت است، چون فقط این‌طور می‌شود diff گرفت، بازبینی کرد و CI روی آن اجرا کرد.</p>
+
+<pre><span class="c">knowledge/</span>
+├── <span class="k">scope</span>/
+│   ├── scope.md                  <span class="c">// دامنه و خارج‌از‌دامنه</span>
+│   ├── competency-questions.yaml <span class="c">// ۳۰–۵۰ پرسش، با وضعیت پاسخ</span>
+│   └── failure-contract.md
+├── <span class="k">grammar</span>/                      <span class="c">// K1</span>
+│   ├── _linkml/                  <span class="c">// منبع حقیقت: YAML</span>
+│   ├── generated/                <span class="c">// خروجی خودکار: json-schema, owl, shacl</span>
+│   └── mapping-movielabs.csv     <span class="c">// نگاشت سه‌ستونه</span>
+├── <span class="k">ontology</span>/                     <span class="c">// K2</span>
+│   ├── brand-dna.yaml
+│   ├── product-category.ttl
+│   └── mapping-omc.csv
+├── <span class="k">rules</span>/                        <span class="c">// K3 — مهم‌ترین پوشه</span>
+│   ├── camera/  lighting/  color/  editing/  sound/  narrative/
+│   └── conflicts.yaml            <span class="c">// اولویت‌های اعلامی حل تعارض</span>
+├── <span class="k">brands</span>/                       <span class="c">// K4 — یک پوشه به‌ازای هر برند</span>
+├── <span class="k">corpus</span>/
+│   ├── references.csv            <span class="c">// ۳۰–۵۰ تیزر مرجع</span>
+│   ├── annotations.csv           <span class="c">// حاشیه‌نویسی با واژگان R1</span>
+│   └── stats/                    <span class="c">// توزیع‌های استخراج‌شده</span>
+├── <span class="k">interviews</span>/
+│   ├── transcripts/              <span class="c">// خام</span>
+│   └── extracted/                <span class="c">// قواعد استخراج‌شده — این مهم است، نه رونویسی</span>
+└── <span class="k">sources</span>/
+    └── bibliography.yaml         <span class="c">// هر منبع با شناسه، تا قواعد به آن ارجاع بدهند</span>
+</pre>
+
+<div class="box acc">
+<h4>سه قاعدهٔ CI که این مخزن را زنده نگه می‌دارد</h4>
+<ol>
+<li><b>هر قاعده باید <code>source_id</code> معتبر داشته باشد</b> که در <code>bibliography.yaml</code> وجود دارد. قاعدهٔ بی‌منبع = build شکست می‌خورد.</li>
+<li><b>هر اصطلاح واژگان باید حداقل در یک قاعده یا یک پرسش صلاحیت استفاده شده باشد.</b> اصطلاح یتیم = هشدار. این تنها ضامن جلوگیری از تورم واژگان است.</li>
+<li><b>پرسش‌های صلاحیت به‌عنوان تست اجرا می‌شوند.</b> درصد پاسخ‌داده‌شده در هر build گزارش می‌شود. این نمودار، معیار پیشرفت شماست.</li>
+</ol>
+</div>
+
+<h3>۸٫۲ چگونه یک کتاب را به قاعده تبدیل کنیم</h3>
+<p>خواندن آزاد یک کتاب craft و «یاد گرفتن» آن، به هیچ خروجی ساختاریافته‌ای منجر نمی‌شود. روش عملی، پردازش با قالب ثابت است:</p>
+
+<div class="tw">
+<table>
+<tr><th>گام</th><th>کار</th><th>خروجی</th><th>زمان تقریبی برای یک کتاب</th></tr>
+<tr><td><b>۱</b></td><td>یک‌بار سریع خواندن فقط برای نقشهٔ ساختار — چه محورهایی، چه فصل‌هایی</td><td>فهرست محورها</td><td>۲ ساعت</td></tr>
+<tr><td><b>۲</b></td><td>خواندن دوم با قالب استخراج: هر جا یک <b>گزارهٔ شرطی</b> دیدید («اگر می‌خواهید X، آنگاه Y») ثبتش کنید</td><td>۳۰ تا ۱۲۰ گزارهٔ خام با شمارهٔ صفحه</td><td>۸ تا ۱۵ ساعت</td></tr>
+<tr><td><b>۳</b></td><td>نرمال‌سازی: هر گزاره را به واژگان R1 ترجمه کنید. گزاره‌هایی که ترجمه نمی‌شوند، شکاف واژگان‌اند</td><td>قواعد در فرمت YAML + فهرست شکاف‌ها</td><td>۴ تا ۸ ساعت</td></tr>
+<tr><td><b>۴</b></td><td>برچسب اعتبار و شرط‌گذاری: آیا نویسنده شاهد آورده (E) یا مشاهدهٔ عمل حرفه‌ای است (C)؟ در چه شرایطی صدق می‌کند؟</td><td>قواعد نهایی</td><td>۲ تا ۴ ساعت</td></tr>
+</table>
+</div>
+<p class="note">با این نرخ، هر کتاب حدود ۲ تا ۴ روز کاری می‌برد. برای پنج کتاب اصلی فهرست‌شده در بخش ۹، حدود سه هفتهٔ تمام‌وقت — که دقیقاً با پنجرهٔ R1 و R3 در فازبندی می‌خواند.</p>
+
+<h3>۸٫۳ چگونه پیکرهٔ مرجع را حاشیه‌نویسی کنیم</h3>
+<p>این جریان بیشترین بازده به ازای زمان را در کل برنامه دارد، چون قواعدی می‌دهد که <b>مختص دامنهٔ شماست</b> و در هیچ کتابی نیست.</p>
+<ol>
+<li><b>انتخاب پیکره:</b> ۳۰ تا ۵۰ تیزر در دستهٔ هدف، با تنوع عمدی — دو یا سه زیردسته (مثلاً Luxury / Performance / Family برای خودرو) تا بتوانید مقایسه کنید. منابع: Ads of the World (فیلتر صنعت و مدیوم)، TikTok Creative Center (فیلتر صنعت و عملکرد)، کانال یوتیوب خود برندها.</li>
+<li><b>واحد حاشیه‌نویسی نما است، نه تیزر.</b> برای ۴۰ تیزر ۳۰ ثانیه‌ای انتظار ~۳۰۰ تا ۴۰۰ نما داشته باشید.</li>
+<li><b>فیلدهای حداقلی:</b> شماره، زمان شروع/پایان، اندازهٔ نما، زاویه، حرکت، تخمین لنز، نوع نور، دمای رنگ غالب، رابطهٔ محصول با کادر (قهرمان/حاضر/غایب)، نقش روایی، حضور صدا/گفتار.</li>
+<li><b>ابزار:</b> یک صفحهٔ گسترده کافی است. ابزار پیچیده نخرید. اما <b>حتماً</b> از واژگان R1 به‌عنوان لیست کشویی استفاده کنید، نه متن آزاد.</li>
+<li><b>پایایی بین‌کدگذار:</b> ۱۰٪ از نماها را دو نفر مستقل حاشیه‌نویسی کنند. اگر توافق زیر ۸۰٪ بود، تعاریف واژگان مبهم است و باید اصلاح شود — این آزمون خودِ واژگان است.</li>
+<li><b>تحلیل:</b> توزیع‌ها را بین زیردسته‌ها مقایسه کنید. هر تفاوت معنادار، یک قاعدهٔ ردهٔ C.</li>
+</ol>
+<p class="note">زمان تقریبی: ~۳ تا ۵ دقیقه به ازای هر نما با تمرین، یعنی ~۲۰ تا ۳۰ ساعت برای کل پیکره. ارزان‌ترین دانش قابل خرید در کل این برنامه.</p>
+
+<h3>۸٫۴ آیین کاری هفتگی</h3>
+<div class="tw">
+<table>
+<tr><th>وقت</th><th>کار</th><th>خروجی اجباری</th></tr>
+<tr><td><b>دوشنبه — ۱ ساعت</b></td><td>بازبینی پرسش‌های صلاحیت: کدام‌ها این هفته قابل پاسخ شدند؟</td><td>به‌روزرسانی وضعیت در <code>competency-questions.yaml</code></td></tr>
+<tr><td><b>هر روز — ۳ تا ۴ ساعت</b></td><td>کار عمیق روی فاز جاری (استخراج، مصاحبه، حاشیه‌نویسی)</td><td>commit روزانه — هیچ روزی بدون commit</td></tr>
+<tr><td><b>پنج‌شنبه — ۱ ساعت</b></td><td><b>جلسهٔ هرس:</b> کدام اصطلاح یتیم شد؟ کدام قاعده در عمل نقض شد؟</td><td>حذف یا اصلاح — <b>یک PR که چیزی را کم می‌کند</b></td></tr>
+<tr><td><b>هر دو هفته — ۹۰ دقیقه</b></td><td>جلسهٔ قفل دو مسیر (بخش ۷)</td><td>فهرست فیلدهای بی‌تعریف و اصطلاحات بی‌استفاده</td></tr>
+<tr><td><b>ماهانه — نصف روز</b></td><td>اجرای کامل پرسش‌های صلاحیت + گزارش پیشرفت</td><td>یک عدد: درصد پرسش‌های پاسخ‌داده‌شدهٔ درست</td></tr>
+</table>
+</div>
+
+<h3>۸٫۵ بودجهٔ تخمینی تحقیق — شش ماه اول</h3>
+<div class="tw">
+<table>
+<tr><th>قلم</th><th>هزینه</th><th>ضروری؟</th><th>یادداشت</th></tr>
+<tr><td>کتاب‌های craft (۶ تا ۸ عنوان)</td><td>~۳۰۰ تا ۵۰۰ دلار</td><td><span class="tag t-g">بله</span></td><td>Mascelli در Internet Archive رایگان خواندنی است</td></tr>
+<tr><td>ShotDeck (اشتراک)</td><td>اشتراک ماهانه — قیمت روی سایت نیست</td><td><span class="tag t-y">مفید</span></td><td>تاکسونومی‌شان دقیقاً چیزی است که می‌خواهید و دقیقاً چیزی است که نمی‌گذارند دانلود کنید. <b>API عمومی ندارد.</b></td></tr>
+<tr><td>Shot.cafe</td><td>رایگان</td><td><span class="tag t-g">بله</span></td><td>کوچک‌تر ولی تمیزترین اسکیما؛ ۲۴٬۳۲۱ نما، ۱۰۹٬۹۴۱ تگ، ۱۸۷ فیلم، ۲۳ تیزر <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td>WARC / Cannes LOVE THE WORK / Effie</td><td>سازمانی — گران</td><td><span class="tag t-r">فعلاً نه</span></td><td>غنی‌ترین مخزن مطالعات موردی مرتبط با اثربخشی، اما شرایطش تقریباً قطعاً استخراج انبوه را منع می‌کند</td></tr>
+<tr><td>IPA Databank</td><td>عضویت</td><td><span class="tag t-r">فعلاً نه</span></td><td>گزارش‌های Binet &amp; Field کافی است؛ خود Databank فقط برای اعضا</td></tr>
+<tr><td>Google ABCD · TikTok Creative Center · Pittsburgh Ads Dataset · MovieLabs · AdA</td><td><b>رایگان</b></td><td><span class="tag t-g">بله</span></td><td><b>بیشترین ارزش این فهرست، رایگان است.</b> اول این‌ها را تمام کنید، بعد به فکر خرید بیفتید.</td></tr>
+<tr><td>حق‌الزحمهٔ مصاحبهٔ خبره (۶ تا ۸ نفر)</td><td>متغیر</td><td><span class="tag t-g">بله</span></td><td>وقت خبره را رایگان نگیرید؛ کیفیت جلسه فرق می‌کند</td></tr>
+</table>
+</div>
+
+<!-- ============ 9 ============ -->
+<h2 id="s9"><span class="n">۹</span>منابع تحقیقی طبقه‌بندی‌شده</h2>
+
+<p>همهٔ موارد این بخش در تحقیق تازهٔ این نسخه با منبع اولیه بررسی شده‌اند مگر جایی که خلافش گفته شده. ترتیب، بر اساس اولویت استفاده است نه اهمیت نظری.</p>
+
+<h3>۹٫۱ استانداردها و واژگان — <span class="tag t-g">اول این‌ها</span></h3>
+
+<div class="srcbox"><div class="sn">MovieLabs Creative Vocabulary v1.0 <span class="conf c1">تأییدشده</span></div><div class="sl">https://cv-mc.movielabs.com/cinematography.html</div><div class="sd">۵۴ اصطلاح سینماتوگرافی در چهار محور، با تعریف و قصد خلاقانه. خروجی JSON و XLSX. CC-BY-4.0. منتشرشده ۸ جولای ۲۰۲۶. <b>نقطهٔ شروع فاز R1.</b></div></div>
+
+<div class="srcbox"><div class="sn">MovieLabs Ontology for Media Creation (OMC) v2.8 <span class="conf c1">تأییدشده</span></div><div class="sl">https://movielabs.com/ontology-for-media-creation/ · https://mc.movielabs.com/docs/ontology/ · https://github.com/MovieLabs/OMC</div><div class="sd">هستان‌شناسی تولید رسانه با پشتیبانی استودیوها. دو سریال‌سازی: OMC-JSON و OMC-RDF. تفکیک Narrative/Production و رابطهٔ Depiction، ارزشمندترین ایدهٔ ساختاری برای شماست. v3.0 در ۲۰۲۶ اعلام شده.</div></div>
+
+<div class="srcbox"><div class="sn">AdA Filmontology v1.8 <span class="conf c1">تأییدشده</span></div><div class="sl">https://projectada.github.io/ontology/ · https://github.com/ProjectAdA/public · https://zenodo.org/records/8328663</div><div class="sd">۸ سطح، ۷۸ نوع، ۵۰۱ مقدار در OWL. پیکرهٔ ۹۲٬۰۰۰+ حاشیه‌نویسی روی ۴۹ ویدیو، CC BY-SA 3.0. قابل ویرایش در Protégé.</div></div>
+
+<div class="srcbox"><div class="sn">EBUCorePlus v2.0.0 <span class="conf c1">تأییدشده</span></div><div class="sl">https://github.com/ebu/ebucoreplus</div><div class="sd">ادغام و بازنگری EBUCore و CCDM، OWL، با حاکمیت واقعی (کارگروه مدل‌سازی فراداده EBU). اگر ستون فقرات RDF سازمانی می‌خواهید، پاسخ زندهٔ EBU این است — نه CCDM که از ۲۰۲۰ متوقف شده.</div></div>
+
+<div class="srcbox"><div class="sn">OpenTimelineIO v0.18.1 <span class="conf c1">تأییدشده</span> · <span class="conf c2">ریسک نگهداری</span></div><div class="sl">https://github.com/AcademySoftwareFoundation/OpenTimelineIO</div><div class="sd">نمایش داخلی تایم‌لاین با مبدل به AAF/FCPXML/EDL. <b>آخرین انتشار تگ‌شده نوامبر ۲۰۲۴؛ هنوز به ۱٫۰ نرسیده.</b> آداپتورها بعد از v0.16 از هسته جدا شده‌اند. هیچ اسکیمای معنایی نما ندارد — فقط ساختار تایم‌لاین.</div></div>
+
+<div class="srcbox"><div class="sn">IPTC Video Metadata Hub 1.7 <span class="conf c1">تأییدشده</span></div><div class="sl">https://iptc.org/standards/video-metadata-hub/</div><div class="sd">مجموعه‌ای از ویژگی‌ها قابل بیان در XMP، EBUCore و JSON. برای توصیف حقوق و فنی دارایی نهایی مناسب؛ برای ساختار خلاق بی‌فایده.</div></div>
+
+<p class="note"><b>و آنچه استفاده نکنید:</b> MPEG-7 (ISO/IEC 15938) عملاً مرده است — چارچوب عظیم XML از ۲۰۰۲ با ابهام معنایی مشهور و پذیرش تقریباً صفر برای کار جدید. <span class="conf c1">تأییدشده</span> تنها بخش MPEG-21 با ارزش باقی‌مانده، Media Contract Ontology (ISO/IEC 21000-21) است اگر لازم شد شرایط قرارداد را رسمی مدل کنید. SMPTE ST 2067 (IMF) یک استاندارد بسته‌بندی تحویل است، نه هستان‌شناسی دانش تولید. Schema.org فقط برای حلقهٔ بیرونی هویت/حقوق/انتشار مفید است؛ نوع <code>Brand</code>ش عملاً نام + لوگو است و هستان‌شناسی برند نیست.</p>
+
+<h3>۹٫۲ دستور زبان رسمی و پژوهش محاسباتی فیلم</h3>
+
+<div class="srcbox"><div class="sn">Prose Storyboard Language <span class="conf c1">تأییدشده</span></div><div class="sl">https://arxiv.org/abs/1508.07593 · https://team.inria.fr/anima/prose-storyboard-language/</div><div class="sd">Ronfard, Gandhi, Boiron, Murukutla. دستور زبان رسمی که هر نما را با دقیقاً یک جمله توصیف می‌کند، با نحو و واژگان برگرفته از عمل حرفه‌ای، قابل پارس ماشینی و خوانا برای انسان. صریحاً به‌عنوان «رابط کاربری سطح‌بالا برای سیستم‌های هوشمند فیلم‌برداری و تدوین» معرفی شده. <b>نزدیک‌ترین کار موجود به Creative Grammar نقد شما.</b></div></div>
+
+<div class="srcbox"><div class="sn">Ronfard, «Film Directing for Computer Games and Animation» (Eurographics STAR 2021) <span class="conf c1">تأییدشده</span></div><div class="sl">https://hal.science/hal-03225328v1</div><div class="sd">بهترین مرور واحد از دستور زبان محاسباتی فیلم: رسمی‌سازی واژگان نما، قواعد تدوین، قیدهای پیوستگی، کارگردانی خودکار. <b>نقشهٔ ادبیات را از اینجا شروع کنید.</b></div></div>
+
+<div class="srcbox"><div class="sn">Christie, Olivier &amp; Normand, «Camera Control in Computer Graphics» (CGF 2008) <span class="conf c1">تأییدشده</span></div><div class="sl">https://people.irisa.fr/Marc.Christie/Publications/2008/CON08.html</div><div class="sd">مرور کلاسیک «کارگردانی دوربین مجازی». قدیمی اما هنوز چارچوب مرجع برای مشخص‌سازی اعلامی و مبتنی بر قید دوربین.</div></div>
+
+<h3>۹٫۳ پیکره‌ها و دیتاست‌های حاشیه‌نویسی‌شده</h3>
+<div class="tw">
+<table>
+<tr><th>دیتاست</th><th>چه چیزی رمزگذاری می‌کند</th><th>برای شما مفید است چون</th></tr>
+<tr><td><b>ShotBench / ShotQA / ShotVL</b> (NeurIPS 2025)<br><span class="src">vchitect.github.io/ShotBench-project</span></td><td>۳٬۵۰۰+ پرسش‌وپاسخ خبره از ۲۰۰+ فیلم در ۸ بُعد: اندازه، کادربندی، زاویه، لنز، نوع نور، شرایط نور، ترکیب‌بندی، حرکت. به‌علاوهٔ ~۷۰K برای آموزش و مدل‌های باز ۳B/۷B</td><td><b>جدیدترین و مرتبط‌ترین.</b> هشت بُعدش تقریباً همان محورهای واژگان شماست. و یافتهٔ GPT-4o زیر ۶۰٪ باید در برنامه‌تان لحاظ شود. <span class="conf c1">تأییدشده</span><br><span class="note">قبل از پذیرش بی‌چون‌وچرا، نقد RefineShot (arXiv:2510.02423) را هم بخوانید.</span></td></tr>
+<tr><td><b>CineScale / CineScale2</b><br><span class="src">cinescale.github.io</span></td><td>~۱M فریم از ۱۰۰+ فیلم با برچسب اندازهٔ نما، زاویه و سطح دوربین. مدل CNN منتشر شده</td><td>تنها منبع در مقیاس برای <b>توزیع</b> ویژگی‌های نما — مبنای مقایسه برای پیکرهٔ خودتان</td></tr>
+<tr><td><b>MovieNet / MovieShots</b><br><span class="src">movienet.github.io</span></td><td>۱٬۱۰۰ فیلم، ۴۲K قطعهٔ صحنه، ۴۵K برچسب کنش، سبک سینمایی = ۵ مقیاس نما + ۴ حرکت</td><td>حاشیه‌نویسی‌ها قابل دانلود (فایل فیلم نه). تاکسونومی ۵×۴ ساده‌ترین مبنای شروع است</td></tr>
+<tr><td><b>MovieGraphs</b><br><span class="src">moviegraphs.cs.toronto.edu</span></td><td>حاشیه‌نویسی گرافی موقعیت‌های انسانی: شخصیت، رابطه، تعامل، موضوع، دلیل</td><td><b>نزدیک‌ترین آنالوگ موجود به یک گراف دانش روایی روی فیلم</b> — الگوی ساختاری‌اش را ببینید</td></tr>
+<tr><td><b>Pittsburgh Ads Dataset</b> (CVPR 2017)<br><span class="src">people.cs.pitt.edu/~kovashka/ads/</span></td><td>۶۴٬۸۳۲ تبلیغ تصویری + <b>۳٬۴۷۷ تبلیغ ویدیویی</b>. برچسب‌ها: موضوع، احساس، جفت کنش-دلیل، نمادگرایی با کادر، <b>راهبرد اقناع</b>، شعار. ویدیوها: به‌علاوهٔ <b>امتیاز اثربخشی</b> و برچسب‌های funny/exciting</td><td><b>تنها دیتاست باز و قابل استناد تبلیغات در مقیاس معنادار — و شکل اشتباهی دارد.</b> حاشیه‌نویسی‌اش معنایی است نه craft. ارزش واقعی‌اش دو چیز است: برچسب‌های اثربخشی روی ویدیو، و <b>تاکسونومی راهبردهای اقناع</b> که واقعاً قابل استفادهٔ مجدد است. <span class="conf c1">تأییدشده</span></td></tr>
+</table>
+</div>
+
+<h3>۹٫۴ پژوهش اثربخشی تبلیغات — منبع قواعد ردهٔ E</h3>
+<div class="tw">
+<table>
+<tr><th>منبع</th><th>چه قاعده‌ای می‌دهد</th><th>دسترسی</th></tr>
+<tr><td><b>Google ABCD Playbook</b><br><span class="src">thinkwithgoogle.com — PDF مستقیم</span></td><td>عددی‌ترین مجموعه قواعد رایگان موجود: ۲+ نما در ۵ ثانیهٔ اول، معرفی برند در ۵ ثانیه، کادربندی تنگ، باز کردن با انسان، <b>ذکر برند روی تصویر بهتر از وویس‌اور</b>، رفتار با آرم مشروط به هدف، بهینه‌سازی موبایل. اثر تجمعی اعلام‌شده: ~۳۰٪ رشد احتمال فروش کوتاه‌مدت و ~۱۷٪ سهم برند بلندمدت</td><td><span class="tag t-g">رایگان</span> <span class="conf c1">تأییدشده</span><br><span class="note">درصد لیفت به‌ازای هر قاعده منتشر نشده — فقط عدد تجمعی</span></td></tr>
+<tr><td><b>TikTok Creative Best Practices</b></td><td>۹۰٪ اثر Ad Recall در ۶ ثانیهٔ اول · نمایش محصول +۶۵٪ brand affinity، +۲۵٪ recall · کارت CTA +۴۵٪ recall · ۸۸٪ کاربران صدا را حیاتی می‌دانند</td><td><span class="tag t-g">رایگان</span> <span class="conf c1">تأییدشده</span><br><span class="note">هیچ عددی دربارهٔ طول، نسبت تصویر یا نرخ کات منتشر نکرده‌اند</span></td></tr>
+<tr><td><b>Annie Lang, LC4MP</b> (<i>Journal of Communication</i> 50(1), 2000)</td><td><b>مهم‌ترین قاعدهٔ سرعت تدوین:</b> ویژگی‌های ساختاری منابع رمزگذاری تخصیص می‌دهند، اما پیچیدگی بالا + ریتم بالا = اضافه‌بار شناختی که بازشناسی را کم می‌کند در حالی که برانگیختگی را زیاد. یک قاعدهٔ U-وارونهٔ مشروط</td><td><span class="tag t-y">دانشگاهی</span> <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td><b>Nelson-Field, «The Attention Economy»</b> (Springer 2020)</td><td>زنجیرهٔ توجه ← قدرت کوتاه‌مدت ← فروش؛ و اینکه توجه با پوشش صفحه، حضور صدا و viewability مقیاس می‌خورد. لایهٔ قاعدهٔ <i>فرمتی</i> زیر قواعد craft</td><td><span class="tag t-y">کتاب</span> <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td><b>Binet &amp; Field</b> (IPA، چهار گزارش ۲۰۰۷–۲۰۱۸)</td><td>تقسیم برندسازی/فعال‌سازی، ESOV، برتری کارزارهای احساسی در بلندمدت — و اینکه نسبت بهینه <b>مشروط به دسته</b> است (طول چرخهٔ خرید، سطح تأمل، سهم بازار)</td><td><span class="tag t-y">اعداد در PDF پولی</span> <span class="conf c2">جهت‌نما</span><br><span class="note">«Effectiveness in Context» ظاهراً از طریق Thinkbox رایگان بوده — بررسی کنید</span></td></tr>
+<tr><td><b>IPA «بحران اثربخشی خلاق»</b> (Peter Field)</td><td>مزیت کارزارهای جایزه‌گرفته از ~۱۲× به زیر ۴× سقوط کرد. <b>قاعده: توصیهٔ کرافت بالا باید مشروط به مدت و بودجه باشد</b></td><td><span class="tag t-g">صفحهٔ خبر رایگان</span> <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td><b>System1</b></td><td>Star (بلندمدت) / Spike (کوتاه‌مدت) / Fluency (٪ تشخیص برند تا انتها). احساس با خوداظهاری روی ۷ احساس اکمن. یک بهینه‌سازی دوهدفهٔ آماده</td><td><span class="tag t-y">روش عمومی، نُرم‌ها تجاری</span> <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td><b>Nielsen / NCSolutions</b></td><td>سهم رسانه در اثر فروش از ۱۵٪ به ۳۶٪ در ۱۱ سال رسید</td><td><span class="conf c3">هشدار</span> عدد مشهور «خلاقیت ۴۷٪ لیفت فروش را می‌سازد» <b>در منبع اولیه نیست</b> و فقط در گزارش پولی و بازنشرهای ثانویه است. <b>به‌عنوان تأییدشده نقلش نکنید.</b></td></tr>
+<tr><td><b>Meta creative guidance</b></td><td>۹:۱۶، ناحیهٔ امن، زیر ۱۵ ثانیه، صدا با زیرنویس، هوک در ۳ ثانیه</td><td><span class="conf c3">تأییدنشده</span> URL اصلی متا برای واکشی خودکار بسته است. قواعد واقعی‌اند اما باید دستی از Business Help Center تأیید شوند</td></tr>
+</table>
+</div>
+
+<h3>۹٫۵ چارچوب‌های برند</h3>
+<div class="tw">
+<table>
+<tr><th>منبع</th><th>قابلیت رسمی‌سازی</th><th>قدرت شواهد</th></tr>
+<tr><td><b>Aaker, «Dimensions of Brand Personality»</b> (JMR 34(3), 1997)</td><td><span class="tag t-g">بالا</span> پنج بُعد پیوسته و قابل امتیازدهی: Sincerity، Excitement، Competence، Sophistication، Ruggedness — با ۴۲ صفت</td><td><span class="tag t-g">قوی</span> اعتبارسنجی عاملی. <b>ورودی برندی ترجیحی این سند.</b> تبصره: پایداری بین‌فرهنگی‌اش نقد شده؛ کالیبره‌شده روی آمریکا</td></tr>
+<tr><td><b>Romaniuk, «Building Distinctive Brand Assets»</b> (OUP 2018)</td><td><span class="tag t-g">بالا</span> شبکهٔ ۲×۲ روی Fame و Uniqueness — مستقیماً قابل پیاده‌سازی به‌عنوان قید سخت</td><td><span class="tag t-g">قوی</span> پشتوانهٔ Ehrenberg-Bass. نُرم‌های کالیبراسیون عمومی نیست</td></tr>
+<tr><td><b>Labrecque &amp; Milne, «Exciting red and competent blue»</b> (JAMS 40(5), 2012)</td><td><span class="tag t-g">بالا</span> پل تجربی از ابعاد Aaker به رنگ. <b>و یافتهٔ مهم‌ترش: اشباع و روشنایی اثری مستقل از فام دارند</b></td><td><span class="tag t-y">متوسط</span> بهترین پل قابل استناد موجود از شخصیت برند به تصمیم رنگ</td></tr>
+<tr><td><b>Mark &amp; Pearson, «The Hero and the Outlaw»</b> (2001)</td><td><span class="tag t-g">بالا</span> ۱۲ آرکتایپ روی دو محور — enum تمیز و رابط کاربری عالی</td><td><span class="tag t-r">ضعیف</span> <b>هیچ اعتبارسنجی تجربی‌ای که آرکتایپ X را به سبک بصری Y وصل کند وجود ندارد.</b> هر نگاشتی که بسازید، قرارداد شماست نه قاعده — و باید ردهٔ A برچسب بخورد</td></tr>
+<tr><td><b>Kapferer Brand Identity Prism</b></td><td><span class="tag t-y">متوسط</span> شش وجه؛ Physique تنها وجهی است که ذاتاً از بیان بصری حرف می‌زند و Reflection به کستینگ نگاشت می‌شود</td><td><span class="conf c2">جهت‌نما</span> فقط از منابع ثانویه/آموزشی تأیید شد، نه از منبع خود Kapferer</td></tr>
+<tr><td><b>Elliot &amp; Maier, «Color Psychology»</b> (<i>Annual Review of Psychology</i> 65, 2014)</td><td>—</td><td><span class="tag t-b">لنگر صداقت</span> مرور معتبر و صریح دربارهٔ اینکه این حوزه جوان است، اثرها به‌شدت وابسته به بافت‌اند و بسیاری کم‌توان. <b>این را بخوانید تا در دام «روان‌شناسی رنگ» عامیانه نیفتید.</b> چند اثر مشهور رنگ در تکرارهای پرتوان شکست خورده‌اند</td></tr>
+</table>
+</div>
+
+<h3>۹٫۶ متون craft — منبع قواعد ردهٔ C</h3>
+<div class="tw">
+<table>
+<tr><th>کتاب</th><th>چه می‌دهد</th><th>اولویت</th></tr>
+<tr><td><b>Bruce Block, «The Visual Story»</b> ۳rd ed., Routledge 2020</td><td>هفت مؤلفهٔ بصری (فضا، خط و شکل، تُن، رنگ، حرکت، ریتم، داستان)، هرکدام با حالت‌های شمارش‌پذیر، و اصل حاکم <b>شدت بصری متناسب با کنتراست</b>. یک <b>مقیاس عددی به‌ازای هر مؤلفه</b> به‌علاوهٔ قاعدهٔ ترکیب</td><td><span class="tag t-g">۱ — اول این</span> قابل‌پیاده‌سازی‌ترین متن craft موجود</td></tr>
+<tr><td><b>Mascelli, «The Five C's of Cinematography»</b></td><td>خط ۱۸۰ درجه، قاعدهٔ ۳۰ درجه، تاکسونومی اندازه و زاویه (عینی/ذهنی/POV)، چیدمان مثلثی. قواعد سخت و شمارش‌پذیر</td><td><span class="tag t-g">۲</span> متن کامل در Internet Archive</td></tr>
+<tr><td><b>Murch, «In the Blink of an Eye»</b></td><td><b>قاعدهٔ شش</b> با وزن‌های عددی: احساس ۵۱٪، داستان ۲۳٪، ریتم ۱۰٪، ردیابی چشم ۷٪، صفحهٔ دوبعدی ۵٪، فضای سه‌بعدی ۴٪ — عیناً یک تابع امتیازدهی</td><td><span class="tag t-g">۳</span> <span class="conf c2">درصدها را از خود کتاب تأیید کنید</span></td></tr>
+<tr><td><b>Bellantoni, «If It's Purple, Someone's Gonna Die»</b></td><td>جدول فام به کارکرد روایی، فصل‌بندی‌شده بر اساس رنگ، مشتق از تحلیل صدها فیلم</td><td><span class="tag t-y">۴</span> <b>عرف است نه شواهد</b> — ولی عرفی که مخاطب یاد گرفته بخواند، و همین برای موتور خلاق کافی است</td></tr>
+<tr><td><b>Chion, «Audio-Vision»</b> · <b>Sonnenschein, «Sound Design»</b></td><td>Chion: ارزش افزوده، synchresis، قرارداد سمعی-بصری، و <b>تمایز empathetic/anempathetic</b> که یک گرهٔ تصمیم دودویی واقعی برای انتخاب موسیقی است. Sonnenschein: تجزیهٔ صدا به ریتم، شدت، زیر و بمی، طنین، سرعت، شکل — قابل تبدیل به بازهٔ پارامتر</td><td><span class="tag t-y">۵</span></td></tr>
+<tr><td><b>Blain Brown, «Cinematography: Theory and Practice»</b> · <b>Kenworthy, «Master Shots»</b></td><td>Brown: لایهٔ فنی/نوری — نوردهی، پرسپکتیو لنز، نسبت نور، دمای رنگ. Kenworthy: کاتالوگ چیدمان‌های نام‌دار با نمودار و اثر عاطفی اعلام‌شده — <b>ساختاراً یک پایگاه داده است نه کتاب</b></td><td><span class="tag t-y">۶</span></td></tr>
+<tr><td><b>Cinemetrics</b> (دانشگاه شیکاگو) · <b>Barry Salt</b></td><td>ابزار ثبت نما و پایگاه ASL. Salt فراتر می‌رود: <b>توزیع اندازهٔ نما روی مقیاس استاندارد ۹ نقطه‌ای، نسبت حرکت دوربین، فراوانی کات معکوس</b> — یعنی پروفایل سبک نه یک عدد</td><td><span class="tag t-b">روش‌شناسی</span> <b>الگوی جریان ۴ فاز R3.</b> داده جمع‌سپاری‌شده با دقت متغیر است؛ خروجی <code>.cmsx</code> اختصاصی و بدون API انبوه</td></tr>
+</table>
+</div>
+<p class="note"><b>تصحیح یک اشتباه رایج:</b> «Painting with Light» نوشتهٔ <b>John Alton</b> است (۱۹۴۹)، نه Nestor Almendros. Almendros کتاب «A Man with a Camera» را نوشته. Alton منبع چیدمان‌های نام‌دار نور در سنت نوآر است؛ Almendros منبع دکترین نور طبیعی و در دسترس. <span class="conf c1">تأییدشده</span></p>
+<p class="note"><b>و یک شکاف واقعی:</b> برای تیزر خودرو و محصول، <b>هیچ اثر مرجع قابل استنادی وجود ندارد</b> <span class="conf c1">تأییدشده به‌عنوان غایب</span>. آنچه هست: محتوای فروشندهٔ تجهیزات، یک دورهٔ Udemy، و مقالات پراکندهٔ ASC. این لایه فقط از فاز R4 (مصاحبهٔ خبره) و تحلیل نمونه‌های مرجع می‌آید.</p>
+
+<h3>۹٫۷ پایگاه‌های داده و آرشیوهای ساختاریافته</h3>
+<div class="tw">
+<table>
+<tr><th>منبع</th><th>فیلدهای ساختاریافته</th><th>دسترسی</th></tr>
+<tr><td><b>Shot.cafe</b></td><td>نوع نما، زاویه، نور (شمع، نئون، فلر، سیلوئت، سیاه‌وسفید)، شب/روز، داخلی/خارجی، کارگردان، <b>مدیر فیلم‌برداری</b>، طراح صحنه، سال، نسبت تصویر، ژانر، پالت رنگ قابل جست‌وجو</td><td><span class="tag t-g">رایگان</span> ۲۴٬۳۲۱ نما · ۱۰۹٬۹۴۱ تگ · ۱۸۷ فیلم · ۲۳ تیزر <span class="conf c1">تأییدشده</span></td></tr>
+<tr><td><b>ShotDeck</b></td><td>۳۰+ دسته، ۵۰+ کلیدواژه: عوامل، ژانر، <b>دوربین و لنز</b>، کادربندی، نور، رنگ، ترکیب‌بندی، لوکیشن، احساس چهره. شامل تیزرهای تبلیغاتی</td><td><span class="tag t-y">اشتراکی</span> <b>بدون API، بدون خروجی انبوه، تاکسونومی مستندنشده.</b> بنیان‌گذار: Lawrence Sher, ASC</td></tr>
+<tr><td><b>Film-Grab</b></td><td>کارگردان، مدیر فیلم‌برداری، طراح صحنه، طراح لباس، نسبت تصویر، کشور، ژانر، سال. <b>هیچ تگ craft سطح‌نما ندارد</b></td><td><span class="tag t-g">رایگان</span></td></tr>
+<tr><td><b>Ads of the World</b> (بخشی از Clio Network)</td><td>کلیدواژه · مدیوم (۱۲ نوع) · صنعت (۴۰+) · منطقه · کشور · مجموعه</td><td><span class="tag t-g">رایگان</span> اسکیمای کم‌عمق — <b>به‌عنوان پیکره مفید، به‌عنوان منبع قاعده بی‌فایده</b></td></tr>
+<tr><td><b>TikTok Creative Center</b></td><td>Top Ads با فیلتر منطقه، صنعت، هدف، مدت، رتبه‌بندی عملکرد</td><td><span class="tag t-g">عمدتاً رایگان</span> <b>دسترس‌پذیرترین منبع ساختاریافتهٔ عملکرد تبلیغ</b></td></tr>
+<tr><td><b>WARC · Cannes LOVE THE WORK · Effie</b></td><td>مطالعات موردی مرتبط با نتیجهٔ تجاری؛ Effie قالب یکنواخت دارد (چالش، هدف، بینش، راهبرد، اجرا، نتایج) و بنابراین غیرعادی قابل پارس است</td><td><span class="tag t-r">پولی سازمانی</span> غنی‌ترین مخزن اثربخشی موجود، و شرایطش تقریباً قطعاً استخراج انبوه را منع می‌کند</td></tr>
+</table>
+</div>
+
+<h3>۹٫۸ روش‌شناسی مهندسی دانش</h3>
+<div class="tw">
+<table>
+<tr><th>روش</th><th>مرجع کانونیک</th><th>کجا استفاده می‌شود</th></tr>
+<tr><td><b>Ontology Development 101</b></td><td>Noy &amp; McGuinness, Stanford KSL 2001 — رایگان، ۳۰ صفحه</td><td>R0 — بهترین شروع ۳۰ صفحه‌ای برای تیمی که تازه وارد می‌شود</td></tr>
+<tr><td><b>NeOn Methodology</b></td><td>Suárez-Figueroa و همکاران، <i>Applied Ontology</i> 10(2), 2015</td><td>R0/R1/R2 — <b>دقیقاً برای ساخت با استفادهٔ مجدد از منابع موجود طراحی شده</b>، که وضعیت شماست</td></tr>
+<tr><td><b>Competency Questions</b></td><td>Grüninger &amp; Fox (1995) · مرور ER 2023</td><td>R0 و R6 — تنها معیار پیشرفت لایهٔ دانش</td></tr>
+<tr><td><b>CommonKADS</b></td><td>Schreiber و همکاران، MIT Press 2000</td><td>R5 — لایه‌بندی domain / inference / task و ساختار کلی مدل دانش</td></tr>
+<tr><td><b>Cognitive Task Analysis</b></td><td>Crandall, Klein &amp; Hoffman, «Working Minds», MIT Press 2006</td><td>R4 — کتاب مرجع اگر قرار است نظام‌مند با کارگردان‌ها مصاحبه کنید</td></tr>
+<tr><td><b>Critical Decision Method</b></td><td>Klein, Calderwood &amp; MacGregor (1989) · مطالعهٔ روش‌شناختی: Hoffman و همکاران، <i>Human Factors</i> 40(2), 1998</td><td>R4 — بیرون کشیدن استدلال یک تصمیم واقعی</td></tr>
+<tr><td><b>Laddering / Means-End Chain</b></td><td>Reynolds &amp; Gutman, <i>Journal of Advertising Research</i> 28(1), 1988</td><td>R4 — <b>از خود صنعت تبلیغات آمده</b>؛ ماتریس دلالت و نقشهٔ ارزش سلسله‌مراتبی که ساختاراً همان گراف دانش است</td></tr>
+<tr><td><b>Repertory Grid</b></td><td>Kelly (1955) · Fransella, Bell &amp; Bannister, «A Manual for Repertory Grid Technique», Wiley</td><td>R1 و R4 — کشف <b>ابعاد واقعی</b> بدون تحمیل ابعاد خودتان؛ فوق‌العاده متناسب با دامنهٔ بصری</td></tr>
+<tr><td><b>Protocol Analysis</b></td><td>Ericsson &amp; Simon, MIT Press 1984/1993</td><td>R4 — دیدن فرآیند در لحظه</td></tr>
+<tr><td><b>LinkML · SHACL · Protégé</b></td><td>linkml.io · W3C SHACL 1.2 (پیش‌نویس کاری ۳۰ ژوئن ۲۰۲۶) · protege.stanford.edu</td><td>B1 — یک منبع حقیقت که JSON Schema + OWL + SHACL تولید می‌کند</td></tr>
+</table>
+</div>
+
+<!-- ============ 10 ============ -->
+<h2 id="s10" class="part"><span class="n">۱۰</span>چگونه بفهمیم به نتیجه رسیده‌ایم — معیارها در چهار سطح</h2>
+
+<p>این پرسش شما بود و مهم‌ترین پرسش کل سند است. پروژه‌های دانش‌محور نه به‌خاطر بدی دانش، بلکه به‌خاطر <b>نداشتن تعریفی از تمام شدن</b> شکست می‌خورند. چهار سطح معیار لازم است، از فوری به نهایی.</p>
+
+<div class="tw">
+<table>
+<tr><th>سطح</th><th>پرسش</th><th>معیار</th><th>چه وقت اندازه می‌گیرید</th></tr>
+<tr><td><b>۱ — انسجام</b></td><td>آیا دانشی که ساخته‌ایم اصلاً منسجم است؟</td><td>SHACL بدون خطا اجرا می‌شود · هیچ اصطلاح یتیمی نیست · هر قاعده منبع دارد · هیچ دو قاعده‌ای بدون قاعدهٔ اولویت تعارض ندارند</td><td>هر commit — خودکار در CI</td></tr>
+<tr><td><b>۲ — پوشش</b></td><td>آیا به پرسش‌هایی که قرار بود جواب می‌دهد؟</td><td><b>درصد پرسش‌های صلاحیت پاسخ‌داده‌شدهٔ درست.</b> هدف ماه ۳: ۵۰٪ · ماه ۶: ۸۰٪ · ماه ۹: ۹۵٪</td><td>ماهانه</td></tr>
+<tr><td><b>۳ — سودمندی</b></td><td>آیا خروجی سیستم را یک حرفه‌ای می‌پذیرد؟</td><td><b>نرخ پذیرش شات‌لیست:</b> چه درصدی از شات‌لیست تولیدشده بدون تغییر پذیرفته می‌شود · و <b>آزمون کور جفتی</b>: در مقایسهٔ کور، خروجی با قاعده در برابر خروجی بدون قاعده</td><td>هر پروژهٔ واقعی</td></tr>
+<tr><td><b>۴ — اقتصادی</b></td><td>آیا پول ساخت؟</td><td><b>نسبت تولید به پذیرش</b> و <code>cost_per_accepted_shot</code> و <code>time_to_accepted_shot</code> — همان KPIهای سند ۲٫۰</td><td>پیوسته از Ledger</td></tr>
+</table>
+</div>
+
+<div class="box acc">
+<h4>چرا هر چهار سطح لازم است — و چه اتفاقی می‌افتد اگر یکی را حذف کنید</h4>
+<ul>
+<li><b>فقط سطح ۱:</b> یک هستان‌شناسی زیبا و بی‌مصرف. رایج‌ترین سرنوشت پروژه‌های دانشگاهی این حوزه — و بخش ۹ نشان داد چند تای‌شان همین شدند.</li>
+<li><b>فقط سطح ۲:</b> پایگاه دانشی که به پرسش‌های خودش جواب می‌دهد ولی حرفه‌ای‌ها خروجی‌اش را رد می‌کنند.</li>
+<li><b>فقط سطح ۳:</b> سیستمی که خوب کار می‌کند و نمی‌دانید چرا — پس نمی‌توانید بهبودش بدهید یا بفروشیدش.</li>
+<li><b>فقط سطح ۴:</b> همان wrapper که سند ۲٫۰ از آن می‌ترسید. عدد خوب می‌شود چون اپراتور خوب است، نه چون سیستم خوب است.</li>
+</ul>
+</div>
+
+<h3>معیارهای عددی پیشنهادی — با تبصرهٔ صداقت</h3>
+<div class="tw">
+<table>
+<tr><th>معیار</th><th>مبنا</th><th>هدف ماه ۶</th><th>هدف ماه ۱۲</th></tr>
+<tr><td>پرسش‌های صلاحیت پاسخ‌داده‌شده</td><td>—</td><td>۸۰٪</td><td>۹۵٪</td></tr>
+<tr><td>نسبت قواعد ردهٔ E + C به کل</td><td>ماه ۱: نزدیک صفر (همه ردهٔ A)</td><td>۴۰٪</td><td>۶۵٪</td></tr>
+<tr><td>پذیرش شات‌لیست بدون تغییر</td><td>—</td><td>۵۰٪</td><td>۷۵٪</td></tr>
+<tr><td>برد در آزمون کور جفتی (با قاعده vs بدون قاعده)</td><td>۵۰٪ = بی‌اثر</td><td>۶۰٪</td><td>۷۰٪</td></tr>
+<tr><td><b>نسبت تولید به پذیرش</b></td><td><b>تنها مرجع عمومی: ۵۶ به ۱</b> (تیزر GWM برزیل) <span class="conf c1">تأییدشده</span></td><td>۲۵ به ۱</td><td>۱۲ به ۱</td></tr>
+<tr><td>پایایی بین‌کدگذار حاشیه‌نویسی</td><td>—</td><td>۸۰٪</td><td>۹۰٪</td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<h4>تبصرهٔ صداقت دربارهٔ این اعداد</h4>
+<p>اعداد ستون «هدف» <b>اختیاری و بدون پشتوانهٔ بیرونی‌اند</b> <span class="conf c3">تأییدنشده</span>. هیچ عدد عمومی قابل اعتمادی برای «نرخ پذیرش در تولید واقعی» جز مورد GWM وجود ندارد؛ شرکت‌ها این را محرمانه نگه می‌دارند. این یعنی دو چیز: هیچ بنچمارکی برای مقایسه ندارید، <b>و به محض اینکه شروع به اندازه‌گیری کنید، دادهٔ شما از دادهٔ اکثر بازار بهتر است.</b> اعداد بالا را به‌عنوان نقطهٔ شروع بگذارید و بعد از دو ماه با دادهٔ واقعی خودتان بازتنظیمشان کنید.</p>
+</div>
+
+<h3>پنج نشانهٔ خطر — علائمی که یعنی برنامه از ریل خارج شده</h3>
+<div class="grid g2">
+<div class="card"><div class="t">۱. واژگان رشد می‌کند، قواعد نه</div><div class="d">اگر نسبت اصطلاح به قاعده بالای ۳ به ۱ رفت، در حال ساخت یک دیکشنری هستید نه یک موتور تصمیم. متوقف شوید و قاعده بنویسید.</div></div>
+<div class="card"><div class="t">۲. هیچ قاعده‌ای حذف نمی‌شود</div><div class="d">اگر سه ماه گذشته و هیچ قاعده‌ای هرس نشده، حلقهٔ اعتبارسنجی کار نمی‌کند. یعنی هیچ‌چیز واقعاً آزمون نشده.</div></div>
+<div class="card"><div class="t">۳. قواعد ردهٔ A ثابت مانده‌اند</div><div class="d">قاعدهٔ ردهٔ A که شش ماه است ردهٔ A مانده، احتمالاً قابل آزمون نیست — و آن‌وقت قاعده نیست، سلیقه است. یا آزمونش کنید یا حذفش کنید.</div></div>
+<div class="card"><div class="t">۴. اپراتور از سیستم عبور می‌کند</div><div class="d">اگر کاربر خبره مرتب شات‌لیست تولیدشده را دور می‌ریزد و از اول می‌نویسد، دانش شما به تصمیم وصل نشده. این را از Ledger ببینید نه از حرف او.</div></div>
+<div class="card"><div class="t">۵. کد و دانش واگرا شده‌اند</div><div class="d">اگر در جلسهٔ دوهفتگی قفل، فهرست «فیلدهای بی‌تعریف» یا «اصطلاحات بی‌استفاده» طولانی‌تر می‌شود، دو مسیر دارند از هم دور می‌شوند. این خاموش‌ترین و کشنده‌ترین حالت شکست مسیر ج است.</div></div>
+<div class="card"><div class="t">۶. پرسش‌های صلاحیت عوض می‌شوند</div><div class="d">اگر به‌جای پاسخ دادن به پرسش‌ها، دارید پرسش‌ها را بازنویسی می‌کنید تا با دانش موجود بخوانند، معیار را از دست داده‌اید. تغییر پرسش باید مکتوب و توجیه‌شده باشد.</div></div>
+</div>
+
+<!-- ============ 11 ============ -->
+<h2 id="s11"><span class="n">۱۱</span>تقویم ۱۲ ماههٔ یکپارچه</h2>
+
+<p>این تقویم مسیر ج را فرض می‌کند. اگر مسیر ب را انتخاب کردید، ستون تحقیق را به R0، R1 و R3 محدود کنید و بقیه را به سال دوم ببرید.</p>
+
+<div class="tw">
+<table>
+<tr><th>بازه</th><th>تحقیق</th><th>ساخت</th><th>تولید واقعی</th><th>دستاورد پایان بازه</th></tr>
+<tr><td><b>ماه ۱</b></td><td>R0 کامل · R1 آغاز</td><td>B0 — سه اسکیما + Registry</td><td>—</td><td>۳۰ پرسش صلاحیت · قلمرو قفل‌شده · Shot IR v2</td></tr>
+<tr><td><b>ماه ۲</b></td><td>R1 کامل · R2 آغاز</td><td>B1 — CLI، Ledger، کش</td><td>پروژهٔ ۱ (نمونه‌کار)</td><td>واژگان هم‌تراز با MovieLabs · اولین نمای کاملاً بازتولیدپذیر</td></tr>
+<tr><td><b>ماه ۳</b></td><td>R2 کامل · R3 جریان ۱ و ۲</td><td>B1 — گیت‌های L1</td><td>پروژهٔ ۲</td><td>Brand DNA برای ۸ برند · قواعد پلتفرمی استخراج‌شده<br><b>نقطهٔ بازبینی اول: آیا ادامه بدهیم؟</b></td></tr>
+<tr><td><b>ماه ۴</b></td><td>R3 جریان ۳ و ۴ · R4 آغاز</td><td>B2 — موتور قواعد</td><td>پروژهٔ ۳ و ۴</td><td>پیکرهٔ ۴۰ تیزر حاشیه‌نویسی‌شده · اولین خروجی موتور قواعد</td></tr>
+<tr><td><b>ماه ۵</b></td><td>R3 کامل · R4 مصاحبه‌ها</td><td>B2 — کامپایلر پرامپت</td><td>پروژهٔ ۵</td><td>~۱۲۰ قاعده · فهرست کدهای دلیل رد</td></tr>
+<tr><td><b>ماه ۶</b></td><td>R4 کامل · R6 آغاز</td><td>B2 کامل · B3 آغاز</td><td>پروژهٔ ۶</td><td><b>نقطهٔ بازبینی دوم — قرارداد شکست اینجا آزمون می‌شود:</b> آیا موتور قواعد نرخ پذیرش را بهبود داده؟</td></tr>
+<tr><td><b>ماه ۷–۸</b></td><td>R5 · R6 حلقهٔ A/B</td><td>B3 — گیت‌ها، بوم، صف بازبینی</td><td>۲ تا ۳ پروژه در ماه</td><td>گراف تصمیم · اولین قواعد ارتقایافته به ردهٔ E</td></tr>
+<tr><td><b>ماه ۹–۱۰</b></td><td>R5 کامل · R6</td><td>B3 کامل · B4 آغاز</td><td>۳ تا ۴ پروژه در ماه</td><td><b>اپراتور غیرفنی مستقل کار می‌کند</b> · جدول اتوماسیون تصمیم‌ها</td></tr>
+<tr><td><b>ماه ۱۱–۱۲</b></td><td>R6 · بازبینی سه‌ماههٔ فاسدشدنی‌ها</td><td>B4 — چندمستأجری، API، FinOps</td><td>۵+ پروژه در ماه</td><td>Router امتیازی با دادهٔ واقعی · حلقهٔ بازخورد عملکرد فعال</td></tr>
+</table>
+</div>
+
+<div class="box pur">
+<h4>دو نقطهٔ بازبینی اجباری — و اینکه در هرکدام چه تصمیمی می‌گیرید</h4>
+<p><b>پایان ماه ۳:</b> آیا لایهٔ دانش دارد به تصمیم تبدیل می‌شود یا در حال تبدیل شدن به دایرةالمعارف است؟ معیار: حداقل ۳۰ قاعدهٔ نوشته‌شده که هرکدام <b>در یک پرسش صلاحیت استفاده می‌شوند</b>. اگر نه، به مسیر ب برگردید و لایهٔ دانش را سبک کنید.</p>
+<p><b>پایان ماه ۶:</b> این نقطه‌ای است که قرارداد شکست R0 آزمون می‌شود. معیار: در آزمون کور جفتی، خروجی «با قاعده» باید بیش از ۵۵٪ برنده شود. اگر ۵۰٪ بود، موتور قواعد کاری نمی‌کند و باید یا قواعد را بازنویسی کنید یا بپذیرید که در این دامنه، دانش صریح مزیت نمی‌سازد و سرمایه را به جای دیگری ببرید. <b>این بند را جدی بگیرید — بدون آن، پروژه هرگز تمام نمی‌شود.</b></p>
+</div>
+
+<!-- ============ 12 ============ -->
+<h2 id="s12"><span class="n">۱۲</span>ریسک‌ها و آنچه این برنامه را می‌شکند</h2>
+
+<div class="crit">
+<div class="h">۱. تورم دانش — شایع‌ترین حالت شکست</div>
+<div class="why">پایگاه دانش تا بی‌نهایت رشد می‌کند چون همیشه چیز بیشتری برای اضافه کردن هست، و هیچ‌وقت به تصمیم تبدیل نمی‌شود. این دقیقاً ریسکی است که پیشنهاد «سه ماه فقط دانش» را خطرناک می‌کند.</div>
+<div class="fix"><b>کاهش:</b> قاعدهٔ CI که هر اصطلاح یتیم را علامت می‌زند · نقطهٔ بازبینی ماه ۳ · نسبت اصطلاح به قاعده به‌عنوان معیار سلامت هفتگی.</div>
+</div>
+
+<div class="crit">
+<div class="h">۲. علم‌نمایی — بدترین حالت شکست، چون نامرئی است</div>
+<div class="why">اعداد Aaker را از حدس پر می‌کنید، قواعد ردهٔ A را بدون برچسب می‌گذارید، و شش ماه بعد سیستمی دارید که با اطمینان کامل، حدس‌های شما را به کاربر می‌فروشد. این از نداشتن سیستم بدتر است چون قابل تشخیص نیست.</div>
+<div class="fix"><b>کاهش:</b> فیلد <code>evidence_class</code> اجباری در اسکیمای قاعده · فیلد <code>source</code> اجباری در هر نمرهٔ برند · نمایش ردهٔ اعتبار در رابط کاربری وقتی سیستم توضیح می‌دهد چرا.</div>
+</div>
+
+<div class="crit">
+<div class="h">۳. وابستگی به واژگان MovieLabs که تازه متولد شده</div>
+<div class="why">CV v1.0 بیست روز سن دارد، هیچ سابقهٔ پذیرشی ندارد، و ممکن است در نسخهٔ ۲ به‌کلی عوض شود یا اصلاً پذیرفته نشود.</div>
+<div class="fix"><b>کاهش:</b> واژگان خودتان را به‌عنوان لایهٔ مستقل نگه دارید و MovieLabs را <b>نگاشت</b> کنید نه <b>جایگزین</b>. فایل <code>mapping-movielabs.csv</code> دقیقاً برای همین است — اگر استاندارد عوض شد، فقط نگاشت را عوض می‌کنید. هزینهٔ این احتیاط نزدیک صفر است.</div>
+</div>
+
+<div class="crit">
+<div class="h">۴. پراکندگی تیم تک‌نفره</div>
+<div class="why">مسیر ج به دو مهارت متفاوت نیاز دارد که به‌ندرت در یک نفر جمع می‌شوند: مهندسی نرم‌افزار و مهندسی دانش/قضاوت خلاق. یک نفر که هر دو را می‌کند، هر دو را کند می‌کند.</div>
+<div class="fix"><b>کاهش:</b> صادقانه ارزیابی کنید. اگر تک‌نفره‌اید، مسیر ب با لایهٔ دانش سبک (فقط R0، R1، R3) انتخاب درست است — نه یک عقب‌نشینی.</div>
+</div>
+
+<div class="crit">
+<div class="h">۵. فرض اینکه مدل‌های بینایی می‌توانند سبک سینمایی را بخوانند</div>
+<div class="why">اگر معماری ارزیابی یا حاشیه‌نویسی خودکارتان بر این فرض بنا شود، می‌شکند. ShotBench نشان داد GPT-4o در تشخیص زبان سینمایی زیر ۶۰٪ امتیاز می‌گیرد. <span class="conf c1">تأییدشده</span></div>
+<div class="fix"><b>کاهش:</b> حاشیه‌نویسی پیکره را دستی یا نیمه‌خودکار با بازبینی انسانی انجام بدهید · اگر از مدل بینایی استفاده می‌کنید، مجموعهٔ ارزیابی خودتان را بسازید و عدد دقتش را بدانید · لایهٔ L3 سند ۲٫۰ را فقط برای پرسش‌های عینی به کار ببرید نه زیبایی‌شناسی.</div>
+</div>
+
+<div class="crit">
+<div class="h">۶. عقب افتادن از بازار در حین ساخت دانش</div>
+<div class="why">در بازاری که هر شش هفته مدل جدید می‌آید، شش ماه تمرکز روی دانش یعنی رقیبی که ساده‌تر ساخت، زودتر مشتری گرفت.</div>
+<div class="fix"><b>کاهش:</b> این دقیقاً دلیل وجود ستون «تولید واقعی» در تقویم است. حتی در مسیر ج، از ماه ۲ پروژهٔ واقعی اجرا می‌کنید. دانش <b>هرگز</b> نباید مانع تحویل شود؛ باید کیفیت تحویل را بالا ببرد.</div>
+</div>
+
+<div class="crit">
+<div class="h">۷. ریسک‌های موروثی از دو سند قبلی که همچنان برقرارند</div>
+<div class="why">هیچ‌کدام از این‌ها با اضافه شدن لایهٔ دانش حل نمی‌شوند: ارزیابی خودکار کیفیت همچنان حل‌نشده‌ترین بخش است · پیوستگی بین نماها پرتکرارترین دلیل شکست پروژه‌های واقعی است · رانش نسخهٔ مدل بازتولیدپذیری را می‌شکند · فیزیک حرکت هنوز قابل اعتماد نیست · مصرف تجاری Kling ممنوع است و Seedance اختلاف حقوقی فعال دارد · <b>مادهٔ ۵۰ قانون هوش مصنوعی اتحادیهٔ اروپا از ۲ اوت ۲۰۲۶ لازم‌الاجرا می‌شود — یعنی چند روز دیگر</b>. <span class="conf c1">تأییدشده</span></div>
+<div class="fix"><b>کاهش:</b> بخش‌های ۱۲ و ۱۴ سند ۲٫۰ و بخش ۱۴ سند ۱٫۰ همچنان معتبرند و این سند جایگزینشان نیست. لایهٔ دانش یک <b>افزوده</b> است، نه یک بازنویسی.</div>
+</div>
+
+<!-- ============ A ============ -->
+<h2 id="sa" class="part"><span class="n">پ‌الف</span>اسکیمای اولیهٔ سه شیء بنیادی</h2>
+
+<p>این سه فایل، خروجی هفته‌های اول‌اند. عمداً کوچک نگه داشته شده‌اند — رشد باید از دل استفاده بیاید نه از دل طراحی.</p>
+
+<h3>الف‑۱ — اصطلاح واژگان (خروجی R1)</h3>
+<pre><span class="c"># grammar/_linkml/camera_movement.yaml — نمونه در سبک LinkML</span>
+<span class="k">id</span>: https://example.org/grammar/camera_movement/orbit
+<span class="k">label</span>: Orbit
+<span class="k">label_fa</span>: اربیت
+<span class="k">axis</span>: camera_movement
+<span class="k">aligns_to</span>:
+  movielabs_cv: <span class="s">"cv:CameraMovement/Orbit"</span>   <span class="c"># نگاشت، نه جایگزینی</span>
+  ada_filmontology: <span class="s">"ada:cameraMovementCircular"</span>
+<span class="k">definition</span>: >
+  حرکت پیوستهٔ دوربین روی کمانی حول سوژه، با فاصلهٔ تقریباً ثابت.
+<span class="k">creative_intent</span>: >
+  سوژه را به‌عنوان ابژهٔ سه‌بعدی تثبیت می‌کند و به آن وزن و اهمیت می‌دهد؛
+  در تیزر محصول، رایج‌ترین حرکت نمای ریوایل است.
+<span class="k">parameters</span>:                              <span class="c"># چیزی که MovieLabs ندارد و شما لازم دارید</span>
+  degrees:   { type: integer, min: 15, max: 360 }
+  direction: { type: enum, values: [cw, ccw] }
+  speed:     { type: enum, values: [very_slow, slow, medium, fast] }
+  easing:    { type: enum, values: [none, ease_in, ease_out, ease_both] }
+<span class="k">constraints</span>:                            <span class="c"># قید سخت، ورودی اعتبارسنجی SHACL</span>
+  - <span class="s">"degrees / speed_factor  =&lt;  shot.duration_s"</span>
+  - <span class="s">"requires model.controls.camera &gt;= 2"</span>
+<span class="k">model_support</span>:                          <span class="c"># پل به Model Registry</span>
+  well_supported: [kling, seedance, higgsfield]
+  descriptive_only: [veo, sora]
+<span class="k">used_in_rules</span>: [R3-041, R3-042, R3-088]  <span class="c"># اگر خالی بماند، اصطلاح یتیم است</span>
+<span class="k">source</span>: { id: movielabs_cv_v1, verified_on: 2026-07-28 }
+</pre>
+
+<h3>الف‑۲ — قاعدهٔ تصمیم (خروجی R3)</h3>
+<pre><span class="c"># rules/camera/R3-042.yaml</span>
+<span class="k">id</span>: R3-042
+<span class="k">axis</span>: camera_movement
+<span class="k">statement_fa</span>: >
+  در نمای ریوایل محصول برای برندی با Sophistication بالا،
+  حرکت دوربین باید اربیت آرام باشد نه حرکت سریع یا دراماتیک.
+
+<span class="k">when</span>:                                    <span class="c"># شرط — بدون این، قاعده در اولین تعارض می‌شکند</span>
+  shot.narrative_role: hero_reveal
+  brand.aaker.sophistication: { gte: 0.7 }
+  brand.aaker.excitement:     { lte: 0.4 }
+  product.is_focal: true
+
+<span class="k">then</span>:
+  camera.movement.type:  orbit
+  camera.movement.speed: { in: [very_slow, slow] }
+  camera.movement.easing: none
+  shot.duration_s: { gte: 5 }
+
+<span class="k">unless</span>:                                  <span class="c"># استثنا — همیشه باید فکرشده باشد</span>
+  - campaign.objective: performance      <span class="c"># در پرفورمنس، سرعت بر وقار مقدم است</span>
+  - channel.max_duration_s: { lt: 6 }    <span class="c"># در بامپر ۶ ثانیه‌ای جا نمی‌شود</span>
+
+<span class="k">weight</span>: 0.8
+<span class="k">evidence_class</span>: C                       <span class="c"># E شواهد | C عرف | A فرض</span>
+<span class="k">sources</span>:
+  - { id: block_visual_story, note: <span class="s">"movement به‌عنوان مؤلفهٔ کنتراست، فصل ۵"</span> }
+  - { id: corpus_stats_2026q3, note: <span class="s">"۱۴ از ۱۷ نمای ریوایل لوکس در پیکره: اربیت آرام"</span> }
+<span class="k">conflicts_with</span>: [R3-091]               <span class="c"># حل‌شده در conflicts.yaml</span>
+<span class="k">answers_cq</span>: [CQ-07, CQ-19]              <span class="c"># به کدام پرسش صلاحیت پاسخ می‌دهد</span>
+<span class="k">validation</span>:
+  ab_tested: false
+  review_due: 2026-11-01
+</pre>
+
+<div class="box acc">
+<h4>چهار فیلدی که این قاعده را از یک یادداشت جدا می‌کند</h4>
+<p><code>when</code> بدون <code>unless</code> یک قاعدهٔ شکننده است. <code>evidence_class</code> بدون <code>sources</code> یک ادعای بی‌پشتوانه. <code>answers_cq</code> تضمین می‌کند قاعده به یک پرسش واقعی وصل است. <code>review_due</code> تضمین می‌کند قاعده برای همیشه بدون بازبینی نمی‌ماند. اگر فقط چهار فیلد از این اسکیما را نگه دارید، همین‌ها باشند.</p>
+</div>
+
+<h3>الف‑۳ — DNA برند (خروجی R2)</h3>
+<pre><span class="c"># brands/mercedes-benz/dna.yaml</span>
+<span class="k">brand_id</span>: mercedes_benz
+<span class="k">category_ref</span>: category://automotive/luxury_sedan
+
+<span class="k">personality</span>:                            <span class="c"># لایهٔ عددی — ستون فقرات استدلال</span>
+  model: aaker_1997
+  scores: { sincerity: 0.45, excitement: 0.35, competence: 0.85,
+            sophistication: 0.95, ruggedness: 0.30 }
+  source: brand_guideline + team_judgment  <span class="c"># نه پژوهش — و سیستم باید بداند</span>
+  confidence: medium
+
+<span class="k">archetype</span>:                              <span class="c"># لایهٔ روایی — فقط رابط، نه منطق</span>
+  primary: Ruler
+  evidence_class: A                       <span class="c"># صریحاً فرض</span>
+
+<span class="k">distinctive_assets</span>:                    <span class="c"># قید سخت بر تصمیم خلاق</span>
+  - { asset: three_pointed_star, type: logo,  fame: 0.97, uniqueness: 0.95,
+      rule: must_appear_unaltered }
+  - { asset: grille_pattern,     type: form,  fame: 0.72, uniqueness: 0.68,
+      rule: preserve_geometry }
+  - { asset: sonic_logo,         type: audio, fame: 0.31, uniqueness: 0.55,
+      rule: invest_before_relying }       <span class="c"># Fame پایین: هنوز بار برندینگ نمی‌برد</span>
+
+<span class="k">visual_codes</span>:
+  palette_primary: [<span class="s">"#000000"</span>, <span class="s">"#C0C0C0"</span>]
+  palette_accent:  [<span class="s">"#B87333"</span>]
+  delta_e_tolerance: 3.0                  <span class="c"># ورودی مستقیم گیت L1</span>
+  typography_ref: brand://mb/corp_a
+  framing_bias: { symmetry: high, headroom: generous }
+  edit_pace: { asl_target_s: 3.2, max_cuts_per_10s: 4 }
+
+<span class="k">sonic_codes</span>:
+  music_character: [restrained, orchestral, patient]
+  music_relation: empathetic              <span class="c"># Chion — نه anempathetic</span>
+  vo_gender_policy: any
+  vo_delivery: [calm, measured, low_register]
+
+<span class="k">prohibitions</span>:
+  - no_unverified_performance_claims
+  - no_visible_license_plate_text
+  - no_speed_glorification
+  - no_competitor_product_in_frame
+
+<span class="k">memory_ref</span>: ledger://brand/mercedes_benz  <span class="c"># اتصال به K5 — حافظهٔ خلاق</span>
+</pre>
+
+<!-- ============ B ============ -->
+<h2 id="sb"><span class="n">پ‌ب</span>چک‌لیست هفتهٔ اول</h2>
+
+<p>اگر بعد از خواندن این سند فقط یک هفته وقت دارید، این کارها را بکنید. مجموعاً حدود ۲۰ ساعت و تقریباً بدون هزینه.</p>
+
+<div class="tw">
+<table>
+<tr><th style="width:34px">✓</th><th>کار</th><th>زمان</th><th>چرا این</th></tr>
+<tr><td>☐</td><td><b>واژگان MovieLabs را دانلود کنید</b> (JSON) و ۵۴ اصطلاحش را بخوانید</td><td>۲ ساعت</td><td>می‌فهمید چقدر از کار «دستور زبان» قبلاً انجام شده و چه چیزی باقی مانده</td></tr>
+<tr><td>☐</td><td><b>مستندات OMC را مرور کنید</b> — به‌ویژه تک‌نوت Narrative/Production</td><td>۳ ساعت</td><td>تفکیک روایت از تولید و مفهوم Depiction، ساختار داده‌تان را عوض می‌کند</td></tr>
+<tr><td>☐</td><td><b>PDF رایگان Google ABCD را بخوانید و قواعدش را استخراج کنید</b></td><td>۳ ساعت</td><td>ارزان‌ترین قواعد ردهٔ E که وجود دارد. اولین ۱۵ قاعدهٔ شما از اینجا می‌آید</td></tr>
+<tr><td>☐</td><td><b>۳۰ پرسش صلاحیت بنویسید</b> — R0</td><td>۴ ساعت</td><td>تنها چیزی که «تمام شدن» را تعریف می‌کند. بدون این، بقیهٔ برنامه بی‌معناست</td></tr>
+<tr><td>☐</td><td><b>قرارداد شکست را بنویسید</b> — یک پاراگراف</td><td>۳۰ دقیقه</td><td>ارزان‌ترین بیمه در برابر پروژه‌ای که هرگز تمام نمی‌شود</td></tr>
+<tr><td>☐</td><td><b>مخزن گیت را با ساختار بخش ۸٫۱ بسازید</b></td><td>۱ ساعت</td><td>هر روزی که دانش در Notion بماند، یک روز عقب‌افتادن است</td></tr>
+<tr><td>☐</td><td><b>یک نمای واقعی را کامل در Shot IR بنویسید</b></td><td>۲ ساعت</td><td>هر جا مجبور به نوشتن متن آزاد شدید، یک شکاف واژگان پیدا کرده‌اید</td></tr>
+<tr><td>☐</td><td><b>Bruce Block را سفارش بدهید و شروع کنید</b></td><td>۳ ساعت</td><td>قابل‌پیاده‌سازی‌ترین متن craft موجود. هفت مؤلفه با مقیاس عددی</td></tr>
+<tr><td>☐</td><td><b>Shot.cafe را باز کنید و اسکیمای تگ‌هایش را یادداشت کنید</b></td><td>۱ ساعت</td><td>رایگان، تمیزترین اسکیمای عمومی موجود، و بلافاصله به شما می‌گوید چه محورهایی لازم است</td></tr>
+<tr><td>☐</td><td><b>مسیر خودتان را انتخاب کنید</b> — الف، ب یا ج (آزمون چهار پرسشی بخش ۲)</td><td>۳۰ دقیقه</td><td>بقیهٔ برنامه به این وابسته است. تصمیم نگرفتن، خودش انتخاب مسیر ب است — ولی ناخودآگاه</td></tr>
+</table>
+</div>
+
+<!-- ============ C ============ -->
+<h2 id="sc"><span class="n">پ‌ج</span>جدول ادغام — ۱۰ موضوع نقد کجای این برنامه است</h2>
+
+<p>نقد ده موضوع را فهرست کرد که در متن اولیه نبود. این جدول نشان می‌دهد هرکدام کجا رفت، و صادقانه می‌گوید کدام‌ها را این سند تعدیل کرده.</p>
+
+<div class="tw">
+<table>
+<tr><th>#</th><th>موضوع نقد</th><th>کجای این برنامه</th><th>تعدیل یا تأیید</th></tr>
+<tr><td><b>۱</b></td><td>Knowledge Graph</td><td>K2 · فاز R2 · مؤلفهٔ B1</td><td><span class="tag t-y">تعدیل</span> گراف فقط برای دانش (T-Box)؛ دادهٔ عملیاتی در Postgres می‌ماند. ریختن همه‌چیز در گراف، یک خطای معماری رایج است</td></tr>
+<tr><td><b>۲</b></td><td>Creative Memory</td><td>K5 · Generation Ledger سند ۲٫۰ · فاز R6</td><td><span class="tag t-g">تأیید کامل</span> و این همان چیزی است که سند ۲٫۰ هم مستقلاً به آن رسیده بود. <b>تنها دارایی غیرقابل کپی شما</b></td></tr>
+<tr><td><b>۳</b></td><td>Brand DNA</td><td>K4 · فاز R2 · پیوست الف‑۳</td><td><span class="tag t-y">تعدیل</span> ستون فقرات باید بردار Aaker و شبکهٔ DBA باشد، نه فهرست ویژگی. «رنگ، فونت، لحن» ضروری است ولی کافی نیست — چون قابل استدلال نیست</td></tr>
+<tr><td><b>۴</b></td><td>Style Transfer بین پروژه‌ها («مثل اپل ولی برای BMW»)</td><td>خروجی طبیعی K1 + K4 + موتور قواعد B2</td><td><span class="tag t-b">به تعویق</span> این قابلیت <b>نتیجهٔ</b> داشتن واژگان و Brand DNA است، نه یک پروژهٔ مستقل. وقتی بتوانید سبک اپل را در واژگان توصیف کنید و DNA ب‌ام‌و را داشته باشید، این تقریباً رایگان است. قبل از آن، غیرممکن</td></tr>
+<tr><td><b>۵</b></td><td>Asset Graph</td><td>مدل دادهٔ سند ۲٫۰ · هم‌ترازی با OMC در R2</td><td><span class="tag t-g">تأیید</span> با یک ارتقا: به‌جای اختراع مدل، از موجودیت‌های OMC استفاده کنید. کار انجام شده است</td></tr>
+<tr><td><b>۶</b></td><td>Prompt Compiler</td><td>بخش ۹ سند ۲٫۰ · فاز B2</td><td><span class="tag t-g">تأیید کامل</span> سند ۲٫۰ این را با سه گویش (veo_prose، sora_blocks، kling_shots) کامل حل کرده. تنها افزوده: ورودی کامپایلر حالا از موتور قواعد می‌آید نه از دست کاربر</td></tr>
+<tr><td><b>۷</b></td><td>Model Benchmark («کدام مدل، برای چه کاری، در چه شرایطی»)</td><td>Model Registry + Capacity Telemetry سند ۲٫۰ · فیلد <code>model_support</code> در واژگان</td><td><span class="tag t-g">تأیید</span> با یک افزودهٔ مهم: بنچمارک باید <b>به‌ازای هر اصطلاح واژگان</b> باشد نه کلی. «کدام مدل اربیت ۹۰ درجهٔ آرام را درست اجرا می‌کند» یک پرسش قابل آزمون است؛ «کدام مدل بهتر است» نیست</td></tr>
+<tr><td><b>۸</b></td><td>Feedback Loop (اصلاح خودکار پرامپت)</td><td>سه‌لایهٔ ارزیابی سند ۲٫۰ · <code>human_reason_code</code> · حلقهٔ R6</td><td><span class="tag t-r">هشدار</span> «سیستم خودش پرامپت را اصلاح کند» فرض می‌کند ارزیابی خودکار کار می‌کند — <b>و ShotBench نشان داد که نمی‌کند</b> (GPT-4o زیر ۶۰٪). حلقهٔ اصلاح باید از <b>کد دلیل رد انسانی</b> تغذیه شود نه از نمرهٔ ماشین</td></tr>
+<tr><td><b>۹</b></td><td>Human in the Loop</td><td>چهار گیت سند ۲٫۰ · ستون <code>reversibility_cost</code> فاز R5</td><td><span class="tag t-y">تعدیل</span> «انسان همیشه بتواند اصلاح کند» در عمل یعنی هیچ‌وقت اصلاح نمی‌کند. گیت باید <b>اجباری و در نقاط مشخص</b> باشد — و R5 مبنای عددی برای انتخاب آن نقاط می‌دهد</td></tr>
+<tr><td><b>۱۰</b></td><td>Creative OS</td><td>کل این سند</td><td><span class="tag t-g">تأیید مفهومی</span> اما با یک تبصره: «سیستم‌عامل» جایگاهی است که بعد از ساخته شدن به دست می‌آید، نه شعاری که با آن شروع می‌کنند. آنچه سیستم‌عامل می‌سازد، پنج طبقهٔ K1 تا K5 است — نه نامیدنش</td></tr>
+</table>
+</div>
+
+<div class="box good">
+<h4>و یک موضوع یازدهم که نقد نگفت و مهم‌تر از همهٔ ده‌تاست</h4>
+<p><b>هیچ‌کدام از این ده موضوع، تعریفی از «تمام شد» ندارند.</b> این تنها چیزی است که این سند به نقد اضافه می‌کند و بدون آن، هر ده مورد به پروژه‌های بی‌پایان تبدیل می‌شوند. پرسش‌های صلاحیت (R0)، قرارداد شکست (R0)، و دو نقطهٔ بازبینی ماه ۳ و ۶ (بخش ۱۱) دقیقاً برای همین‌اند.</p>
+</div>
+
+<hr>
+
+<div class="box pur">
+<h4>اگر بعد از خواندن این سند فقط یک کار بکنید</h4>
+<p>سند ۲٫۰ گفت: «اسکیمای Shot IR و قرارداد قابلیت Registry را بنویسید». آن توصیه همچنان درست است، اما حالا یک قدم قبل‌ترش هست:</p>
+<p><b>۳۰ پرسش صلاحیت بنویسید و کنارشان قرارداد شکست را.</b> این کار نیم روز طول می‌کشد، هیچ هزینه‌ای ندارد، و تنها چیزی است که تفاوت بین «یک پروژهٔ پژوهشی که در ماه هجدهم هنوز ادامه دارد» و «یک محصول» را می‌سازد. همهٔ آنچه در این سند آمده — هفت فاز تحقیق، پنج فاز ساخت، نُه دستهٔ منبع — بدون آن نیم صفحه، فقط یک فهرست کار است.</p>
+</div>
+
+<p class="note" style="margin-top:30px">تهیه‌شده مرداد ۱۴۰۵ / جولای ۲۰۲۶. این سند جایگزین دو سند قبلی نیست؛ لایهٔ غایب را اضافه می‌کند و ترتیب کار را مشخص می‌کند. بخش‌های معماری نرم‌افزاری، ماتریس ابزار، استانداردهای تحویل و مسائل حقوقی همچنان در سند ۱٫۰ و ۲٫۰ زندگی می‌کنند و باید کنار این خوانده شوند.<br>
+بخش‌های ۱ تا ۸ و ۱۰ تا ۱۲ استدلالی و بادوام‌اند. بخش ۴ و ۹ فاسدشدنی‌اند — نسخهٔ MovieLabs CV و OMC، دیتاست‌ها و وضعیت دسترسی منابع را هر سه ماه بازبینی کنید. اعداد هدف بخش ۱۰ فرضی‌اند و باید با دادهٔ واقعی خودتان جایگزین شوند.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# ─── FlowStudio · فاز ۰ روی سرورِ وبکستینگ (62.220.123.55) ───
+# فقط وب. هیچ دیتابیس/ردیس/مینیویی هنوز لازم نیست — چون هنوز هیچ حالتی
+# ذخیره نمی‌شود جز سرنخ‌های فرمِ تماس.
+#
+# اجرا روی سرور:
+#   cd /opt/flowstudio && docker compose -f deploy/docker-compose.prod.yml up -d --build
+#
+# ⚠️ این پروژه مستقل است: هرگز روی کانتینرها یا شبکهٔ webcasting دست نمی‌زند.
+# nginx سرور (بیرون از این compose) روی پورتِ 3100 پروکسی می‌کند.
+
+services:
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    container_name: flowstudio_web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    environment:
+      NODE_ENV: production
+      FLOWSTUDIO_LEADS_FILE: /data/leads.jsonl
+    volumes:
+      - fs_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3100/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  fs_data:

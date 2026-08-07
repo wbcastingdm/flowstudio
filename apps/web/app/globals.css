@@ -1,0 +1,234 @@
+/* ─── توکن‌های طراحی — عیناً از پروتوتایپِ لوکال (prototype/index.html) استخراج شده ───
+   هر رنگ اینجا یک بار تعریف می‌شود؛ هیچ رنگِ درون‌خطیِ تکراری در JSX نداریم. */
+
+@font-face {
+  font-family: Vazirmatn;
+  src: url('/fonts/Vazirmatn-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazirmatn;
+  src: url('/fonts/Vazirmatn-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazirmatn;
+  src: url('/fonts/Vazirmatn-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazirmatn;
+  src: url('/fonts/Vazirmatn-800.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0f1115;
+  --panel: #12141a;
+  --surface: #171a21;
+  --surface-2: #1d212a;
+  --input: #0b0d12;
+  --line: #2a2f3a;
+
+  --text: #e6e9ef;
+  --muted: #a8b0be;
+  --dim: #7a8394;
+  --white: #fff;
+
+  --accent: #4ea3ff;
+  --accent-soft: #8fc4ff;
+  --accent-bg: #10263d;
+  --accent-line: #235079;
+  --accent-line-2: #3d6a99;
+  --on-accent: #07131f;
+
+  --violet: #a78bfa;
+  --violet-soft: #c4b0ff;
+  --violet-line: #46337a;
+
+  --green: #5fe0b0;
+  --green-bg: #123527;
+  --green-line: #1d5c43;
+
+  --amber: #ffc86b;
+  --amber-bg: #33290f;
+  --amber-line: #6b5320;
+
+  --red: #ff8f8f;
+  --red-bg: #3a1518;
+  --red-line: #6e2529;
+
+  --wrap: 1100px;
+  --radius: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Vazirmatn, Tahoma, sans-serif;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-soft); }
+::selection { background: #24405c; }
+input, textarea, select, button { font-family: inherit; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; }
+.section { padding: 70px 22px; border-bottom: 1px solid var(--line); }
+.h2 { font-size: 28px; font-weight: 800; margin: 0 0 10px; letter-spacing: -.3px; scroll-margin-top: 120px; }
+.lead { margin: 0 0 30px; color: var(--muted); max-width: 60ch; }
+.eyebrow { font-size: 12.5px; font-weight: 800; color: var(--accent); letter-spacing: .4px; margin-bottom: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.grid-half { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.placeholder {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: repeating-linear-gradient(135deg, var(--surface), var(--surface) 8px, var(--surface-2) 8px, var(--surface-2) 16px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 10px;
+}
+.placeholder span { font-family: monospace; font-size: 10.5px; color: var(--dim); direction: ltr; }
+
+/* ─── دکمه‌ها ─── */
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 26px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-block;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn:hover { background: var(--accent-soft); color: var(--on-accent); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+  font-weight: 700;
+  padding: 12px 24px;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent-soft); background: transparent; }
+.btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 9px; }
+
+/* ─── نوارِ بالا ─── */
+.topnav { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 20; }
+.topnav-inner {
+  max-width: var(--wrap); margin: 0 auto; padding: 0 22px; min-height: 52px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 10px; margin-left: 18px; }
+.brand-mark { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--violet)); }
+.brand-name { font-weight: 800; font-size: 15px; color: var(--white); }
+.navlink { font-size: 13.5px; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.navlink:hover { background: var(--surface-2); color: var(--white); }
+.nav-cta { margin-right: auto; }
+
+/* ─── هیرو ─── */
+.hero {
+  padding: 90px 22px 70px;
+  background: linear-gradient(150deg, #0e1a2b 0%, var(--bg) 50%, #1a1030 100%);
+  border-bottom: 1px solid var(--line);
+}
+.pill {
+  display: inline-block; border: 1px solid var(--accent-line); background: var(--accent-bg);
+  color: var(--accent-soft); border-radius: 999px; padding: 4px 14px; font-size: 12.5px; margin-bottom: 22px;
+}
+.hero h1 { font-size: 46px; line-height: 1.45; margin: 0 0 18px; font-weight: 800; letter-spacing: -.8px; max-width: 19ch; }
+.hero p { margin: 0; font-size: 18px; color: var(--muted); max-width: 60ch; line-height: 2; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+.hero-notes { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 38px; font-size: 13px; color: var(--dim); }
+
+/* ─── چهار مرحله ─── */
+.step-num { font-size: 12px; font-weight: 800; color: var(--accent); direction: ltr; text-align: right; }
+.step-num.violet { color: var(--violet-soft); }
+.step-title { font-weight: 800; color: var(--white); font-size: 16px; margin: 6px 0 8px; }
+.step-body { font-size: 13.4px; color: var(--muted); line-height: 1.95; }
+
+/* ─── خروجی‌ها ─── */
+.chip {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 11px 15px; font-size: 13.4px; color: var(--muted);
+}
+.chip b { color: var(--white); }
+
+/* ─── آمار ─── */
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; text-align: center; }
+.stat-n { font-size: 22px; font-weight: 800; color: var(--green); }
+.stat-l { font-size: 12.4px; color: var(--dim); margin-top: 3px; }
+
+/* ─── فرمِ تماس ─── */
+.field-label { font-size: 12.3px; color: var(--dim); margin-bottom: 5px; }
+.field {
+  width: 100%; box-sizing: border-box; background: var(--input); border: 1px solid var(--line);
+  border-radius: 9px; color: var(--text); padding: 10px 12px; font-size: 13.8px;
+}
+.field:focus { outline: none; border-color: var(--accent); }
+.field.ltr { direction: ltr; text-align: right; }
+textarea.field { min-height: 96px; line-height: 1.95; resize: vertical; }
+.contact-row {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 11px;
+  padding: 12px 16px; display: flex; gap: 12px; align-items: center;
+}
+.contact-row .icon { color: var(--accent-soft); }
+.contact-row .k { font-size: 12.3px; color: var(--dim); }
+.contact-row .v { font-size: 14px; color: var(--white); }
+.contact-row .v.ltr { direction: ltr; text-align: right; }
+
+/* ─── فراخوانِ پایانی ─── */
+.cta {
+  background: linear-gradient(140deg, #0e1a2b, #1a1030);
+  border: 1px solid var(--violet-line);
+  border-radius: 18px; padding: 44px 40px; text-align: center;
+}
+.cta h2 { font-size: 30px; font-weight: 800; margin: 0 0 12px; letter-spacing: -.4px; }
+.cta p { margin: 0 auto 26px; color: var(--muted); max-width: 48ch; }
+
+/* ─── فوتر ─── */
+.footer { border-top: 1px solid var(--line); background: var(--panel); padding: 46px 22px 0; }
+.footer-grid { max-width: var(--wrap); margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 28px; }
+.footer h4 { font-size: 12.5px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+.footer-col { display: flex; flex-direction: column; gap: 8px; font-size: 13.2px; }
+.footer-col a { color: var(--muted); }
+.footer-col a:hover { color: var(--accent-soft); }
+.social { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); }
+.social:hover { border-color: var(--accent); color: var(--accent-soft); }
+.footer-bottom {
+  max-width: var(--wrap); margin: 36px auto 0; border-top: 1px solid var(--line);
+  padding: 18px 0 26px; display: flex; flex-wrap: wrap; gap: 14px;
+  justify-content: space-between; font-size: 12.4px; color: var(--dim);
+}
+
+/* ─── ریسپانسیو ───
+   قاعده: هیچ استایلِ درون‌خطی @media نمی‌پذیرد؛ هر شکستِ چیدمان اینجاست. */
+@media (max-width: 860px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 34px; }
+  .hero p { font-size: 16px; }
+  .hero { padding: 60px 20px 50px; }
+  .section { padding: 50px 20px; }
+}
+@media (max-width: 560px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 28px; letter-spacing: -.4px; }
+  .cta { padding: 30px 22px; }
+  .cta h2 { font-size: 23px; }
+  .brand { margin-left: 0; }
+  .nav-cta { margin-right: 0; width: 100%; }
+}
