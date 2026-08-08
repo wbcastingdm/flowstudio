@@ -7,6 +7,10 @@
 
 generator client {
   provider = "prisma-client-js"
+  // ⚠️ روی مک native کافی است، ولی ایمیجِ alpine (musl) با OpenSSL 3 است.
+  // بدونِ این، کانتینر با «libssl.so.1.1: No such file» کرش می‌کند —
+  // و این خطا فقط داخلِ داکر دیده می‌شود، نه روی مک.
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {

@@ -1,0 +1,117 @@
+FlowStudio — دیپلویِ اسپرینتِ ۰+۱ روی سرور — شواهدِ ترمینال (خروجیِ عین)
+۱۸ مرداد ۱۴۰۵ · سرور: 62.220.123.55
+
+════════════════════════════════════════
+۰) وضعیتِ DNSِ دامنهٔ مستقل — بلوکر
+════════════════════════════════════════
+$ dig +short flowstudio.ir A
+(خالی)
+$ dig flowstudio.ir NS +noall +authority @8.8.8.8
+ir.  900  IN  SOA  a.nic.ir. info.nic.ir. ...
+
+⇒ دامنه ثبت شده ولی **هیچ نیم‌سروری ندارد** (NS تفویض نشده). تا وقتی مالک
+در پنلِ ثبت‌کننده نیم‌سرورها را به Cloudflare ندهد و رکوردِ A بسازد، هیچ‌چیز
+روی flowstudio.ir بالا نمی‌آید. کانفیگش آماده است:
+deploy/nginx/flowstudio.ir.conf
+
+پس فعلاً همه‌چیز روی زیردامنهٔ کارکننده دیپلوی شد تا قابلِ دیدن باشد.
+
+════════════════════════════════════════
+۱) کانتینرها روی سرور
+════════════════════════════════════════
+$ docker ps | grep flowstudio
+flowstudio_api        Up (healthy)
+flowstudio_web        Up (healthy)
+flowstudio_postgres   Up (healthy)
+flowstudio_redis      Up (healthy)
+
+⚠️ باگِ واقعی که در دیپلوی پیدا و رفع شد:
+کانتینرِ API در دورِ اول کرش‌لوپ می‌زد:
+  "PrismaClientInitializationError: Unable to require libquery_engine-linux-musl.so.node
+   Details: Error loading shared library libssl.so.1.1: No such file or directory"
+علت: ایمیجِ alpine با OpenSSL 3 است ولی Prisma پیش‌فرض engineِ openssl-1.1 را
+می‌سازد. رفع: binaryTargets = ["native","linux-musl-openssl-3.0.x"] در
+schema.prisma + apk add openssl در Dockerfile.
+🔴 این خطا **فقط داخلِ داکر** دیده می‌شود — روی مک هرگز.
+
+════════════════════════════════════════
+۲) دیتابیسِ سرور
+════════════════════════════════════════
+$ docker exec flowstudio_api npx prisma db push
+🚀  Your database is now in sync with your Prisma schema. Done in 296ms
+
+$ docker exec flowstudio_postgres psql -U flowstudio -d flowstudio -c '\dt'
+ AiModel | AiProvider | Generation | Job | JobGroup | Project
+ ReasonCode | Sequence | Shot | User | Wallet
+(11 rows)   ← برابرِ ۱۱ مدلِ schema.prisma
+
+$ SELECT count(*) FROM "ReasonCode";  →  5
+
+════════════════════════════════════════
+۳) nginx — با بکاپ، تست، و ری‌لود
+════════════════════════════════════════
+$ cp nginx.conf nginx.conf.bak-fs-1786218773      (بکاپ گرفته شد)
+$ python3 /tmp/insert_api_block.py
+INSERTED_OK                                        (بلوکِ /api و /health اضافه شد)
+$ docker exec wbc_nginx nginx -t
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+$ docker exec wbc_nginx nginx -s reload
+signal process started
+
+همسایه‌ها بعد از ری‌لود — همه سالم:
+webcasting.ir            200
+filmto.ir                200
+fahimshop.ir             200
+wegopars.ir              200
+flowstudio.webcasting.ir 200
+
+════════════════════════════════════════
+۴) تستِ زندهٔ سرتاسری از بیرون (HTTPS عمومی)
+════════════════════════════════════════
+$ curl https://flowstudio.webcasting.ir/health
+{"status":"healthy","database":"connected"}
+
+$ curl https://flowstudio.webcasting.ir/api/admin/models
+[]
+
+$ curl -o /dev/null -w "%{http_code}" https://flowstudio.webcasting.ir/admin/models
+200
+
+تستِ نوشتنِ واقعی (بعدش پاک شد):
+$ curl -X POST .../api/admin/providers -d '{"name":"smoke-test",...}'
+{"id":"cmsktd35z0000f25jpsfwyeqn","name":"smoke-test",...,"apiKeyMasked":"smok*********lder"}
+$ curl -X POST .../api/admin/models -d '{...,"modelKey":"smoke-model",...}'
+{"id":"cmsktd4900002f25j51w6q01v","modelKey":"smoke-model",...}
+$ curl .../api/admin/models
+[{... "modelKey":"smoke-model" ... "provider":{"name":"smoke-test"}}]
+
+⇒ مسیرِ کاملِ نوشتن→خواندن روی پروداکشن کار می‌کند.
+
+════════════════════════════════════════
+۵) کلیدِ API واقعاً رمزنگاری می‌شود؟
+════════════════════════════════════════
+$ SELECT name, LEFT("apiKeyEncrypted",40) FROM "AiProvider";
+ smoke-test | 1c643066de125e9145bf2aad:42af33f086ded92
+
+⇒ متنِ خام نیست (AES-256-GCM با iv:tag:data). گاردریلِ منشورِ اجرا رعایت شد.
+
+════════════════════════════════════════
+۶) پاکسازی
+════════════════════════════════════════
+دادهٔ آزمایشی حذف شد؛ وضعیتِ نهایی:
+$ curl https://flowstudio.webcasting.ir/api/admin/models  →  []
+
+════════════════════════════════════════
+آدرس‌های زنده
+════════════════════════════════════════
+https://flowstudio.webcasting.ir/               صفحهٔ فرود
+https://flowstudio.webcasting.ir/admin/models   پنلِ رجیستریِ مدل‌ها  ← دیدنی
+https://flowstudio.webcasting.ir/health         سلامتِ API + دیتابیس
+https://flowstudio.webcasting.ir/api/admin/models
+
+════════════════════════════════════════
+کارِ ماندهٔ مالک (فقط از دستِ او برمی‌آید)
+════════════════════════════════════════
+۱. نیم‌سرورهای flowstudio.ir → Cloudflare، سپس رکوردِ A → 62.220.123.55
+۲. بعدش: گواهیِ Let's Encrypt + افزودنِ بلوکِ deploy/nginx/flowstudio.ir.conf
+۳. کلیدِ واقعیِ یک تجمیع‌کننده تا /api/chat جوابِ واقعی بدهد (اسپرینتِ ۱ کامل شود)

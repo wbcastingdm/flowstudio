@@ -1,26 +1,23 @@
-# ─── FlowStudio · فاز ۰ روی سرورِ وبکستینگ (62.220.123.55) ───
-# فقط وب. هیچ دیتابیس/ردیس/مینیویی هنوز لازم نیست — چون هنوز هیچ حالتی
-# ذخیره نمی‌شود جز سرنخ‌های فرمِ تماس.
+# ─── FlowStudio · اسپرینتِ ۰+۱ روی سرورِ 62.220.123.55 ───
+# وب + API + PostgreSQL + Redis. کاملاً مستقل از وبکستینگ:
+# شبکه، والیوم و کانتینرِ جدا؛ فقط هم‌خانه روی همین سرور.
 #
 # اجرا روی سرور:
-#   cd /opt/flowstudio && docker compose -f deploy/docker-compose.prod.yml up -d --build
+#   cd /opt/flowstudio && docker compose -p flowstudio -f deploy/docker-compose.prod.yml up -d --build
 #
-# ⚠️ این پروژه مستقل است: هرگز روی کانتینرها یا شبکهٔ webcasting دست نمی‌زند.
-# nginx سرور (بیرون از این compose) روی پورتِ 3100 پروکسی می‌کند.
+# ⚠️ 172.18.0.1 گیت‌ویِ شبکهٔ wbc_wbc روی هاست است. nginxِ سرور کانتینر است،
+# پس 127.0.0.1 برایش خودش می‌شود و ما را نمی‌بیند. اگر شبکه بازساخته شد:
+#   docker network inspect wbc_wbc --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
 
 services:
   web:
     build:
       context: ../apps/web
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ""
     container_name: flowstudio_web
     restart: unless-stopped
-    # 172.18.0.1 = گیت‌ویِ شبکهٔ wbc_wbc روی هاست. nginxِ وبکستینگ کانتینر است،
-    # نه سرویسِ هاست؛ پس 127.0.0.1 برایش خودش می‌شود و ما را نمی‌بیند.
-    # از این آدرس ما را می‌بیند، ولی از بیرونِ سرور قابلِ دسترس نیست.
-    # عمداً به شبکهٔ wbc_wbc نمی‌پیوندیم — پروژه مستقل می‌ماند.
-    # ⚠️ اگر شبکهٔ wbc_wbc بازساخته شد، ساب‌نت را دوباره بگیر:
-    #   docker network inspect wbc_wbc --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
     ports:
       - "172.18.0.1:3100:3100"
     environment:
@@ -35,5 +32,60 @@ services:
       retries: 3
       start_period: 20s
 
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: flowstudio_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "172.18.0.1:3200:3200"
+    environment:
+      NODE_ENV: production
+      API_PORT: 3200
+      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:-flowstudio_dev_password}@postgres:5432/flowstudio?schema=public
+      REDIS_URL: redis://redis:6379
+      FLOWSTUDIO_SECRET: ${FLOWSTUDIO_SECRET:-change-me-in-env-file}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3200/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  postgres:
+    image: postgres:16
+    container_name: flowstudio_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flowstudio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flowstudio_dev_password}
+      POSTGRES_DB: flowstudio
+    volumes:
+      - fs_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowstudio -d flowstudio"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7
+    container_name: flowstudio_redis
+    restart: unless-stopped
+    volumes:
+      - fs_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   fs_data:
+  fs_postgres:
+  fs_redis:
