@@ -1,0 +1,98 @@
+FlowStudio — اسپرینتِ ۲ (ایده → بریف) — شواهدِ ترمینال
+۱۸/۱۹ مرداد ۱۴۰۵ · کارِ خودگردان (مالک خواب بود)
+
+════════════════════════════════════════
+۱) روت‌ها ثبت شدند
+════════════════════════════════════════
+$ node dist/src/main.js
+Mapped {/api/projects, POST} route
+Mapped {/api/projects, GET} route
+Mapped {/api/projects/:id, GET} route
+FlowStudio API listening on :3200
+
+════════════════════════════════════════
+۲) مسیرِ خطا صادق است — خروجیِ جعلی نمی‌سازد
+════════════════════════════════════════
+$ curl -X POST localhost:3200/api/projects -d '{"rawIdea":"نانوایی سنگک...","goal":"BRAND_AWARENESS",...}'
+{"message":"هیچ مدلِ TEXTی با commercialUse=true ثبت نشده — اول یک درگاه و
+ مدل در /admin/models اضافه کنید.","statusCode":503}
+HTTP_503
+
+⇒ وقتی مدلی نیست، **شات‌لیستِ ساختگی برنمی‌گرداند** — صریح می‌گوید چه کم است.
+
+════════════════════════════════════════
+۳) مسیرِ موفق — با سرورِ ماکِ محلی تأیید شد
+════════════════════════════════════════
+چون کلیدِ واقعیِ تجمیع‌کننده در دست نبود و برداشتنِ کلید از فایل‌های شخصیِ
+مالک بدونِ اجازه درست نیست، لوله‌کشی با یک سرورِ ماکِ سازگار با OpenAI
+(محلی، پورتِ ۴۹۹۹) تأیید شد. ماک هیچ‌جا دیپلوی نشده و در مخزن نیست.
+
+$ curl -X POST localhost:3200/api/projects -d '{"rawIdea":"نانوایی سنگک محله
+   که شعبه دوم باز کرده","goal":"BRAND_AWARENESS","tone":"WARM_FRIENDLY",
+   "targetDurationSec":30}'
+{
+  "project": {
+    "id": "cmskvywf1000642oiofxg0l48",
+    "title": "افتتاحِ شعبهٔ دومِ نانوایی سنگک",
+    "goal": "BRAND_AWARENESS",
+    "tone": "WARM_FRIENDLY",
+    "sequences": [{
+      "order": 1, "title": "معرفی و دعوت",
+      "shots": [
+        { "order":1,"durationSec":3,"cameraMovement":"STATIC",
+          "description":"نمای نزدیک از خمیرِ داغِ سنگک ...",
+          "aspectRatio":"R9_16","seed":null,"continuityRef":null,"status":"DRAFT" },
+        { "order":2,"durationSec":4,"cameraMovement":"HANDHELD", ... },
+        { "order":3,"durationSec":5,"cameraMovement":"PAN", ... },
+        { "order":4,"durationSec":4,"cameraMovement":"DOLLY", ... }
+      ]
+    }]
+  },
+  "modelUsed": "mock-text", "costActual": 0
+}
+
+⇒ تأیید شد: prompt → فراخوانِ مدل → پارسِ JSON (شاملِ بازکردنِ ```json)
+   → نوشتن در دیتابیس به شکلِ Project → Sequence → Shot → پاسخِ ساختاریافته.
+⇒ costActual = 0 (مرحلهٔ متن همیشه رایگان، نیازِ ۷).
+⇒ continuityRef = null ولی حذف نشده (الزامِ فرم‌بلند، docs/40).
+
+دادهٔ آزمایشی بعدش کاملاً پاک شد.
+
+════════════════════════════════════════
+۴) زنده روی سرور
+════════════════════════════════════════
+$ docker ps | grep flowstudio
+flowstudio_web  Up (healthy)   flowstudio_api  Up (healthy)
+flowstudio_postgres Up (healthy)   flowstudio_redis Up (healthy)
+
+$ curl https://flowstudio.webcasting.ir/health
+{"status":"healthy","database":"connected"}
+$ curl -o /dev/null -w "%{http_code}" .../studio         → 200
+$ curl -o /dev/null -w "%{http_code}" .../app            → 200
+$ curl -o /dev/null -w "%{http_code}" .../admin/models   → 200
+$ curl -X POST .../api/projects -d '{...}'
+{"message":"هیچ مدلِ TEXTی ... ثبت نشده",...,"statusCode":503}   ← صادق
+
+════════════════════════════════════════
+آدرس‌های زنده
+════════════════════════════════════════
+https://flowstudio.webcasting.ir/studio          ← ایده تا شات‌لیست (دیدنی)
+https://flowstudio.webcasting.ir/admin/models    ← رجیستریِ مدل‌ها
+https://flowstudio.webcasting.ir/app             ← وضعیتِ مراحل
+https://flowstudio.webcasting.ir/health
+
+════════════════════════════════════════
+تنها کارِ ماندهٔ اسپرینتِ ۲
+════════════════════════════════════════
+افزودنِ یک درگاهِ واقعی با کلیدِ واقعی از /admin/models.
+بعد از آن، /studio بلافاصله شات‌لیستِ واقعی تولید می‌کند — هیچ کدِ دیگری لازم نیست.
+
+⚠️ یادداشتِ صادقانه: تا وقتی این نشود، «اسپرینتِ ۲ تمام است» را ادعا نمی‌کنم.
+   لوله‌کشی تأیید شده؛ تولیدِ واقعی با مدلِ واقعی هنوز تأیید نشده.
+
+════════════════════════════════════════
+جای‌گیرِ موقتی که باید بعداً برداشته شود
+════════════════════════════════════════
+تا وقتی احرازِ هویت (D-008: موبایل+OTP) ساخته نشده، پروژه‌ها به یک کاربرِ
+جای‌گیر با شمارهٔ +000000000000 نسبت داده می‌شوند. این تصمیمِ محصولی نیست،
+فقط جای‌گیرِ قابلِ‌برگشت است — در اسپرینتِ پروفایل حذف می‌شود.

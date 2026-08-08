@@ -5,5 +5,6 @@ import { AiGatewayAdminController, ChatController } from './ai-gateway.controlle
 @Module({
   controllers: [AiGatewayAdminController, ChatController],
   providers: [AiGatewayService],
+  exports: [AiGatewayService],
 })
 export class AiGatewayModule {}
