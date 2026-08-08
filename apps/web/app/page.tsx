@@ -84,8 +84,8 @@ export default function Home() {
             تیزرِ چندثانیه‌ای، معرفیِ چند دقیقه‌ای، یا روایتی در حدِ یک فیلمِ کامل.
           </p>
           <div className="hero-actions">
-            <a href="/app" className="btn">
-              ثبت‌نام و شروع رایگان
+            <a href="/studio" className="btn">
+              ایده‌ات را بنویس — رایگان
             </a>
             <a href="#outputs" className="btn btn-ghost">
               تماشای نمونه‌ها
@@ -231,10 +231,10 @@ export default function Home() {
 
       <section className="section" style={{ borderBottom: 0 }}>
         <div className="wrap cta">
-          <h2>اولین ویدیوی خود را امروز بسازید</h2>
-          <p>ثبت‌نام رایگان است. هزینه فقط وقتی کسر می‌شود که کارِ تولید واقعاً اجرا شود.</p>
-          <a href="/app" className="btn" style={{ padding: '13px 34px' }}>
-            ورود به پنل
+          <h2>از همین حالا شروع کن</h2>
+          <p>مرحلهٔ اول رایگان است. هزینه فقط وقتی کسر می‌شود که کارِ تولید واقعاً اجرا شود.</p>
+          <a href="/studio" className="btn" style={{ padding: '13px 34px' }}>
+            ساختِ شات‌لیست
           </a>
         </div>
       </section>
