@@ -1,0 +1,111 @@
+FlowStudio — اسپرینتِ ۰ — شواهدِ ترمینال (خروجیِ عین، بدونِ ویرایش)
+۱۸ مرداد ۱۴۰۵
+
+════════════════════════════════════════
+۱) npx prisma validate
+════════════════════════════════════════
+$ cd apps/api && ../../node_modules/.bin/prisma validate
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+The schema at prisma/schema.prisma is valid 🚀
+
+(تلاشِ اول شکست خورد و واقعاً رفع شد — رابطهٔ معکوسِ Generation.shot روی
+مدلِ Shot جا افتاده بود. خطای واقعی:
+"Error validating field `shot` in model `Generation`: The relation field
+`shot` on model `Generation` is missing an opposite relation field on the
+model `Shot`." — اضافه‌شدنِ `generations Generation[]` به Shot رفعش کرد.)
+
+════════════════════════════════════════
+۲) docker compose up -d && docker compose ps
+════════════════════════════════════════
+$ docker compose ps
+NAME                  IMAGE         SERVICE    STATUS
+flowstudio-postgres   postgres:16   postgres   Up (healthy)
+flowstudio-redis      redis:7       redis      Up (healthy)
+
+════════════════════════════════════════
+۳) npm run db:push
+════════════════════════════════════════
+$ prisma db push
+Datasource "db": PostgreSQL database "flowstudio", schema "public" at "localhost:5432"
+🚀  Your database is now in sync with your Prisma schema. Done in 128ms
+✔ Generated Prisma Client (v5.22.0)
+
+════════════════════════════════════════
+۴) جدول‌ها واقعاً ساخته شدند؟ (تعداد = تعدادِ مدل‌ها)
+════════════════════════════════════════
+$ docker exec flowstudio-postgres psql -U flowstudio -d flowstudio -c '\dt'
+            List of relations
+ Schema |    Name    | Type  |   Owner
+--------+------------+-------+------------
+ public | AiModel    | table | flowstudio
+ public | AiProvider | table | flowstudio
+ public | Generation | table | flowstudio
+ public | Job        | table | flowstudio
+ public | JobGroup   | table | flowstudio
+ public | Project    | table | flowstudio
+ public | ReasonCode | table | flowstudio
+ public | Sequence   | table | flowstudio
+ public | Shot       | table | flowstudio
+ public | User       | table | flowstudio
+ public | Wallet     | table | flowstudio
+(11 rows)
+
+انتظار: ۱۱ مدل در schema.prisma → ۱۱ جدول. تطابق دارد.
+
+بذرِ ReasonCode:
+$ ts-node prisma/seed.ts
+seeded 5 reason codes
+$ psql -c 'SELECT count(*) FROM "ReasonCode";'
+ count
+-------
+     5
+
+════════════════════════════════════════
+۵) بوت می‌شود و به دیتابیس می‌رسد؟
+════════════════════════════════════════
+$ npm run start:dev --workspace=@flowstudio/api
+[Nest] LOG [NestFactory] Starting Nest application...
+[Nest] LOG [InstanceLoader] PrismaModule dependencies initialized +21ms
+[Nest] LOG [RouterExplorer] Mapped {/health, GET} route +1ms
+[Nest] LOG [NestApplication] Nest application successfully started +45ms
+FlowStudio API listening on :3000
+
+$ curl -s http://localhost:3000/health
+{"status":"healthy","database":"connected"}
+
+(این پاسخ از یک SELECT 1 واقعی به Postgres می‌آید — AppService.checkHealth —
+نه یک 200ِ ثابت.)
+
+════════════════════════════════════════
+۶) تستِ ماندگاری: ری‌استارتِ postgres API را نمی‌کشد
+════════════════════════════════════════
+$ docker compose restart postgres
+Container flowstudio-postgres Restarting
+Container flowstudio-postgres Started
+... (انتظار برایِ healthy) ...
+$ curl -s http://localhost:3000/health
+{"status":"healthy","database":"connected"}
+
+APIِ node بدونِ ری‌استارت (همان PID، pid=15351) بعد از قطعِ موقتِ دیتابیس
+دوباره وصل شد و healthy برگرداند.
+
+════════════════════════════════════════
+تایپ‌چک‌هایِ packages/ (بدونِ خطا، بدونِ دیتابیس)
+════════════════════════════════════════
+$ cd packages/ir && tsc --noEmit                → بدونِ خروجی (موفق)
+$ cd packages/ir && tsc examples/webcasting-intro.ts → بدونِ خروجی (موفق)
+$ cd packages/registry && tsc --noEmit          → بدونِ خروجی (موفق)
+
+════════════════════════════════════════
+نتیجه
+════════════════════════════════════════
+هر شش فرمانِ معیارِ تمام‌شدن اجرا شد؛ هیچ‌کدام رد نشد. اسپرینتِ ۰ طبقِ
+معیارِ منشورِ اجرا (بخشِ ۶) تمام است.
+
+خارج از قلمرو (طبقِ برنامه، عمداً ساخته نشد):
+- هیچ فراخوانِ واقعی به هیچ مدلی
+- هیچ endpointِ کسب‌وکاری (فقط GET /health)
+- منطقِ سرویسِ کیف‌پول (فقط ستونِ balance)
+- آداپترِ ویدیو
+- مهاجرتِ production (فقط db push در dev)

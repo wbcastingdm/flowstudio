@@ -1,0 +1,42 @@
+# FlowStudio · اسپرینتِ ۰ — زیرساختِ لوکالِ توسعه
+# ⚠️ کاملاً مستقل از وبکستینگ: نامِ پروژه، شبکه و والیوم‌ها جدا.
+# اجرا: docker compose up -d
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: flowstudio-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flowstudio
+      POSTGRES_PASSWORD: flowstudio_dev_password
+      POSTGRES_DB: flowstudio
+    ports:
+      - "5432:5432"
+    volumes:
+      - flowstudio_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowstudio -d flowstudio"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7
+    container_name: flowstudio-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - flowstudio_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  flowstudio_postgres_data:
+  flowstudio_redis_data:

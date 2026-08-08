@@ -1,0 +1,252 @@
+// FlowStudio — شِمای دیتابیس، اسپرینتِ ۰
+// تصمیم‌های بسته‌شده که این فایل را شکل داده‌اند (docs/20):
+//   D-005 واحدِ پول = سکه   ·   D-007 صف = جدولِ Job + قفلِ دیتابیسی
+//   D-008 احرازِ هویت = موبایل+OTP   ·   D-010 C2PA = واترمارکِ متنی
+// الزاماتِ طول‌آگاهی (docs/40 بندِ ۳): Project→Sequence→Shot، continuityRef
+// رزروشده، JobGroup از روزِ اول.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── کاربر و کیف‌پول (D-008, D-005) ───
+
+model User {
+  id            String   @id @default(cuid())
+  phone         String   @unique
+  otpCodeHash   String?
+  otpExpiresAt  DateTime?
+  otpAttempts   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  wallet        Wallet?
+  projects      Project[]
+  jobGroups     JobGroup[]
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   Int      @default(0) // سکه
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── محتوا: پروژه → سکانس → شات — طول‌آگاه از روزِ اول ───
+
+enum CampaignGoal {
+  BRAND_AWARENESS
+  ORDER_CAPTURE
+  PRODUCT_INTRO
+}
+
+enum Tone {
+  WARM_FRIENDLY
+  PROFESSIONAL
+  ENERGETIC
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  goal      CampaignGoal
+  tone      Tone
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sequences Sequence[]
+
+  @@index([userId])
+}
+
+model Sequence {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+  order     Int
+  title     String
+
+  shots     Shot[]
+
+  @@index([projectId])
+}
+
+enum AspectRatio {
+  R9_16
+  R16_9
+  R1_1
+}
+
+enum CameraMovement {
+  STATIC
+  PAN
+  TILT
+  DOLLY
+  HANDHELD
+  COMBINED
+}
+
+enum ShotStatus {
+  DRAFT
+  QUEUED
+  GENERATING
+  DONE
+  REJECTED
+}
+
+model Shot {
+  id             String         @id @default(cuid())
+  sequenceId     String
+  sequence       Sequence       @relation(fields: [sequenceId], references: [id])
+  order          Int
+  durationSec    Int
+  /// تنها فیلدِ متنِ آزادِ مجاز در این سطح (گاردریلِ منشورِ اجرا).
+  description    String
+  cameraMovement CameraMovement
+  aspectRatio    AspectRatio
+  seed           Int?
+  /// رزروشده برایِ پیوستگیِ شخصیت/لوکیشن/پراپ — فازِ ۱ همیشه null، حذف نشود.
+  continuityRef  Json?
+  status         ShotStatus     @default(DRAFT)
+
+  jobs           Job[]
+  generations    Generation[]
+
+  @@index([sequenceId])
+}
+
+// ─── لایهٔ درگاهِ AI — رجیستری (اسپرینتِ ۱ از این می‌خواند) ───
+
+enum Modality {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+model AiProvider {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  baseUrl        String
+  /// هرگز متنِ خام — رمزنگاری‌شده در سطحِ سرویس (الگویِ BYOKِ وبکستینگ).
+  apiKeyEncrypted String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  models         AiModel[]
+}
+
+model AiModel {
+  id              String     @id @default(cuid())
+  providerId      String
+  provider        AiProvider @relation(fields: [providerId], references: [id])
+  modelKey        String
+  modality        Modality
+  costPerUnit     Int // سکه
+  /// قراردادِ قابلیت — همهٔ پنج فیلد اجباری (docs/00 بندِ ۲-۸).
+  maxDurationSec  Int? // فقط برایِ VIDEO؛ برایِ TEXT/IMAGE null
+  acceptsSeed     Boolean
+  cameraControl   String // NONE | BASIC | FULL
+  commercialUse   Boolean
+  regionReachable String // IRAN | HETZNER | BOTH
+
+  jobs            Job[]
+
+  @@unique([providerId, modelKey])
+  @@index([modality])
+}
+
+// ─── صف — جدول + قفلِ دیتابیسی (D-007)، بدونِ BullMQ ───
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+/// یک گروه = یک خروجیِ قابلِ‌دیدنِ کاربر (docs/40 بندِ ۳، الزامِ ۳).
+/// حتی یک شاتِ تکی هم یک JobGroup با یک Job می‌شود — از روزِ اول یکسان.
+model JobGroup {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  jobs      Job[]
+
+  @@index([userId])
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  groupId     String
+  group       JobGroup  @relation(fields: [groupId], references: [id])
+  shotId      String
+  shot        Shot      @relation(fields: [shotId], references: [id])
+  aiModelId   String
+  aiModel     AiModel   @relation(fields: [aiModelId], references: [id])
+  status      JobStatus @default(PENDING)
+  /// قفلِ کرونِ کارگر: UPDATE Job SET lockedAt=now(),lockedBy=$1
+  ///   WHERE status='PENDING' AND lockedAt IS NULL ... RETURNING *
+  lockedAt    DateTime?
+  lockedBy    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  /// یک Job می‌تواند چند رکوردِ Generation داشته باشد (تلاش‌های مکرر) —
+  /// عمداً یک‌به‌یک نیست (گاردریلِ منشورِ اجرا، ایرادِ شمارهٔ ۳).
+  generations Generation[]
+
+  @@index([groupId])
+  @@index([status, lockedAt])
+}
+
+// ─── کدهایِ دلیل — تاکسونومیِ بسته، نه متنِ آزاد ───
+
+model ReasonCode {
+  id       String @id @default(cuid())
+  code     String @unique
+  label    String
+  category String
+
+  generations Generation[]
+}
+
+// ─── دفترِ ثبت — هر رکورد غیرقابلِ‌تغییر است ───
+
+model Generation {
+  id                String      @id @default(cuid())
+  jobId             String
+  job               Job         @relation(fields: [jobId], references: [id])
+  shotId            String
+  shot              Shot        @relation(fields: [shotId], references: [id])
+  /// نسخهٔ دقیقِ مدل، به‌عنوانِ رشتهٔ منجمد — نه FK به AiModel
+  /// (AiModel ممکن است فردا عوض شود؛ این رکورد نباید).
+  modelVersion      String
+  modelKeySnap      String
+  seed              Int?
+  paramHash         String
+  /// فقط لینکِ آبجکت‌استوریج — هرگز بایتِ باینری در Postgres.
+  resultUrl         String?
+  resultHash        String?
+  costActual        Int // سکه
+  /// D-010: واترمارکِ متنی — نه بلوبِ Json، نه امضایِ واقعی.
+  c2paWatermarkText String?
+  humanApproval     Boolean?
+  reasonCodeId      String?
+  reasonCode        ReasonCode? @relation(fields: [reasonCodeId], references: [id])
+  createdAt         DateTime    @default(now())
+
+  @@index([jobId])
+  @@index([shotId])
+}

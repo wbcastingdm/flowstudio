@@ -1,0 +1,14 @@
+{
+  "name": "@flowstudio/registry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "قراردادِ قابلیتِ مدل — تایپ‌ها. بدونِ منطقِ کسب‌وکار، بدونِ فراخوانِ واقعی.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}
