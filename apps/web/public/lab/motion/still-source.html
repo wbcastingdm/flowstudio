@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: Vazirmatn;
+    src: url('file:///Users/rln/Projects/flowstudio/apps/web/public/fonts/Vazirmatn-800.woff2') format('woff2');
+    font-weight: 800;
+  }
+  @font-face {
+    font-family: Vazirmatn;
+    src: url('file:///Users/rln/Projects/flowstudio/apps/web/public/fonts/Vazirmatn-400.woff2') format('woff2');
+    font-weight: 400;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    font-family: Vazirmatn, Tahoma, sans-serif;
+    background:
+      radial-gradient(1200px 900px at 30% 18%, #2a4a6b 0%, transparent 60%),
+      radial-gradient(900px 800px at 78% 74%, #6b3a2a 0%, transparent 62%),
+      linear-gradient(160deg, #0f1115 0%, #171a21 55%, #0b0d12 100%);
+    color: #e6e9ef;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 90px;
+    position: relative;
+  }
+  .grain { position: absolute; inset: 0; opacity: .05;
+    background-image: radial-gradient(circle at 1px 1px, #fff 1px, transparent 0);
+    background-size: 4px 4px; }
+  .kicker { font-size: 44px; font-weight: 400; color: #4ea3ff; letter-spacing: 1px; margin-bottom: 34px; }
+  h1 { font-size: 132px; font-weight: 800; line-height: 1.28; letter-spacing: -2px; }
+  h1 span { color: #ffc86b; }
+  .rule { width: 220px; height: 6px; border-radius: 3px; background: #4ea3ff; margin: 56px 0; }
+  p { font-size: 50px; font-weight: 400; color: #a8b0be; line-height: 1.85; max-width: 26ch; }
+  .foot { position: absolute; bottom: 120px; font-size: 40px; color: #7a8394; }
+</style>
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="kicker">نانواییِ سنگکِ محله</div>
+  <h1>شعبهٔ <span>دوم</span> باز شد</h1>
+  <div class="rule"></div>
+  <p>هر روز از ساعتِ ۶ صبح، نانِ داغ از تنورِ سنگی</p>
+  <div class="foot">خیابانِ آزادی، نبشِ کوچهٔ بهار</div>
+</body>
+</html>
