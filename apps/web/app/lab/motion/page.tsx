@@ -223,24 +223,127 @@ export default function MotionLabPage() {
 
       {/* ─── هزینه ─── */}
       <section style={{ marginBottom: 40 }}>
-        <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px' }}>۳) هزینهٔ واقعی</h2>
-        <div className="card" style={{ lineHeight: 2.1, fontSize: 14 }}>
-          سرور ۳ هستهٔ پردازشی دارد ⇒ ماهانه <b>۷٬۷۷۶٬۰۰۰ ثانیهٔ CPU</b>.
+        <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px' }}>۳) هزینهٔ واقعی — به تومان</h2>
+        <div className="card" style={{ lineHeight: 2.1, fontSize: 14, marginBottom: 16 }}>
+          اجارهٔ ماهانهٔ سرور <b>۵٬۰۰۰٬۰۰۰ تومان</b> · ۳ هسته × ۳۰ روز ={' '}
+          <b>۷٬۷۷۶٬۰۰۰ ثانیهٔ CPU</b>
           <br />
-          یک نمای ۸ ثانیه‌ایِ «نزدیک‌شدنِ آرام» = <b>۴۵٫۴ ثانیهٔ CPU</b>.
+          ⇒ هر ثانیهٔ CPU = <b>۰٫۶۴۳ تومان</b>
           <br />
-          ⇒ سرور ماهانه <b>~۱۷۱٬۰۰۰ نما</b> می‌سازد.
+          یک نمای ۸ ثانیه‌ای = رندرِ HTML (~۴٫۷ ثانیه) + حرکت (۴۵٫۴ ثانیه)
           <br />
-          <span style={{ color: 'var(--green)' }}>
-            ⇒ هزینهٔ هر نما = اجارهٔ ماهانهٔ سرور ÷ ۱۷۱٬۰۰۰
+          <span style={{ color: 'var(--green)', fontSize: 16, fontWeight: 800 }}>
+            ⇒ هزینهٔ هر نما ≈ ۳۲ تومان
           </span>
-          <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.9 }}>
-            ⚠️ اجارهٔ ماهانهٔ سرور هنوز به من داده نشده (به تصمیمِ بودجه `D-006` وصل است)،
-            ولی در هر عددِ محتملی این رقم زیرِ چند ده تومان درمی‌آید.
-            <br />
-            ⚠️ مقایسهٔ کنارِ‌همِ این خروجی با خروجیِ یک مدلِ ویدیو هنوز انجام نشده —
-            به کلیدِ واقعیِ درگاه نیاز دارد.
+          <div style={{ marginTop: 10, fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.9 }}>
+            این عدد با فرضِ استفادهٔ ۱۰۰٪ از سرور است. با ۵۰٪ که واقع‌بینانه‌تر است،
+            حدودِ ۶۴ تومان می‌شود — که باز هم در برابرِ ردیف‌های بعدی گرد می‌شود به صفر.
           </div>
+        </div>
+
+        <div style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 10px' }}>
+          همان نمای ۸ ثانیه‌ای، اگر از مسیرهای دیگر ساخته می‌شد (دلار ۱۸۷٬۰۰۰ تومان):
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--muted)', textAlign: 'right' }}>
+                <th style={{ padding: '8px 6px' }}>مسیر</th>
+                <th style={{ padding: '8px 6px' }}>ترکیب</th>
+                <th style={{ padding: '8px 6px' }}>تومان</th>
+                <th style={{ padding: '8px 6px' }}>برابرِ ج+</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['ج+', 'HTML → PNG → حرکتِ برنامه‌ای', '۳۲', '۱×', true],
+                ['الف سبک', 'Veo 3.1 Lite ۷۲۰p', '۷۴٬۸۰۰', '۲٬۳۴۰×', false],
+                ['ب', 'تصویر + Runway Gen-4 Turbo', '۸۲٬۳۰۰', '۲٬۵۷۰×', false],
+                ['د', 'ویدیوی ۷۲۰p + آپ‌اسکیلِ Topaz', '۱۰۴٬۷۰۰', '۳٬۲۷۰×', false],
+                ['الف سریع', 'Veo 3.1 Fast ۱۰۸۰p', '۱۷۹٬۵۰۰', '۵٬۶۱۰×', false],
+                ['ه', 'ویدیوی بی‌صدا + TTS + لیپ‌سینک', '۱۸۰٬۶۰۰', '۵٬۶۴۰×', false],
+                ['الف استاندارد', 'Veo 3.1 با صدای بومی', '۵۹۸٬۴۰۰', '۱۸٬۷۰۰×', false],
+              ].map(([route, mix, toman, ratio, highlight]) => (
+                <tr key={route as string} style={{ borderBottom: '1px solid var(--line)' }}>
+                  <td style={{ padding: '9px 6px', fontWeight: 800, color: highlight ? 'var(--green)' : 'inherit' }}>
+                    {route}
+                  </td>
+                  <td style={{ padding: '9px 6px', color: 'var(--muted)' }}>{mix}</td>
+                  <td style={{ padding: '9px 6px', fontWeight: 700, color: highlight ? 'var(--green)' : 'inherit' }}>
+                    {toman}
+                  </td>
+                  <td style={{ padding: '9px 6px', color: 'var(--dim)' }}>{ratio}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card" style={{ marginTop: 18, borderColor: 'var(--amber-line)', background: 'var(--amber-bg)' }}>
+          <b style={{ color: 'var(--amber)' }}>یک اصلاح روی جدولِ سند</b>
+          <p style={{ margin: '8px 0 0', fontSize: 13.5, lineHeight: 2, color: 'var(--muted)' }}>
+            سند مسیرِ «ه» (ویدیوی بی‌صدا + صدا + لیپ‌سینک) را ارزان‌تر معرفی کرده بود.
+            با قیمتِ واقعی، <b>لیپ‌سینک ۰٫۰۷ دلار بر ثانیه است — گران‌تر از خودِ ویدیو</b> —
+            و کلِ زنجیره تقریباً برابرِ «الفِ سریع» درمی‌آید. فقط در برابرِ Veoی استاندارد
+            صرفه دارد. در عوض مسیرِ «د» تأیید شد: تولیدِ ۷۲۰p و آپ‌اسکیل، ۴۲٪ ارزان‌تر از
+            تولیدِ مستقیمِ ۱۰۸۰p است.
+          </p>
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 12.5, color: 'var(--dim)', lineHeight: 2 }}>
+          ⚠️ ردیف‌های بالا از <b>قیمت‌نامهٔ عمومیِ سازندگان</b> درآمده‌اند، نه از تولیدِ
+          واقعیِ ما. تجمیع‌کننده‌های ایرانی حاشیهٔ خودشان را دارند.
+          <br />
+          ⚠️ مقایسهٔ چشمیِ کنارِ‌هم با خروجیِ واقعیِ مدلِ ویدیو هنوز انجام نشده — کلیدِ درگاه لازم دارد.
+          <br />
+          ⚠️ طبقِ خودِ سند، قیمتِ فهرستی هیچ‌وقت مبنای انتخابِ نهایی نیست؛ مبنا{' '}
+          <b>هزینه به‌ازای ثانیهٔ پذیرفته‌شده</b> است که فقط از دادهٔ خودمان درمی‌آید.
+        </div>
+      </section>
+
+      {/* ─── کجا کدام مسیر ─── */}
+      <section style={{ marginBottom: 40 }}>
+        <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px' }}>
+          ۳٫۵) ارزان‌تر یعنی بهتر؟ نه — کجا کدام
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 14 }}>
+          {[
+            {
+              t: 'ج+ اینجا برنده است',
+              c: 'var(--green)',
+              b: 'لوگو · عنوان · قیمت · آدرس و تماس · نمای پرکننده. متنِ فارسی بی‌نقص درمی‌آید.',
+            },
+            {
+              t: 'ج+ اینجا می‌بازد',
+              c: 'var(--red)',
+              b: 'هیچ حرکتی در خودِ سوژه نیست — فقط دوربین حرکت می‌کند. برای نمایی که آدم یا محصول در آن حرکت کند، به‌درد نمی‌خورد.',
+            },
+            {
+              t: 'ب برتریِ پنهانی دارد',
+              c: 'var(--accent)',
+              b: 'فریمِ اول قابلِ تأییدِ انسانی است پیش از خرج‌کردن روی ویدیو. الف این گیت را ندارد.',
+            },
+            {
+              t: 'ضعفِ مدل‌های تصویر',
+              c: 'var(--amber)',
+              b: 'متنِ فارسیِ داخلِ تصویر خراب می‌شود. حتی Ideogram که بهترینِ متن است لاتین‌محور است.',
+            },
+          ].map((x) => (
+            <div key={x.t} className="card">
+              <b style={{ color: x.c }}>{x.t}</b>
+              <p style={{ margin: '8px 0 0', fontSize: 13, lineHeight: 1.95, color: 'var(--muted)' }}>{x.b}</p>
+            </div>
+          ))}
+        </div>
+        <div className="card" style={{ marginTop: 14, borderColor: 'var(--accent-line)' }}>
+          <b>نتیجهٔ عملی</b>
+          <p style={{ margin: '8px 0 0', fontSize: 13.5, lineHeight: 2, color: 'var(--muted)' }}>
+            در یک آگهیِ ۳۰ ثانیه‌ایِ معمولی، نیمی از نماها لوگو و عنوان و قیمت و تماس‌اند.
+            اگر آن‌ها از مسیرِ ج+ بروند و فقط نماهای قهرمان از مسیرِ ب،{' '}
+            <b>هزینهٔ کلِ آگهی نصف می‌شود بدونِ هیچ افتِ کیفیتی</b> — چون آن نماها با
+            مدلِ تصویر <b>بدتر</b> می‌شدند، نه بهتر. این دقیقاً همان تصمیمِ سطحِ L1 است
+            که سند می‌گوید صرفه‌جوییِ مرتبهٔ بزرگی در آن است.
+          </p>
         </div>
       </section>
 
