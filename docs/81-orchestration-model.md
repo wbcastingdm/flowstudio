@@ -1,0 +1,219 @@
+# FlowStudio — افزودهٔ دستورالعمل اجرایی
+
+**نسخه ۱٫۰ · مرداد ۱۴۰۵ · الحاق به `claude/دستورالعمل-اجرایی-v1.html` به‌عنوان بخش‌های ۱۲ و ۱۳**
+مخاطب: مجری (Claude Code) و مالک. بخش ۱۲ قرارداد جدایش، بخش ۱۳ مدل ارکستراسیون.
+
+---
+
+## ۱۲ — قرارداد جدایش از وبکستینگ
+
+FlowStudio زیر دامنهٔ وبکستینگ استارت می‌خورد تا سرعت بگیرد، و بعداً روی سرور و دامنهٔ اختصاصی می‌رود. این **هم‌جواری در استقرار است، نه ادغام معماری**.
+
+### قاعدهٔ ۱۱ منشور — غیرقابل مذاکره
+
+> **FlowStudio هرگز یک کوئری SQL به جدول وبکستینگ نمی‌زند. هر نیاز فرامرزی از HTTP رد می‌شود.**
+
+این قاعده به این دلیل انتخاب شده که **قابل گرپ است**: نقضش با یک جست‌وجو در مخزن پیدا می‌شود. بقیهٔ کارهای جدایش را می‌شود موکول کرد؛ این یکی را نه. آنچه مهاجرت را گران می‌کند کد نیست، داده و هویت است.
+
+### الزامات از روز اول
+
+| الزام | چرا |
+|---|---|
+| اسکیمای دیتابیس مستقل | جدا کردن `User` و `Wallet` بعد از ۵۰۰ کاربر واقعی = سه هفته کار و یک قطعی |
+| `User` مالِ FlowStudio با `authProvider` + `externalId` | SSO وبکستینگ فقط **یک provider** است. روز مهاجرت، OTP provider دوم می‌شود — نه بازسازی هویت |
+| `Wallet` / `Ledger` مستقل | مفهوم «سکه» قرض گرفته می‌شود، جدول نه |
+| هیچ `@Cron` داخل پروسهٔ API | با چند رپلیکا چندبار اجرا می‌شود (`docs/00` تلهٔ ۸) |
+
+### چه چیزی از مخزن وبکستینگ برداشته شود
+
+**بردار:** الگوی روتر و failover از `ai-provider.service.ts` · الگوی رمزنگاری کلید از `site-ai-preset.service.ts` · ساختار داکر و پیکربندی.
+
+**نبر:** `ai-content.service.ts` (مسیر دوم AI — بزرگ‌ترین بدهی فنی وبکستینگ) · `ai-recipe.service.ts` (قالب رشته‌ای تک‌گویشی) · جدول‌های `User` و `Wallet`.
+
+### D-O12 — از «باز» به «برنامه‌ریزی‌شده»
+
+مهاجرت وقتی مجاز است که: قرارداد جدایش سبز باشد (گرپ تمیز)، و یک بار در staging تست شده باشد.
+
+---
+
+## ۱۳ — مدل ارکستراسیون (نسخهٔ بهبودیافته)
+
+### مسئله
+
+همهٔ درگاه‌های AI موجودند و کار می‌کنند، حتی ویدیو. **گره، دسترسی نیست؛ هزینه است.** کار اصلی ارکستراتور این است که از بهترین ابزار با بهترین قیمت برای هر مرحله استفاده کند — مبتنی بر کیفیت، قیمت، اثرگذاری، مبلغی که کاربر پرداخت کرده، و انتظارات و چالش‌های هر سناریو.
+
+### چرا روتر تک‌سطحی جواب نمی‌دهد
+
+`docs/90` (مرجع v3) صریح است: روتر هزینه‌محور «فقط کدام مدل را حل می‌کند، نه کدام نما — همان wrapper». انتخاب بین دو مدل ویدیو، در بهترین حالت چند ده درصد صرفه‌جویی می‌دهد. **تصمیمِ اینکه اصلاً به مدل ویدیو نیاز هست یا نه، مرتبهٔ بزرگی صرفه‌جویی می‌دهد.** پس روتر باید در سه سطح تصمیم بگیرد، نه یکی.
+
+### سه سطح تصمیم
+
+**L1 — پلان (ترکیب).** برای این نما چه *زنجیره‌ای از قابلیت‌ها* لازم است؟ بزرگ‌ترین اهرم، و هیچ ربطی به کیفیت مدل ندارد.
+
+**L2 — تخصیص.** پاکت بودجه چگونه بین نماها تقسیم شود؟ نمای قهرمان و نمای پرکننده سهم برابر نمی‌گیرند.
+
+**L3 — انتخاب.** برای هر گام قابلیت، کدام مدل؟ فقط اینجا رجیستری وارد می‌شود.
+
+### وارونگی بودجه — تفاوت بنیادی با Higgsfield
+
+در مدل اعتباری، کاربر هزینهٔ آزمون‌وخطا را می‌دهد و از قبل نمی‌داند چقدر خرج می‌کند. اینجا برعکس:
+
+> **مبلغی که کاربر پرداخت می‌کند ورودی الگوریتم است، نه خروجی آن.**
+
+پاکت بودجه (`JobGroup.budgetCap`) قبل از اولین فراخوان بسته می‌شود و پلان **به‌عقب** از آن ساخته می‌شود. اگر پلان در پاکت جا نشود، سیستم پیش از خرج کردن اعلام می‌کند: یا کیفیت پایین‌تر، یا نمای کمتر، یا مبلغ بیشتر.
+
+### زنجیره‌های ترکیبی — جایی که پول واقعی برمی‌گردد
+
+پلان یک **گراف جهت‌دار از گام‌های قابلیت** است، نه یک فراخوان. چند مسیر معادل برای یک نمای واحد:
+
+| مسیر | ترکیب | مرتبهٔ هزینه |
+|---|---|---|
+| الف | متن → ویدیو (مستقیم، با صدای بومی) | گران‌ترین |
+| ب | متن → تصویر → تصویربه‌ویدیو | متوسط |
+| ج | متن → تصویر → حرکت برنامه‌ای (ffmpeg: pan/zoom/parallax) | تقریباً صفر |
+| د | ویدیوی رزولوشن پایین → آپ‌اسکیل جداگانه | ارزان‌تر از تولید مستقیم در رزولوشن بالا |
+| ه | ویدیوی بی‌صدا + TTS + لیپ‌سینک جداگانه | ارزان‌تر از مدل ویدیوی صدادار |
+
+مسیر ج برای نمای لوگو، متن روی زمینه، یا نمای پرکننده، **کیفیت قابل قبول با هزینهٔ نزدیک صفر** می‌دهد. مسیر ب کنترل‌پذیرتر از الف است چون فریم اول قابل تأیید انسانی است پیش از خرج کردن روی ویدیو.
+
+⚠️ اعداد دقیق هزینهٔ این جدول **اندازه‌گیری نشده‌اند**. اولین کار سطح L1، پر کردن این جدول با هزینهٔ واقعی از قیمت‌نامهٔ درگاه‌های خودت است.
+
+### معیار درست: هزینه به‌ازای ثانیهٔ پذیرفته‌شده (CPAS)
+
+مدل ارزانی که چهار بار تکرار می‌خواهد، از مدل گرانِ یک‌باره گران‌تر است. **قیمت فهرستی هیچ‌وقت مبنای انتخاب نیست.**
+
+```
+CPAS(model, step_type) = Σ هزینهٔ همهٔ تلاش‌ها ÷ Σ ثانیهٔ خروجی پذیرفته‌شده
+```
+
+این عدد از دادهٔ خودت درمی‌آید، نه از ادعای فروشنده — و دقیقاً به همان چیزی وصل است که از قبل در شما داری: `humanApproval` و `reasonCodeId`. **کد دلیل، دانشِ در حال جمع‌شدن است** و اینجا مصرف واقعی‌اش را پیدا می‌کند.
+
+### نردبان تشدید
+
+ارزان‌ترین مسیرِ ممکن اول اجرا می‌شود → داوری (انسان یا خودکار) → در صورت رد، یک پله بالا. سقف تشدید در `JobGroup` بسته است و سیستم هرگز بی‌سقف بالا نمی‌رود.
+
+### دروازهٔ شواهد — مهم‌ترین بند این بخش
+
+**تا وقتی داده نداری، امتیازدهی ممنوع است.**
+
+| فاز | روتر چه می‌کند | شرط عبور |
+|---|---|---|
+| **v1** | فقط فیلتر صلاحیت + هزینهٔ فهرستی + failover. **بدون هیچ ادعای بهینه‌سازی.** | — |
+| **v2** | امتیاز کیفیت وارد می‌شود | ≥ ۳۰ تولیدِ پذیرفته‌شده به‌ازای هر مدل در هر نوع گام |
+| **v3** | بازخورد اثرگذاری رسانه (CTR، نرخ تکمیل) وارد می‌شود | دادهٔ واقعی از مشتری واقعی |
+
+هر امتیاز کیفیتی که دستی نوشته شود یا از ادعای فروشنده بیاید، **سلیقه است نه دانش** و روتر را فاسد می‌کند.
+
+### افزوده‌های شما — امروز ارزان، بعداً مهاجرت
+
+```
+JobGroup:
+  budgetCap        Decimal   // پاکت بسته پیش از اولین فراخوان
+  spentAmount      Decimal   // اعمال در سرور، نه در UI
+  escalationCap    Int       // سقف پله‌های تشدید
+  qualityTier      String    // انتظار کاربر: draft | standard | hero
+
+Shot:
+  weight           Int       // سهم از پاکت. قهرمان ≠ پرکننده
+  planId           String?   // FK به PlanStep
+
+PlanStep:            // گراف گام‌های قابلیت — نه قالب رشته‌ای
+  id, jobGroupId, capability, dependsOn Json, orderIndex
+
+Generation:
+  attemptIndex     Int       // زنجیرهٔ تکرار
+  supersedesId     String?   // بدون این دو، CPAS محاسبه‌ناپذیر است
+  planStepId       String?
+
+AiModel:  // فیلدهای صلاحیت موجود می‌مانند؛ این‌ها اضافه می‌شوند
+  stepTypes        String[]  // چه گام‌هایی را می‌تواند اجرا کند
+  listPricePerUnit Decimal
+
+ModelScore:          // مشتق و بازمحاسبه‌شونده. هرگز دستی نوشته نمی‌شود
+  modelId, stepType, cpas, sampleSize, computedAt
+```
+
+⚠️ `PlanStep` را با `AiRecipe` وبکستینگ اشتباه نگیر. آن قالب رشته‌ای تک‌گویشی است؛ این یک گراف تایپ‌دار از قابلیت‌هاست.
+
+### گاردریل‌ها
+
+1. ⛔ نام هیچ مدلی hard-code نشود. روتر روی **قابلیت** تصمیم می‌گیرد، نه روی نام.
+2. ⛔ مدلی با `commercialUse = false` هرگز انتخاب نشود، حتی اگر ارزان‌ترین باشد.
+3. ⛔ `budgetCap` در سرور اعمال شود. اعمال در UI = اعمال‌نشده.
+4. ⛔ هیچ امتیاز کیفیتی دستی نوشته نشود.
+5. ⛔ بدون `hold` هیچ فراخوان پولی شروع نشود؛ `release` در `catch` اجباری.
+6. ⛔ ادعای «بهینه‌سازی» روی روتر v1 گذاشته نشود.
+
+### D-O13 — تصمیم جدید برای مالک
+
+**آستانهٔ داوری خودکار.** در نردبان تشدید، چه کسی «رد» را اعلام می‌کند — انسان همیشه، یا یک داور خودکار زیر یک آستانه؟ تا این بسته نشود، نردبان دستی می‌ماند (که برای MVP قابل قبول است).
+
+---
+
+## پرامپت الحاقی برای Claude Code
+
+این بلوک به هر پرامپت اسپرینت الصاق می‌شود، پس از منشور ۱۰ قاعده.
+
+```
+=== SEPARATION CONTRACT (rule 11 — non-negotiable) ===
+FlowStudio is CO-LOCATED with webcasting, never MERGED.
+- NEVER issue a SQL query against a webcasting table. Cross-boundary
+  needs go over HTTP. This rule is grep-checkable; violations are
+  build failures.
+- FlowStudio owns User, Wallet, Ledger. Webcasting SSO is ONE
+  authProvider mapped to a local row (authProvider + externalId).
+- Borrow the ai-provider.service.ts router PATTERN and the
+  site-ai-preset.service.ts key-encryption pattern.
+  Do NOT copy ai-content.service.ts or ai-recipe.service.ts.
+- No @Cron inside the API process.
+
+=== ORCHESTRATION MODEL — THREE LEVELS, NOT ONE ===
+The router is a PLANNER, not a model-picker. Decide in this order:
+  L1 PLAN       which capability chain produces this shot at all
+  L2 ALLOCATE   how the budget envelope splits across shots by weight
+  L3 SELECT     which model runs each capability step
+Model choice is the LAST and SMALLEST decision. L1 is where the
+order-of-magnitude savings live.
+
+BUDGET INVERSION:
+  What the user paid is an INPUT. JobGroup.budgetCap is fixed before
+  the first paid call; the plan is built backwards from it. If the
+  plan does not fit, report BEFORE spending — never overspend and
+  never silently degrade.
+
+COMPOSITE CHAINS (a plan is a DAG of steps, not one call):
+  text->video  |  text->image->img2vid  |  text->image->ffmpeg motion
+  lowres video->upscale  |  silent video + TTS + lipsync
+  Cheapest viable chain first, then escalate on rejection, capped
+  by JobGroup.escalationCap.
+
+SELECTION METRIC:
+  Rank by cost-per-ACCEPTED-second, never by list price.
+  CPAS = sum(cost of all attempts) / sum(accepted output seconds)
+  This requires Generation.attemptIndex + supersedesId. Without
+  those two fields the metric cannot be computed — do not drop them.
+
+EVIDENCE GATE (this is the important one):
+  v1 router = eligibility filter + list price + failover. NOTHING
+  ELSE. No quality scores, no weights, no "optimization" claim.
+  Quality scoring unlocks only at >=30 accepted generations per
+  (model, stepType). ModelScore is DERIVED and recomputed; it is
+  never hand-written and never seeded from vendor claims.
+
+GUARDRAILS:
+  - Route on CAPABILITY, never on a hard-coded model name.
+  - commercialUse=false is never selected, at any price.
+  - budgetCap enforced server-side. UI enforcement is no enforcement.
+  - No paid call without a wallet hold; release() in catch is required.
+
+If any of the above conflicts with a sprint's stated scope: STOP and
+ASK. Do not pick a sensible default.
+```
+
+---
+
+## آنچه اول انجام شود
+
+۱. **جدول هزینهٔ زنجیره‌ها را با عدد واقعی پر کن** — از قیمت‌نامهٔ همان درگاه‌هایی که داری. این چند ساعت کار است و مشخص می‌کند کدام زنجیره‌ها اصلاً ارزش پیاده‌سازی دارند. بدون این عدد، کل L1 حدس است.
+
+۲. **مسیر ج (تصویر + حرکت برنامه‌ای) را به‌صورت دستی روی یک نمای واقعی بساز** و کنار خروجی مدل ویدیو بگذار. اگر برای نمای پرکننده قابل قبول بود، ارزان‌ترین برد کل پروژه را پیدا کرده‌ای — و هیچ کدی هم لازم نداشت.

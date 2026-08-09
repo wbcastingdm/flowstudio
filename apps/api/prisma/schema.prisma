@@ -6,7 +6,7 @@
 // رزروشده، JobGroup از روزِ اول.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   // ⚠️ روی مک native کافی است، ولی ایمیجِ alpine (musl) با OpenSSL 3 است.
   // بدونِ این، کانتینر با «libssl.so.1.1: No such file» کرش می‌کند —
   // و این خطا فقط داخلِ داکر دیده می‌شود، نه روی مک.
@@ -21,17 +21,24 @@ datasource db {
 // ─── کاربر و کیف‌پول (D-008, D-005) ───
 
 model User {
-  id            String   @id @default(cuid())
-  phone         String   @unique
-  otpCodeHash   String?
-  otpExpiresAt  DateTime?
-  otpAttempts   Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  otpCodeHash  String?
+  otpExpiresAt DateTime?
+  otpAttempts  Int       @default(0)
+  /// قراردادِ جدایش (سندِ ۸۱ بخشِ ۱۲): هویت مالِ FlowStudio است.
+  /// SSOِ وبکستینگ فقط **یک provider** خواهد بود، نه صاحبِ کاربر —
+  /// روزِ مهاجرت یک ردیفِ تازه اضافه می‌شود، نه بازسازیِ هویت.
+  authProvider String    @default("otp") // otp | webcasting_sso | ...
+  externalId   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  wallet        Wallet?
-  projects      Project[]
-  jobGroups     JobGroup[]
+  wallet    Wallet?
+  projects  Project[]
+  jobGroups JobGroup[]
+
+  @@unique([authProvider, externalId])
 }
 
 model Wallet {
@@ -58,14 +65,14 @@ enum Tone {
 }
 
 model Project {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
   title     String
   goal      CampaignGoal
   tone      Tone
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   sequences Sequence[]
 
@@ -79,7 +86,7 @@ model Sequence {
   order     Int
   title     String
 
-  shots     Shot[]
+  shots Shot[]
 
   @@index([projectId])
 }
@@ -121,9 +128,13 @@ model Shot {
   /// رزروشده برایِ پیوستگیِ شخصیت/لوکیشن/پراپ — فازِ ۱ همیشه null، حذف نشود.
   continuityRef  Json?
   status         ShotStatus     @default(DRAFT)
+  /// L2ِ سندِ ۸۱ — سهمِ این نما از پاکتِ بودجه. نمای قهرمان و نمای پرکننده
+  /// سهمِ برابر نمی‌گیرند. پیش‌فرض ۱۰۰ یعنی «معمولی».
+  weight         Int            @default(100)
 
-  jobs           Job[]
-  generations    Generation[]
+  jobs        Job[]
+  generations Generation[]
+  planSteps   PlanStep[]
 
   @@index([sequenceId])
 }
@@ -138,15 +149,15 @@ enum Modality {
 }
 
 model AiProvider {
-  id             String   @id @default(cuid())
-  name           String   @unique
-  baseUrl        String
+  id              String   @id @default(cuid())
+  name            String   @unique
+  baseUrl         String
   /// هرگز متنِ خام — رمزنگاری‌شده در سطحِ سرویس (الگویِ BYOKِ وبکستینگ).
   apiKeyEncrypted String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  models         AiModel[]
+  models AiModel[]
 }
 
 model AiModel {
@@ -163,10 +174,43 @@ model AiModel {
   commercialUse   Boolean
   regionReachable String // IRAN | HETZNER | BOTH
 
-  jobs            Job[]
+  // ─── افزوده‌های سندِ ۸۱ ───
+  /// D-O15: فیلترِ ریزِ L3. `modality` فیلترِ درشت می‌ماند و اگر این خالی
+  /// بود روتر به همان می‌افتد — پس ردیف‌های قدیمی نمی‌شکنند.
+  stepTypes         String[] @default([])
+  /// D-O14: تنها فیلدِ Decimal — قیمتِ فهرستیِ خامِ درگاه، برایِ گزارش و
+  /// ورودیِ CPAS. **هرگز مبنایِ کسر از کیفِ پول نیست** (آن `costPerUnit`ِ
+  /// سکه‌ای است) و **هرگز مبنایِ انتخاب هم نیست** — انتخاب با CPAS است.
+  listPricePerUnit  Decimal? @db.Decimal(14, 6)
+  /// واحدِ قیمتِ فهرستی: USD | IRT — تا عددِ بی‌واحد ذخیره نشود.
+  listPriceCurrency String?
+
+  jobs   Job[]
+  scores ModelScore[]
 
   @@unique([providerId, modelKey])
   @@index([modality])
+}
+
+/// معیارِ انتخاب: **هزینه به‌ازای ثانیهٔ پذیرفته‌شده** (سندِ ۸۱).
+/// مدلِ ارزانی که چهار بار تکرار می‌خواهد، از مدلِ گرانِ یک‌باره گران‌تر است.
+///
+/// ⛔ دروازهٔ شواهد — این جدول **مشتق** است و بازمحاسبه می‌شود:
+///   • هرگز دستی نوشته نمی‌شود و هرگز از ادعای فروشنده پر نمی‌شود.
+///   • تا `sampleSize >= 30` برایِ هر (مدل، نوعِ گام)، روتر حق ندارد به آن
+///     نگاه کند. روترِ v1 فقط فیلترِ صلاحیت + قیمتِ فهرستی + failover است.
+model ModelScore {
+  id         String   @id @default(cuid())
+  modelId    String
+  model      AiModel  @relation(fields: [modelId], references: [id])
+  stepType   String
+  /// Σ هزینهٔ همهٔ تلاش‌ها ÷ Σ ثانیهٔ خروجیِ پذیرفته‌شده
+  cpas       Decimal  @db.Decimal(14, 6)
+  sampleSize Int
+  computedAt DateTime @default(now())
+
+  @@unique([modelId, stepType])
+  @@index([stepType])
 }
 
 // ─── صف — جدول + قفلِ دیتابیسی (D-007)، بدونِ BullMQ ───
@@ -186,26 +230,68 @@ model JobGroup {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
+  // ─── وارونگیِ بودجه (سندِ ۸۱ بخشِ ۱۳) ───
+  // مبلغی که کاربر پرداخت کرده **ورودیِ الگوریتم است، نه خروجیِ آن**.
+  // پاکت پیش از اولین فراخوانِ پولی بسته می‌شود و پلان به‌عقب از آن ساخته
+  // می‌شود. اگر پلان جا نشد، پیش از خرج‌کردن اعلام می‌شود — نه تنزلِ بی‌صدا.
+  /// D-O14: واحد **سکه** و `Int` است، نه Decimal — دفتر هرگز اعشاری نمی‌شود.
+  budgetCap     Int    @default(0)
+  /// اعمال در سرور. اعمال در UI یعنی اعمال‌نشده (گاردریلِ ۳).
+  spentAmount   Int    @default(0)
+  /// سقفِ پله‌های نردبانِ تشدید. سیستم هرگز بی‌سقف بالا نمی‌رود.
+  escalationCap Int    @default(1)
+  /// انتظارِ کاربر: draft | standard | hero
+  qualityTier   String @default("standard")
+
   jobs      Job[]
+  planSteps PlanStep[]
 
   @@index([userId])
 }
 
+/// گرافِ گام‌های قابلیت (L1ِ سندِ ۸۱) — نه یک فراخوان، نه یک قالبِ رشته‌ای.
+/// ⚠️ با `AiRecipe`ِ وبکستینگ اشتباه نشود: آن قالبِ رشته‌ایِ تک‌گویشی است.
+///
+/// 🔀 واگرایی از سندِ ۸۱: سند `Shot.planId` را به PlanStep وصل می‌کرد؛ ولی
+/// هر نما یک **زنجیره** از گام‌ها دارد نه یک گام، پس جهتِ رابطه برعکس شد:
+/// `PlanStep.shotId`. با این کار زنجیرهٔ هر نما یک کوئری است، و گامِ مشترکِ
+/// بینِ چند نما (مثلِ یک آپ‌اسکیلِ دسته‌ای) با `shotId = null` بیان می‌شود.
+model PlanStep {
+  id         String   @id @default(cuid())
+  jobGroupId String
+  jobGroup   JobGroup @relation(fields: [jobGroupId], references: [id])
+  shotId     String?
+  shot       Shot?    @relation(fields: [shotId], references: [id])
+  /// نوعِ گام — روتر روی همین تصمیم می‌گیرد، نه رویِ نامِ مدل (گاردریلِ ۱).
+  /// text2image | image2video | text2video | upscale | tts | lipsync |
+  /// programmatic_motion | html2image
+  capability String
+  /// شناسهٔ گام‌هایی که باید پیش از این تمام شوند — گرافِ جهت‌دار.
+  dependsOn  Json?
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  generations Generation[]
+
+  @@index([jobGroupId])
+  @@index([shotId])
+}
+
 model Job {
-  id          String    @id @default(cuid())
-  groupId     String
-  group       JobGroup  @relation(fields: [groupId], references: [id])
-  shotId      String
-  shot        Shot      @relation(fields: [shotId], references: [id])
-  aiModelId   String
-  aiModel     AiModel   @relation(fields: [aiModelId], references: [id])
-  status      JobStatus @default(PENDING)
+  id        String    @id @default(cuid())
+  groupId   String
+  group     JobGroup  @relation(fields: [groupId], references: [id])
+  shotId    String
+  shot      Shot      @relation(fields: [shotId], references: [id])
+  aiModelId String
+  aiModel   AiModel   @relation(fields: [aiModelId], references: [id])
+  status    JobStatus @default(PENDING)
   /// قفلِ کرونِ کارگر: UPDATE Job SET lockedAt=now(),lockedBy=$1
   ///   WHERE status='PENDING' AND lockedAt IS NULL ... RETURNING *
-  lockedAt    DateTime?
-  lockedBy    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  lockedAt  DateTime?
+  lockedBy  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   /// یک Job می‌تواند چند رکوردِ Generation داشته باشد (تلاش‌های مکرر) —
   /// عمداً یک‌به‌یک نیست (گاردریلِ منشورِ اجرا، ایرادِ شمارهٔ ۳).
@@ -251,6 +337,21 @@ model Generation {
   reasonCode        ReasonCode? @relation(fields: [reasonCodeId], references: [id])
   createdAt         DateTime    @default(now())
 
+  // ─── ورودی‌های CPAS (سندِ ۸۱) ───
+  // بدونِ این دو فیلد، «هزینه به‌ازای ثانیهٔ پذیرفته‌شده» محاسبه‌ناپذیر است:
+  // برایِ مخرج باید بدانیم کدام تلاش پذیرفته شد، و برایِ صورت باید همهٔ
+  // تلاش‌های ردشدهٔ همان زنجیره را جمع بزنیم. **حذف نشوند.**
+  /// شمارهٔ تلاش در زنجیره — از ۱ شروع می‌شود.
+  attemptIndex Int         @default(1)
+  /// تلاشِ قبلی که این یکی جایگزینش شد.
+  supersedesId String?     @unique
+  supersedes   Generation? @relation("AttemptChain", fields: [supersedesId], references: [id])
+  supersededBy Generation? @relation("AttemptChain")
+  /// کدام گامِ پلان این خروجی را ساخت.
+  planStepId   String?
+  planStep     PlanStep?   @relation(fields: [planStepId], references: [id])
+
   @@index([jobId])
   @@index([shotId])
+  @@index([planStepId])
 }

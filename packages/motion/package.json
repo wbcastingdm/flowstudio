@@ -1,0 +1,11 @@
+{
+  "name": "@flowstudio/motion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "مسیرِ ج از سندِ ۸۱ — تصویرِ ثابت + حرکتِ برنامه‌ای با ffmpeg. هیچ فراخوانِ AIای ندارد؛ هزینه‌اش فقط ثانیهٔ CPU است.",
+  "main": "src/presets.js",
+  "scripts": {
+    "render": "node src/render.mjs"
+  }
+}

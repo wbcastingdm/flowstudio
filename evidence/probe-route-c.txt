@@ -1,0 +1,73 @@
+# پروبِ مسیر ج — تصویرِ ثابت + حرکتِ برنامه‌ای (سندِ ۸۱، بندِ «آنچه اول انجام شود» ۲)
+# ۱۹ مرداد ۱۴۰۵ · خروجیِ عینِ ترمینال · هیچ فراخوانِ AIای انجام نشد
+
+## ۰) ابزار
+$ ffmpeg -version | head -1
+ffmpeg version 8.1.2   (مک — بدونِ drawtext، چون libfreetype ندارد)
+
+$ ssh root@62.220.123.55 'which ffmpeg'
+ffmpeg روی هاست نیست            ⇒ روی سرور داخلِ کانتینرِ node:20-alpine + apk ffmpeg اجرا شد
+
+$ ssh root@62.220.123.55 'nproc; grep "model name" /proc/cpuinfo | head -1'
+3
+model name : Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz
+
+## ۱) ساختِ نمای پایه — HTML → PNG با کرومِ headless
+# نمای «متن روی زمینه»، همان موردی که سندِ ۸۱ برایِ مسیرِ ج نام می‌برد.
+$ "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
+    --screenshot=still.png --window-size=1080,1920 file://still.html
+987893 bytes written to file still.png
+1.24s user 0.74s system 58% cpu 3.357 total
+
+$ file still.png
+PNG image data, 1080 x 1920, 8-bit/color RGB, non-interlaced
+
+# ⭐ فارسی درست شکل گرفت: چسبشِ حروف، جهتِ راست‌به‌چپ، اعرابِ اضافه‌شده،
+#   نیم‌فاصله. هیچ مدلِ تصویری این را قابلِ اتکا تولید نمی‌کند.
+
+## ۲) رندرِ حرکت روی مکِ M2 (تک‌نخ ⇒ زمانِ دیواری = ثانیهٔ CPU)
+$ node src/render.mjs --image still.png --out out-<preset>.mp4 --preset <preset> \
+    --aspect R9_16 --duration 8 --threads 1
+
+{"preset":"still","wallSec":5.78,"cpuSecPerOutputSec":0.722,"realtimeFactor":1.39,"outputKb":579,"machine":"Apple M2 ×8","aiCalls":0,"aiCostCoins":0}
+{"preset":"kenburns_in","wallSec":11.9,"cpuSecPerOutputSec":1.488,"realtimeFactor":0.67,"outputKb":2187,"machine":"Apple M2 ×8","aiCalls":0,"aiCostCoins":0}
+{"preset":"pan_rl","wallSec":8.15,"cpuSecPerOutputSec":1.019,"realtimeFactor":0.98,"outputKb":1504,"machine":"Apple M2 ×8","aiCalls":0,"aiCostCoins":0}
+{"preset":"push_diagonal","wallSec":11.99,"cpuSecPerOutputSec":1.499,"realtimeFactor":0.67,"outputKb":2208,"machine":"Apple M2 ×8","aiCalls":0,"aiCostCoins":0}
+{"preset":"kenburns_in+grain+vignette","wallSec":17.46,"cpuSecPerOutputSec":2.182,"realtimeFactor":0.46,"outputKb":2811,"machine":"Apple M2 ×8","aiCalls":0,"aiCostCoins":0}
+
+## ۳) همان رندر روی سرورِ تولید (Xeon E5-2670 v2)
+$ ssh root@62.220.123.55 'docker run --rm -v /opt/flowstudio/packages/motion:/app \
+    -v /tmp/probe:/w -w /app node:20-alpine sh -c "apk add --no-cache ffmpeg; node src/render.mjs ..."'
+
+{"preset":"still","wallSec":25.58,"cpuSecPerOutputSec":3.197,"realtimeFactor":0.31,"outputKb":595,"machine":"Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ×3"}
+{"preset":"kenburns_in","wallSec":45.41,"cpuSecPerOutputSec":5.676,"realtimeFactor":0.18,"outputKb":2184,"machine":"Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ×3"}
+{"preset":"pan_rl","wallSec":34.07,"cpuSecPerOutputSec":4.259,"realtimeFactor":0.23,"outputKb":1507,"machine":"Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ×3"}
+{"preset":"push_diagonal","wallSec":45.33,"cpuSecPerOutputSec":5.667,"realtimeFactor":0.18,"outputKb":2217,"machine":"Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ×3"}
+{"preset":"kenburns_in+grain+vignette","wallSec":61.69,"cpuSecPerOutputSec":7.712,"realtimeFactor":0.13,"outputKb":2807,"machine":"Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz ×3"}
+
+# سرور ۳٫۸ برابر کندتر از مکِ M2 است. عددِ سرور ملاک است، نه عددِ مک.
+
+## ۴) راستی‌آزماییِ خروجی
+$ ffprobe -v error -show_entries stream=width,height,nb_frames,duration,codec_name out-full.mp4
+codec_name=h264
+width=1080
+height=1920
+duration=8.000000
+nb_frames=240
+
+# فریم‌های ۰ / ۱۱۹ / ۲۳۹ کنارِ هم گذاشته شد: محوشدگیِ ابتدا و انتها کار می‌کند،
+# و بزرگ‌نماییِ ۱٫۰۰ → ۱٫۱۲ در متن دیده می‌شود. پرشِ zoompan دیده نشد —
+# پیش‌بزرگ‌نماییِ ۲ برابر (PRESCALE) کار کرد.
+
+## ۵) هزینهٔ واقعیِ مسیرِ ج
+# سرور: ۳ vCPU × ۳۰ روز = ۷٬۷۷۶٬۰۰۰ ثانیهٔ CPU در ماه.
+# یک نمای ۸ ثانیه‌ایِ kenburns = ۴۵٫۴ ثانیهٔ CPU.
+#   ⇒ ۷٬۷۷۶٬۰۰۰ ÷ ۴۵٫۴ ≈ ۱۷۱٬۰۰۰ نما در ماه با استفادهٔ کاملِ سرور
+#   ⇒ هزینهٔ هر نما = (اجارهٔ ماهانهٔ سرور) ÷ ۱۷۱٬۰۰۰
+# اجارهٔ ماهانه هنوز به من داده نشده (به D-006 وصل است)، ولی در هر عددِ
+# محتملی این رقم زیرِ چند ده تومان درمی‌آید. «تقریباً صفر»ِ سند تأیید شد.
+#
+# ⚠️ چیزی که اندازه‌گیری نشد: هزینهٔ کرومِ headless روی سرور — کروم آنجا
+#   نصب نیست. روی مک ۱٫۲۴ ثانیهٔ CPU بود؛ عددِ سرور حدساً ~۵ ثانیه.
+# ⚠️ سایر ردیف‌های جدولِ زنجیره‌ها (الف/ب/د/ه) اندازه‌گیری نشده‌اند —
+#   به قیمت‌نامهٔ درگاه‌ها نیاز دارند که هنوز نداریم.
