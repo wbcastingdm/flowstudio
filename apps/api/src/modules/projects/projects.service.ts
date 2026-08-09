@@ -43,21 +43,10 @@ export class ProjectsService {
     private readonly gateway: AiGatewayService,
   ) {}
 
-  /**
-   * ⚠️ موقت — تا وقتی احرازِ هویت (D-008: موبایل+OTP) در اسپرینتِ بعدی ساخته
-   * شود، پروژه‌ها به یک کاربرِ جای‌گیر نسبت داده می‌شوند. این یک تصمیمِ محصولی
-   * نیست، فقط جای‌گیرِ قابلِ‌برگشت است؛ وقتی OTP آمد، این حذف می‌شود.
-   */
-  private async getPlaceholderUser() {
-    const PLACEHOLDER_PHONE = '+000000000000';
-    return this.prisma.user.upsert({
-      where: { phone: PLACEHOLDER_PHONE },
-      update: {},
-      create: { phone: PLACEHOLDER_PHONE, wallet: { create: { balance: 0 } } },
-    });
-  }
+  // ✅ جای‌گیرِ `+000000000000` در اسپرینتِ ۴ برداشته شد — هر پروژه به کاربرِ
+  // واردشده (D-008: موبایل+OTP) تعلق دارد.
 
-  async createFromIdea(input: CreateFromIdeaInput) {
+  async createFromIdea(userId: string, input: CreateFromIdeaInput) {
     if (!input.rawIdea?.trim()) {
       throw new BadRequestException('ایده نمی‌تواند خالی باشد');
     }
@@ -73,11 +62,10 @@ export class ProjectsService {
     const aiResult = await this.gateway.chat({ text: prompt });
 
     const parsed = this.parseBriefJson(aiResult.text);
-    const user = await this.getPlaceholderUser();
 
     const project = await this.prisma.project.create({
       data: {
-        userId: user.id,
+        userId,
         title: parsed.title,
         goal: input.goal,
         tone: input.tone,
@@ -109,17 +97,19 @@ export class ProjectsService {
     };
   }
 
-  async findOne(id: string) {
-    return this.prisma.project.findUnique({
-      where: { id },
+  /** `userId` در شرط است، نه فقط `id` — کتابخانهٔ کاربرِ دیگر دیده نمی‌شود. */
+  async findOne(userId: string, id: string) {
+    return this.prisma.project.findFirst({
+      where: { id, userId },
       include: {
         sequences: { include: { shots: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
       },
     });
   }
 
-  async list() {
+  async list(userId: string) {
     return this.prisma.project.findMany({
+      where: { userId },
       orderBy: { createdAt: 'desc' },
       include: {
         sequences: { include: { shots: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },

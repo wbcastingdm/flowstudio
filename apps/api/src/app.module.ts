@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { AiGatewayModule } from './modules/ai-gateway/ai-gateway.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
@@ -11,6 +12,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     AiGatewayModule,
+    AuthModule,
     ProjectsModule,
   ],
   controllers: [AppController],

@@ -1,18 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-
-/**
- * لوکال: API روی پورتِ جدا (۳۲۰۰). روی سرور: nginx مسیرِ /api را می‌فرستد
- * ⇒ same-origin، بدونِ نیاز به CORS.
- */
-function apiBase(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3200';
-  }
-  return '';
-}
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiFetch, getToken } from '@/lib/session';
+import { UserBar } from '../user-bar';
 
 type Shot = {
   id: string;
@@ -54,6 +45,7 @@ const TONES = [
 const DURATIONS = [15, 30, 60, 90];
 
 export default function StudioPage() {
+  const router = useRouter();
   const [rawIdea, setRawIdea] = useState('');
   const [goal, setGoal] = useState<string>('BRAND_AWARENESS');
   const [tone, setTone] = useState<string>('WARM_FRIENDLY');
@@ -62,17 +54,25 @@ export default function StudioPage() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
+  // ساختِ پروژه از اسپرینتِ ۴ محافظت‌شده است — بدونِ ورود، به صفحهٔ ورود می‌رود.
+  useEffect(() => {
+    if (!getToken()) router.push('/login?next=/studio');
+  }, [router]);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     setResult(null);
     try {
-      const res = await fetch(`${apiBase()}/api/projects`, {
+      const res = await apiFetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rawIdea, goal, tone, targetDurationSec }),
       });
+      if (res.status === 401) {
+        router.push('/login?next=/studio');
+        return;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.message ?? `HTTP ${res.status}`);
       setResult(data);
@@ -89,7 +89,8 @@ export default function StudioPage() {
       .reduce((sum, sh) => sum + sh.durationSec, 0) ?? 0;
 
   return (
-    <main style={{ padding: '46px 22px', maxWidth: 980, margin: '0 auto' }}>
+    <main style={{ padding: '40px 22px', maxWidth: 980, margin: '0 auto' }}>
+      <UserBar active="studio" />
       <div className="pill">مرحلهٔ ۱ — ایده تا بریف · رایگان</div>
       <h1 style={{ fontSize: 28, fontWeight: 800, margin: '12px 0 8px' }}>
         ایده‌ات را بنویس، شات‌لیست بگیر
