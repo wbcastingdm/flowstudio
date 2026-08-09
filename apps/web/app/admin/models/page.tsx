@@ -41,6 +41,11 @@ export default function AdminModelsPage() {
   const [costPerUnit, setCostPerUnit] = useState(0);
   const [commercialUse, setCommercialUse] = useState(true);
   const [acceptsSeed, setAcceptsSeed] = useState(false);
+  // افزوده‌های سندِ ۸۱ — تاکسونومیِ گام‌ها از خودِ API می‌آید، نه فهرستِ تکراری.
+  const [allStepTypes, setAllStepTypes] = useState<string[]>([]);
+  const [stepTypes, setStepTypes] = useState<string[]>([]);
+  const [listPrice, setListPrice] = useState('');
+  const [listCurrency, setListCurrency] = useState('USD');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
@@ -57,6 +62,10 @@ export default function AdminModelsPage() {
 
   useEffect(() => {
     refresh();
+    fetch(`${apiBase()}/api/admin/step-types`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setAllStepTypes)
+      .catch(() => setAllStepTypes([]));
   }, []);
 
   async function addProvider(e: React.FormEvent) {
@@ -100,6 +109,10 @@ export default function AdminModelsPage() {
           cameraControl: 'NONE',
           commercialUse,
           regionReachable: 'IRAN',
+          stepTypes,
+          // قیمتِ فهرستی اختیاری است؛ خالی یعنی هنوز از قیمت‌نامه درنیامده.
+          listPricePerUnit: listPrice.trim() === '' ? null : Number(listPrice),
+          listPriceCurrency: listPrice.trim() === '' ? null : listCurrency,
         }),
       });
       const data = await res.json();
@@ -159,6 +172,54 @@ export default function AdminModelsPage() {
           <label style={{ fontSize: 13 }}>
             <input type="checkbox" checked={acceptsSeed} onChange={(e) => setAcceptsSeed(e.target.checked)} /> پشتیبانیِ سید
           </label>
+
+          {/* سندِ ۸۱ / D-O15 — قابلیتِ ریز. خالی بماند، روتر به modality می‌افتد. */}
+          <div style={{ borderTop: '1px solid var(--line)', paddingTop: 8, marginTop: 2 }}>
+            <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 6 }}>
+              گام‌هایی که این مدل اجرا می‌کند (اختیاری)
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {allStepTypes.map((s) => {
+                const on = stepTypes.includes(s);
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() =>
+                      setStepTypes(on ? stepTypes.filter((x) => x !== s) : [...stepTypes, s])
+                    }
+                    style={{
+                      fontSize: 11.5,
+                      padding: '4px 9px',
+                      borderRadius: 999,
+                      cursor: 'pointer',
+                      direction: 'ltr',
+                      border: `1px solid ${on ? 'var(--accent-line-2)' : 'var(--line)'}`,
+                      background: on ? 'var(--accent-bg)' : 'transparent',
+                      color: on ? 'var(--accent-soft)' : 'var(--muted)',
+                    }}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* سندِ ۸۱ / D-O14 — قیمتِ فهرستی؛ گزارش و CPAS، نه کسر از کیفِ پول. */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              placeholder="قیمتِ فهرستیِ درگاه (اختیاری)"
+              value={listPrice}
+              onChange={(e) => setListPrice(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <select value={listCurrency} onChange={(e) => setListCurrency(e.target.value)}>
+              <option value="USD">USD</option>
+              <option value="IRT">IRT</option>
+            </select>
+          </div>
+
           <button className="btn btn-sm" disabled={busy}>افزودنِ مدل</button>
         </form>
       </div>

@@ -19,7 +19,29 @@ interface CreateModelInput {
   cameraControl: string;
   commercialUse: boolean;
   regionReachable: string;
+  // ─── افزوده‌های سندِ ۸۱ ───
+  /** D-O15: قابلیتِ ریز. خالی بماند ⇒ روتر به `modality` می‌افتد. */
+  stepTypes?: string[];
+  /** D-O14: قیمتِ فهرستیِ خامِ درگاه — گزارش و CPAS، نه کسر از کیفِ پول. */
+  listPricePerUnit?: number | null;
+  listPriceCurrency?: string | null;
 }
+
+/**
+ * فهرستِ بستهٔ گام‌ها — روتر روی این تصمیم می‌گیرد، نه روی نامِ مدل.
+ * `programmatic_motion` و `html2image` عمداً اینجا هستند: مسیرِ ج هیچ
+ * فراخوانِ AIای ندارد ولی یک گامِ پلانِ تمام‌عیار است (سندِ ۸۱، پیوستِ اجرا).
+ */
+export const STEP_TYPES = [
+  'text2image',
+  'image2video',
+  'text2video',
+  'upscale',
+  'tts',
+  'lipsync',
+  'programmatic_motion',
+  'html2image',
+] as const;
 
 interface ChatInput {
   text: string;
@@ -50,6 +72,21 @@ export class AiGatewayService {
   }
 
   async createModel(input: CreateModelInput) {
+    // گامِ ناشناخته بی‌صدا ذخیره نشود — وگرنه روترِ L3 هرگز پیدایش نمی‌کند
+    // و علتش هم معلوم نیست. تاکسونومی بسته است، مثلِ ReasonCode.
+    const stepTypes = (input.stepTypes ?? [])
+      .map((s) => String(s).trim().toLowerCase())
+      .filter(Boolean);
+    const unknown = stepTypes.filter((s) => !STEP_TYPES.includes(s as never));
+    if (unknown.length > 0) {
+      throw new BadRequestException(
+        `گامِ ناشناخته: ${unknown.join('، ')} — مجازها: ${STEP_TYPES.join('، ')}`,
+      );
+    }
+    if (input.listPricePerUnit != null && !input.listPriceCurrency) {
+      throw new BadRequestException('قیمتِ فهرستی بدونِ واحد ذخیره نمی‌شود — USD یا IRT');
+    }
+
     const model = await this.prisma.aiModel.create({
       data: {
         providerId: input.providerId,
@@ -61,6 +98,9 @@ export class AiGatewayService {
         cameraControl: input.cameraControl,
         commercialUse: input.commercialUse,
         regionReachable: input.regionReachable,
+        stepTypes,
+        listPricePerUnit: input.listPricePerUnit ?? null,
+        listPriceCurrency: input.listPriceCurrency ?? null,
       },
     });
     return model;
@@ -114,6 +154,11 @@ export class AiGatewayService {
         };
       } catch (err) {
         lastError = err;
+        // 🔴 نقطهٔ درجِ اجباریِ اسپرینتِ ۳: وقتی این حلقه به گامِ **پولی**
+        // رسید، همین‌جا باید (۱) `release()`ِ رزروِ کیفِ پول اجرا شود
+        // (گاردریلِ ۵ سندِ ۸۱) و (۲) یک ردیفِ `Generation` با
+        // `attemptIndex` ثبت شود، وگرنه CPAS صورتِ کسر را از دست می‌دهد.
+        // الان بی‌خطر است چون TEXT رایگان است و costActual صفر می‌ماند.
         continue; // failover به کاندیدایِ بعدی
       }
     }

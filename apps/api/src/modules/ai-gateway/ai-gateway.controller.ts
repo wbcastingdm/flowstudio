@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { AiGatewayService } from './ai-gateway.service';
+import { AiGatewayService, STEP_TYPES } from './ai-gateway.service';
 import type { Modality } from '@prisma/client';
 
 @Controller('api/admin')
@@ -24,6 +24,9 @@ export class AiGatewayAdminController {
       cameraControl: string;
       commercialUse: boolean;
       regionReachable: string;
+      stepTypes?: string[];
+      listPricePerUnit?: number | null;
+      listPriceCurrency?: string | null;
     },
   ) {
     return this.gateway.createModel(body);
@@ -32,6 +35,12 @@ export class AiGatewayAdminController {
   @Get('models')
   listModels() {
     return this.gateway.listModels();
+  }
+
+  /** تاکسونومیِ بستهٔ گام‌ها — پنلِ ادمین از همین‌جا می‌خواند، نه از فهرستِ تکراری. */
+  @Get('step-types')
+  stepTypes() {
+    return STEP_TYPES;
   }
 }
 
