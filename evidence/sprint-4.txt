@@ -1,0 +1,53 @@
+# اسپرینتِ ۴ — ورود با موبایل+OTP (سندباکس) و کتابخانهٔ کاربر
+# خروجیِ عینِ ترمینال، پس از دیپلوی روی 62.220.123.55 — ۱۹ مرداد ۱۴۰۵
+# کامیت: b2145a8
+
+$ curl -s https://flowstudio.webcasting.ir/health
+{"status":"healthy","database":"connected"}
+
+$ curl -s -X POST .../api/auth/otp/request -d {"phone":"09121234567"}
+{"phone":"+989121234567","sandbox":true,"code":"123456","message":"حالتِ سندباکس — پیامکی فرستاده نشد، همین کد را وارد کن."}
+
+# همان شماره با +98 و ارقامِ فارسی ⇒ همان کاربر، نه کاربرِ دوم
+$ curl -s -X POST .../api/auth/otp/request -d {"phone":"+۹۸۹۱۲۱۲۳۴۵۶۷"}
+{"phone":"+989121234567","sandbox":true,"code":"123456","message":"حالتِ سندباکس — پیامکی فرستاده نشد، همین کد را وارد کن."}
+
+$ curl -s -X POST .../api/auth/otp/request -d {"phone":"12345"}   # شمارهٔ نامعتبر
+{"message":"شمارهٔ موبایل معتبر نیست — مثلاً ۰۹۱۲۳۴۵۶۷۸۹","error":"Bad Request","statusCode":400}
+
+$ curl -s -X POST .../api/auth/otp/verify -d {"code":"000000"}   # کدِ غلط
+{"message":"کد درست نیست.","error":"Unauthorized","statusCode":401}
+
+$ curl -s -X POST .../api/projects   # بدونِ توکن
+{"message":"برایِ این کار باید وارد شوی.","error":"Unauthorized","statusCode":401}
+
+$ TOK=$(curl -s -X POST .../api/auth/otp/verify -d {"code":"123456"} | jq -r .token)
+# طولِ توکن: 146 کاراکتر (payload.HMAC)
+
+$ curl -s .../api/auth/me -H "Authorization: Bearer $TOK"
+{"id":"cmslgi9pe0000rnuen3z3mvby","phone":"+989121234567","balance":0,"projectCount":0,"createdAt":"2026-08-09T07:03:51.457Z"}
+
+$ curl -s .../api/projects -H "Authorization: Bearer $TOK"   # کتابخانهٔ کاربرِ تازه
+[]
+
+$ curl -s .../api/auth/me -H "Authorization: Bearer ${TOK}x"   # توکنِ دست‌کاری‌شده
+{"message":"برایِ این کار باید وارد شوی.","error":"Unauthorized","statusCode":401}
+
+$ curl -s -X POST .../api/projects -H "Authorization: Bearer $TOK" -d {...}
+# انتظار: ۵۰۳ صادقانه — گاردِ ورود رد شد، ولی هنوز مدلی در رجیستری نیست
+{"message":"هیچ مدلِ TEXTی با commercialUse=true ثبت نشده — اول یک درگاه و مدل در /admin/models اضافه کنید.","error":"Service Unavailable","statusCode":503}
+
+# کدِ HTTPِ صفحه‌ها
+/                200
+/studio          200
+/login           200
+/library         200
+/admin/models    200
+/app             200
+
+# همسایه‌ها پس از دیپلوی — nginx اصلاً دست نخورد
+https://webcasting.ir        200
+https://filmto.ir            200
+https://fahimshop.ir         200
+https://wegopars.ir          200
+https://ethico.ir            200
