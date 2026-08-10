@@ -9,6 +9,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { RegistryModule } from './modules/registry/registry.module';
+import { AssetsModule } from './modules/assets/assets.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RegistryModule } from './modules/registry/registry.module';
     WalletModule,
     JobsModule,
     RegistryModule,
+    AssetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
