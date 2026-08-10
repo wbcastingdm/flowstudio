@@ -28,9 +28,28 @@ type AiModelRow = {
   provider: { id: string; name: string; baseUrl: string };
 };
 
+/**
+ * رازِ ادمین در `sessionStorage` می‌ماند، نه `localStorage` — با بستنِ تب
+ * پاک می‌شود. روی مرورگرِ مشترک این تفاوت مهم است.
+ */
+const ADMIN_KEY = 'flowstudio_admin_key';
+
+function adminFetch(path: string, key: string, init: RequestInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json');
+  headers.set('x-admin-key', key);
+  return fetch(`${apiBase()}${path}`, { ...init, headers });
+}
+
 export default function AdminModelsPage() {
   const [models, setModels] = useState<AiModelRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // ─── درِ ورودیِ پنل ───
+  const [adminKey, setAdminKey] = useState('');
+  const [keyInput, setKeyInput] = useState('');
+  const [unlocked, setUnlocked] = useState(false);
+  const [gateNote, setGateNote] = useState('');
 
   const [providerName, setProviderName] = useState('');
   const [providerBaseUrl, setProviderBaseUrl] = useState('');
@@ -49,9 +68,12 @@ export default function AdminModelsPage() {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
-  async function refresh() {
+  async function refresh(key = adminKey) {
+    if (!key) return;
     try {
-      const res = await fetch(`${apiBase()}/api/admin/models`);
+      const res = await fetch(`${apiBase()}/api/admin/models`, {
+        headers: { 'x-admin-key': key },
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setModels(await res.json());
       setError(null);
@@ -60,22 +82,79 @@ export default function AdminModelsPage() {
     }
   }
 
+  /** رازِ ذخیره‌شده را با یک درخواستِ واقعی می‌سنجد، نه با حدس. */
+  async function tryUnlock(key: string, quiet = false) {
+    if (!key) return false;
+    try {
+      const res = await fetch(`${apiBase()}/api/admin/models`, {
+        headers: { 'x-admin-key': key },
+      });
+      if (res.ok) {
+        setAdminKey(key);
+        setUnlocked(true);
+        setModels(await res.json());
+        window.sessionStorage.setItem(ADMIN_KEY, key);
+        void fetch(`${apiBase()}/api/admin/step-types`, { headers: { 'x-admin-key': key } })
+          .then((r) => (r.ok ? r.json() : []))
+          .then(setAllStepTypes)
+          .catch(() => setAllStepTypes([]));
+        return true;
+      }
+      window.sessionStorage.removeItem(ADMIN_KEY);
+      const body = await res.json().catch(() => ({}));
+      if (!quiet) setGateNote(body?.message ?? `رد شد (HTTP ${res.status})`);
+      return false;
+    } catch (e) {
+      if (!quiet) setGateNote(`اتصال برقرار نشد — ${String(e)}`);
+      return false;
+    }
+  }
+
   useEffect(() => {
-    refresh();
-    fetch(`${apiBase()}/api/admin/step-types`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setAllStepTypes)
-      .catch(() => setAllStepTypes([]));
+    const saved = window.sessionStorage.getItem(ADMIN_KEY);
+    if (saved) void tryUnlock(saved, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!unlocked) {
+    return (
+      <main style={{ padding: '80px 22px', maxWidth: 460, margin: '0 auto' }}>
+        <div className="pill">پنلِ مدیریت</div>
+        <h1 style={{ fontSize: 24, fontWeight: 800, margin: '10px 0 6px' }}>رمزِ پنل</h1>
+        <p style={{ color: 'var(--muted)', margin: '0 0 22px', fontSize: 14, lineHeight: 1.9 }}>
+          این پنل کلیدِ سرویس‌های هوشِ مصنوعی را نگه می‌دارد، پس روی دامنهٔ عمومی
+          باز نمی‌ماند. رمز را مالک تعیین کرده است.
+        </p>
+        <form
+          className="card"
+          style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setGateNote('');
+            void tryUnlock(keyInput.trim());
+          }}
+        >
+          <input
+            type="password"
+            placeholder="رمزِ پنل"
+            value={keyInput}
+            onChange={(e) => setKeyInput(e.target.value)}
+            autoFocus
+          />
+          <button className="btn btn-sm">ورود</button>
+          {gateNote && <div style={{ color: '#e08a8a', fontSize: 13 }}>{gateNote}</div>}
+        </form>
+      </main>
+    );
+  }
 
   async function addProvider(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setNote('');
     try {
-      const res = await fetch(`${apiBase()}/api/admin/providers`, {
+      const res = await adminFetch('/api/admin/providers', adminKey, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: providerName, baseUrl: providerBaseUrl, apiKey: providerApiKey }),
       });
       const data = await res.json();
@@ -97,9 +176,8 @@ export default function AdminModelsPage() {
     setBusy(true);
     setNote('');
     try {
-      const res = await fetch(`${apiBase()}/api/admin/models`, {
+      const res = await adminFetch('/api/admin/models', adminKey, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           providerId,
           modelKey,

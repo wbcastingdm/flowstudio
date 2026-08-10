@@ -6,6 +6,8 @@ import { PrismaModule } from './common/prisma/prisma.module';
 import { AiGatewayModule } from './modules/ai-gateway/ai-gateway.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { WalletModule } from './modules/wallet/wallet.module';
+import { JobsModule } from './modules/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ProjectsModule } from './modules/projects/projects.module';
     AiGatewayModule,
     AuthModule,
     ProjectsModule,
+    WalletModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

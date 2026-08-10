@@ -1,8 +1,16 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AiGatewayService, STEP_TYPES } from './ai-gateway.service';
+import { AdminGuard } from '../auth/admin.guard';
 import type { Modality } from '@prisma/client';
 
+/**
+ * 🔒 از ۱۹ مرداد قفل است. تا آن روز روی زیردامنه باز بود؛ با زنده‌شدنِ
+ * `flowstudio.ir` روی دامنهٔ عمومی، درِ بازِ «ثبتِ درگاه» یعنی هر رهگذری
+ * می‌تواند `baseUrl`ِ خودش را جا بزند و فراخوان‌های کاربران را به سرورِ
+ * خودش ببرد. راز در هدرِ `x-admin-key`.
+ */
 @Controller('api/admin')
+@UseGuards(AdminGuard)
 export class AiGatewayAdminController {
   constructor(private readonly gateway: AiGatewayService) {}
 

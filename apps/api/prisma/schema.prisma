@@ -42,12 +42,83 @@ model User {
 }
 
 model Wallet {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  balance   Int      @default(0) // سکه
+  id      String @id @default(cuid())
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id])
+  /// سکهٔ **قابلِ خرج‌کردن**. مبلغِ رزروشده از همین کسر شده و در `held` است،
+  /// پس `balance` هرگز شاملِ پولی که جای دیگری قول داده شده نیست.
+  balance Int    @default(0)
+  /// سکهٔ رزروشده و هنوز خرج‌نشده. مجموعِ `balance + held` داراییِ کاربر است.
+  held    Int    @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  holds   WalletHold[]
+  entries WalletEntry[]
+}
+
+/// وضعیتِ یک رزرو. از `HELD` فقط یک بار خارج می‌شود — یا خرج شد یا برگشت.
+enum HoldStatus {
+  HELD
+  SETTLED
+  RELEASED
+}
+
+/// گاردریلِ ۶ منشورِ اجرا: **`hold` قبل از خرج، `release` در `catch`**.
+/// بدونِ این جدول، شکستِ یک فراخوانِ پولی یعنی سکهٔ گم‌شده: کسر شده ولی
+/// هیچ خروجی‌ای در برابرش نیست و هیچ ردی هم از برگشتش نمانده.
+model WalletHold {
+  id         String    @id @default(cuid())
+  walletId   String
+  wallet     Wallet    @relation(fields: [walletId], references: [id])
+  jobGroupId String?
+  jobGroup   JobGroup? @relation(fields: [jobGroupId], references: [id])
+  /// مبلغِ رزروشده — سقفِ خرج. تسویه هرگز از این بیشتر نمی‌شود.
+  amount     Int
+  /// مبلغِ واقعیِ خرج‌شده. تفاوتش با `amount` به `balance` برمی‌گردد.
+  settledAmount Int?
+  status     HoldStatus @default(HELD)
+  /// برایِ چه رزرو شد — متنِ کوتاهِ قابلِ خواندن در دفتر.
+  purpose    String
+  createdAt  DateTime   @default(now())
+  resolvedAt DateTime?
+
+  entries WalletEntry[]
+
+  @@index([walletId, status])
+  @@index([jobGroupId])
+}
+
+enum WalletEntryType {
+  CREDIT
+  HOLD
+  SETTLE
+  RELEASE
+}
+
+/// دفترِ ثبتِ **غیرقابلِ‌تغییر**. `Wallet.balance` فقط یک خلاصهٔ سریع است؛
+/// حقیقت این‌جاست و باید همیشه با آن جمع بخورد. هیچ ردیفی UPDATE نمی‌شود.
+model WalletEntry {
+  id       String          @id @default(cuid())
+  walletId String
+  wallet   Wallet          @relation(fields: [walletId], references: [id])
+  type     WalletEntryType
+  /// همیشه **مثبت** — جهت را `type` تعیین می‌کند، نه علامتِ عدد.
+  amount   Int
+  /// عکسِ لحظه‌ایِ کیفِ پول بعد از این ردیف — تا ممیزی به بازپخشِ کلِ دفتر
+  /// نیاز نداشته باشد.
+  balanceAfter Int
+  heldAfter    Int
+
+  holdId       String?
+  hold         WalletHold? @relation(fields: [holdId], references: [id])
+  generationId String?
+  note         String?
+  createdAt    DateTime    @default(now())
+
+  @@index([walletId, createdAt])
+  @@index([holdId])
 }
 
 // ─── محتوا: پروژه → سکانس → شات — طول‌آگاه از روزِ اول ───
@@ -238,6 +309,10 @@ model JobGroup {
   budgetCap     Int    @default(0)
   /// اعمال در سرور. اعمال در UI یعنی اعمال‌نشده (گاردریلِ ۳).
   spentAmount   Int    @default(0)
+  /// سکه‌ای که رزرو شده ولی هنوز تسویه نشده. بدونِ این ستون، دو گامِ هم‌زمان
+  /// هر دو «جا داریم» می‌بینند و پاکت از سقف رد می‌شود.
+  /// شرطِ پاکت: `spentAmount + reservedAmount + مبلغِ تازه ≤ budgetCap`.
+  reservedAmount Int   @default(0)
   /// سقفِ پله‌های نردبانِ تشدید. سیستم هرگز بی‌سقف بالا نمی‌رود.
   escalationCap Int    @default(1)
   /// انتظارِ کاربر: draft | standard | hero
@@ -245,6 +320,7 @@ model JobGroup {
 
   jobs      Job[]
   planSteps PlanStep[]
+  holds     WalletHold[]
 
   @@index([userId])
 }

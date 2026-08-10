@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { encryptApiKey, decryptApiKey, maskApiKey } from './encryption.util';
+import { WalletService } from '../wallet/wallet.service';
 import type { Modality } from '@prisma/client';
 
 interface CreateProviderInput {
@@ -45,6 +46,17 @@ export const STEP_TYPES = [
 
 interface ChatInput {
   text: string;
+  /**
+   * فقط برایِ گامِ **پولی** پر می‌شود. مسیرِ TEXT رایگان است و این را خالی
+   * می‌گذارد — ولی از همان مسیرِ رزرو رد می‌شود، پس روزی که پولی شد فقط
+   * عددش عوض می‌شود، نه ساختارِ کد.
+   */
+  billing?: {
+    userId: string;
+    jobGroupId?: string;
+    /** سکه. صفر یعنی رایگان ⇒ هیچ رزروی ساخته نمی‌شود. */
+    estimatedCost: number;
+  };
 }
 
 /**
@@ -55,7 +67,10 @@ interface ChatInput {
  */
 @Injectable()
 export class AiGatewayService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly wallet: WalletService,
+  ) {}
 
   async createProvider(input: CreateProviderInput) {
     if (!input.name || !input.baseUrl || !input.apiKey) {
@@ -124,6 +139,30 @@ export class AiGatewayService {
       throw new BadRequestException('text لازم است');
     }
 
+    // ✅ بدهیِ ثبت‌شدهٔ اسپرینتِ ۳ اینجا بسته شد: رزرو دورِ کلِ حلقهٔ failover
+    // پیچیده می‌شود، پس چه یک کاندیدا شکست بخورد چه همه‌شان، `release`
+    // حتماً اجرا می‌شود (گاردریلِ ۶). مسیرِ رایگان `estimatedCost = 0` دارد
+    // و رزروی نمی‌سازد، ولی از همین در رد می‌شود.
+    if (input.billing) {
+      return this.wallet.runWithHold(
+        {
+          userId: input.billing.userId,
+          jobGroupId: input.billing.jobGroupId,
+          estimatedCost: input.billing.estimatedCost,
+          purpose: 'فراخوانِ متنیِ درگاهِ AI',
+        },
+        async () => {
+          const result = await this.runTextCandidates(input.text);
+          return { result, actualCost: result.costActual };
+        },
+      );
+    }
+
+    return this.runTextCandidates(input.text);
+  }
+
+  /** حلقهٔ کاندیدا + failover — جدا شد تا بتواند داخلِ رزرو اجرا شود. */
+  private async runTextCandidates(text: string) {
     const candidates = await this.prisma.aiModel.findMany({
       where: { modality: 'TEXT', commercialUse: true },
       include: { provider: true },
@@ -144,7 +183,7 @@ export class AiGatewayService {
           candidate.provider.baseUrl,
           apiKey,
           candidate.modelKey,
-          input.text,
+          text,
         );
         return {
           text: responseText,
@@ -154,11 +193,14 @@ export class AiGatewayService {
         };
       } catch (err) {
         lastError = err;
-        // 🔴 نقطهٔ درجِ اجباریِ اسپرینتِ ۳: وقتی این حلقه به گامِ **پولی**
-        // رسید، همین‌جا باید (۱) `release()`ِ رزروِ کیفِ پول اجرا شود
-        // (گاردریلِ ۵ سندِ ۸۱) و (۲) یک ردیفِ `Generation` با
-        // `attemptIndex` ثبت شود، وگرنه CPAS صورتِ کسر را از دست می‌دهد.
-        // الان بی‌خطر است چون TEXT رایگان است و costActual صفر می‌ماند.
+        // رزرو دورِ کلِ این حلقه است (بندِ `billing` در `chat`)، پس شکستِ
+        // اینجا سکه‌ای نمی‌بلعد: یا کاندیدایِ بعدی موفق می‌شود و همان رزرو
+        // تسویه می‌شود، یا همه شکست می‌خورند و `runWithHold` آزادش می‌کند.
+        //
+        // ⬜ ماندهٔ اسپرینتِ ۶: ثبتِ یک ردیفِ `Generation` با `attemptIndex`
+        // برایِ هر تلاشِ شکست‌خورده. مخرجِ CPAS بدونِ آن ناقص می‌ماند. اینجا
+        // هنوز ممکن نیست چون `Generation` به `jobId`/`shotId` گره خورده و
+        // مسیرِ متنی هیچ‌کدام را ندارد.
         continue; // failover به کاندیدایِ بعدی
       }
     }
