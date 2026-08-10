@@ -11,6 +11,7 @@ import { JobsModule } from './modules/jobs/jobs.module';
 import { RegistryModule } from './modules/registry/registry.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { PublicationsModule } from './modules/publications/publications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AdminModule } from './modules/admin/admin.module';
     RegistryModule,
     AssetsModule,
     AdminModule,
+    PublicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

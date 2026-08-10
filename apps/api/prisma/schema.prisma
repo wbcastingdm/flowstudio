@@ -31,6 +31,14 @@ model User {
   /// روزِ مهاجرت یک ردیفِ تازه اضافه می‌شود، نه بازسازیِ هویت.
   authProvider String    @default("otp") // otp | webcasting_sso | ...
   externalId   String?
+
+  /// نام نمایشی روی سایت عمومی.
+  ///
+  /// 🔒 بدون این فیلد، تنها شناسه انسانی کاربر شماره موبایلش است — و شماره
+  /// موبایل هرگز نباید در صفحه عمومی اثر یا پروفایل سازنده دیده شود. تا
+  /// وقتی کاربر نامی انتخاب نکرده، «سازنده ناشناس» نشان داده می‌شود.
+  displayName  String?
+  bio          String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -40,6 +48,7 @@ model User {
   assets         Asset[]
   termsAccepted  TermsAcceptance[]
   castingProfile CastingProfile?
+  comments       Comment[]
 
   @@unique([authProvider, externalId])
 }
@@ -378,6 +387,9 @@ model Publication {
   status       PublicationStatus @default(DRAFT)
   externalUrl  String?
   externalId   String?
+  /// شمارنده ساده بازدید. تحلیل دقیق کار ابزار جداست؛ این فقط برای
+  /// مرتب‌سازی «پربازدیدها» در صفحه کشف است.
+  viewCount    Int               @default(0)
   publishedAt  DateTime?
   withdrawnAt  DateTime?
   withdrawnBy  String?
@@ -387,6 +399,36 @@ model Publication {
   updatedAt    DateTime          @updatedAt
 
   @@unique([projectId, target])
+  @@index([status])
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  HIDDEN
+}
+
+/// دیدگاه روی اثر عمومی.
+///
+/// وضعیت پیش‌فرض `PENDING` نیست بلکه از تنظیم سایت می‌آید — ولی هر حالتی
+/// که باشد، راهبر حق برداشتن دارد. `HIDDEN` با `REJECTED` فرق دارد:
+/// اولی تصمیم راهبر است، دومی نتیجه بررسی خودکار.
+model Comment {
+  id           String        @id @default(cuid())
+  projectId    String
+  project      Project       @relation(fields: [projectId], references: [id])
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  body         String
+  status       CommentStatus @default(APPROVED)
+  reasonCodeId String?
+  reasonCode   ReasonCode?   @relation(fields: [reasonCodeId], references: [id])
+  moderatedBy  String?
+  moderatedAt  DateTime?
+  createdAt    DateTime      @default(now())
+
+  @@index([projectId, status, createdAt])
   @@index([status])
 }
 
@@ -449,6 +491,7 @@ model Project {
   assets           Asset[]
   publications     Publication[]
   complianceChecks ComplianceCheck[]
+  comments         Comment[]
 
   @@index([userId])
   @@index([productionTypeId])
@@ -759,6 +802,7 @@ model ReasonCode {
   generations      Generation[]
   complianceChecks ComplianceCheck[]
   publications     Publication[]
+  comments         Comment[]
 }
 
 // ─── دفترِ ثبت — هر رکورد غیرقابلِ‌تغییر است ───
