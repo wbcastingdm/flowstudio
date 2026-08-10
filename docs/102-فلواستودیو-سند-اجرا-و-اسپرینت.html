@@ -1,0 +1,728 @@
+<title>فلواستودیو — سند اجرا و اسپرینت</title>
+<meta name="robots" content="noindex, nofollow">
+
+<style>
+  :root {
+    --paper:#F2F4F6; --surface:#FFFFFF; --sunk:#E8EBEF;
+    --ink:#151922; --muted:#596373; --faint:#8A93A1;
+    --line:#D8DDE4; --line-soft:#E6EAEF;
+    --accent:#A3651B; --accent-w:#F4E9D6;
+    --ok:#2E7D5B; --ok-w:#E2F0E9;
+    --blocked:#B23B3B; --blocked-w:#F6E4E4;
+    --pending:#64748B; --pending-w:#E6EAEF;
+
+    --f-body:"SF Arabic","Geeza Pro",Vazirmatn,"IRANSans",Tahoma,system-ui,sans-serif;
+    --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --step:clamp(1rem,0.62rem + 1.5vw,1.28rem);
+    --measure:68ch;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#12151A; --surface:#1A1E25; --sunk:#23282F;
+      --ink:#E7EAEE; --muted:#A2ACBA; --faint:#78828F;
+      --line:#2E343D; --line-soft:#262B33;
+      --accent:#E0A34A; --accent-w:#3A2E1B;
+      --ok:#6FC79C; --ok-w:#1D3128;
+      --blocked:#E58A8A; --blocked-w:#3A2323;
+      --pending:#93A0B1; --pending-w:#252B33;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#12151A; --surface:#1A1E25; --sunk:#23282F;
+    --ink:#E7EAEE; --muted:#A2ACBA; --faint:#78828F;
+    --line:#2E343D; --line-soft:#262B33;
+    --accent:#E0A34A; --accent-w:#3A2E1B;
+    --ok:#6FC79C; --ok-w:#1D3128;
+    --blocked:#E58A8A; --blocked-w:#3A2323;
+    --pending:#93A0B1; --pending-w:#252B33;
+  }
+
+  * { box-sizing:border-box; }
+  html { direction:rtl; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--f-body); font-size:var(--step); line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap {
+    max-width:82ch; margin:0 auto;
+    padding:clamp(26px,5vw,60px) clamp(16px,4vw,32px) 110px;
+    display:flex; flex-direction:column; gap:44px;
+  }
+
+  .masthead { display:flex; flex-direction:column; gap:14px; }
+  .eyebrow { font-family:var(--f-mono); font-size:0.72em; letter-spacing:0.14em; color:var(--accent); text-transform:uppercase; }
+  h1 { margin:0; font-size:clamp(1.8rem,1.1rem + 3vw,3rem); line-height:1.22; font-weight:800; letter-spacing:-0.018em; text-wrap:balance; }
+  .dek { margin:0; max-width:var(--measure); color:var(--muted); font-size:1.05em; }
+  .stamp {
+    display:flex; flex-wrap:wrap; gap:8px 18px; padding-top:10px;
+    border-top:1px solid var(--line); font-family:var(--f-mono); font-size:0.73em; color:var(--faint);
+  }
+
+  section { display:flex; flex-direction:column; gap:16px; scroll-margin-top:18px; }
+  h2 {
+    margin:0; font-size:clamp(1.2rem,1rem + 1vw,1.6rem); font-weight:750;
+    line-height:1.35; letter-spacing:-0.012em; text-wrap:balance;
+    display:flex; align-items:baseline; gap:12px;
+  }
+  h2 .num { font-family:var(--f-mono); font-size:0.6em; font-weight:500; color:var(--accent); flex:none; }
+  h3 { margin:8px 0 0; font-size:1.02em; font-weight:700; }
+  p { margin:0; max-width:var(--measure); }
+  strong { font-weight:700; }
+  code { font-family:var(--f-mono); font-size:0.85em; background:var(--sunk); padding:0.1em 0.4em; border-radius:4px; direction:ltr; display:inline-block; }
+  .mono { font-family:var(--f-mono); font-size:0.85em; }
+  ul, ol { margin:0; padding-inline-start:1.3em; max-width:var(--measure); display:flex; flex-direction:column; gap:6px; }
+  li::marker { color:var(--faint); }
+  hr { border:none; border-top:1px solid var(--line); margin:0; }
+  .note { color:var(--muted); font-size:0.9em; max-width:var(--measure); }
+  a { color:var(--accent); text-underline-offset:3px; }
+  a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:3px; }
+
+  .card {
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:18px 21px; display:flex; flex-direction:column; gap:10px;
+  }
+  .card > p, .card > ul, .card > ol { max-width:none; }
+  .card.flag { border-inline-start:3px solid var(--accent); }
+  .card.flag-red { border-inline-start:3px solid var(--blocked); }
+  .card-title { font-weight:700; font-size:1.01em; }
+
+  .toc { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px 22px; }
+  .toc ol { max-width:none; display:block; columns:2; column-gap:32px; padding-inline-start:1.5em; }
+  .toc li { break-inside:avoid; font-size:0.89em; line-height:1.85; }
+  .toc a { color:var(--ink); text-decoration:none; }
+  .toc a:hover { color:var(--accent); text-decoration:underline; }
+  @media (max-width:640px) { .toc ol { columns:1; } }
+
+  /* ── فاز ── */
+  .phase {
+    background:var(--surface); border:1px solid var(--line); border-radius:11px;
+    overflow:hidden;
+  }
+  .phase-head {
+    display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap;
+    padding:16px 20px; background:var(--sunk); border-bottom:1px solid var(--line);
+  }
+  .phase-id {
+    font-family:var(--f-mono); font-size:0.78em; font-weight:700; color:var(--accent);
+    background:var(--accent-w); padding:3px 10px; border-radius:6px; flex:none; line-height:1.7;
+  }
+  .phase-t { font-weight:750; font-size:1.06em; flex:1 1 220px; line-height:1.5; }
+  .phase-meter {
+    font-family:var(--f-mono); font-size:0.76em; color:var(--muted);
+    font-variant-numeric:tabular-nums; flex:none; align-self:center;
+  }
+  .phase-body { padding:16px 20px 20px; display:flex; flex-direction:column; gap:13px; }
+  .goal { font-size:0.95em; }
+  .dod {
+    background:var(--ok-w); border-radius:8px; padding:11px 15px;
+    font-size:0.9em; line-height:1.75;
+  }
+  .dod b { color:var(--ok); }
+  .dep { font-size:0.87em; color:var(--muted); }
+
+  /* ── چک‌لیست ── */
+  .tasks { display:flex; flex-direction:column; gap:2px; }
+  .task {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:7px 9px; border-radius:7px; font-size:0.93em; line-height:1.7;
+  }
+  .task:hover { background:var(--sunk); }
+  .task input {
+    appearance:none; -webkit-appearance:none;
+    inline-size:17px; block-size:17px; flex:none; margin-top:5px;
+    border:1.5px solid var(--faint); border-radius:4px; background:transparent;
+    cursor:pointer; position:relative; transition:background .12s, border-color .12s;
+  }
+  .task input:checked { background:var(--ok); border-color:var(--ok); }
+  .task input:checked::after {
+    content:""; position:absolute; inset-inline-start:5px; inset-block-start:1px;
+    inline-size:5px; block-size:10px; border:solid var(--surface);
+    border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .task input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .task label { cursor:pointer; flex:1; }
+  .task input:checked + label { color:var(--faint); text-decoration:line-through; text-decoration-thickness:1px; }
+  .task .lane {
+    font-family:var(--f-mono); font-size:0.72em; color:var(--muted);
+    background:var(--sunk); padding:1px 7px; border-radius:999px;
+    flex:none; align-self:flex-start; margin-top:3px; line-height:1.8;
+  }
+
+  .chip {
+    display:inline-flex; align-items:center; font-family:var(--f-mono);
+    font-size:0.69em; padding:2px 8px; border-radius:999px; white-space:nowrap; line-height:1.75;
+  }
+  .chip.ok { background:var(--ok-w); color:var(--ok); }
+  .chip.blocked { background:var(--blocked-w); color:var(--blocked); }
+  .chip.pending { background:var(--pending-w); color:var(--pending); }
+
+  .scroller { overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; font-size:0.89em; }
+  th, td { text-align:right; padding:10px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top; line-height:1.65; }
+  thead th { background:var(--sunk); font-size:0.86em; font-weight:700; color:var(--muted); white-space:nowrap; border-bottom:1px solid var(--line); }
+  tbody tr:last-child td { border-bottom:none; }
+
+  .lanes { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:10px; }
+  .lane-card {
+    background:var(--surface); border:1px solid var(--line); border-radius:9px;
+    padding:14px 16px; display:flex; flex-direction:column; gap:6px;
+    border-top:3px solid var(--accent);
+  }
+  .lane-card .k { font-family:var(--f-mono); font-size:0.73em; color:var(--accent); }
+  .lane-card .n { font-weight:700; font-size:0.97em; }
+  .lane-card .d { font-size:0.83em; color:var(--muted); line-height:1.7; }
+
+  .total {
+    position:sticky; inset-block-start:0; z-index:5;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:13px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    font-family:var(--f-mono); font-size:0.82em; font-variant-numeric:tabular-nums;
+  }
+  .bar { flex:1 1 180px; block-size:7px; background:var(--sunk); border-radius:999px; overflow:hidden; min-inline-size:120px; }
+  .bar i { display:block; block-size:100%; inline-size:0%; background:var(--ok); border-radius:999px; transition:inline-size .25s; }
+  .reset { font-family:var(--f-body); font-size:0.95em; background:none; border:1px solid var(--line); color:var(--muted); border-radius:7px; padding:3px 11px; cursor:pointer; }
+  .reset:hover { color:var(--ink); border-color:var(--faint); }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">سند اجرا · همراه سند حاکم ۱۰۱</div>
+    <h1>فازها، وظایف، و معیار تمام شدن</h1>
+    <p class="dek">
+      سند ۱۰۱ می‌گوید محصول چیست. این سند می‌گوید چطور ساخته می‌شود: سیزده فاز،
+      هر فاز با هدف روشن، فهرست وظایف قابل تیک زدن، و یک معیار تمام شدن که با
+      حرف قابل ادعا نیست و باید دیده شود.
+    </p>
+    <div class="stamp">
+      <span>۱۳ فاز</span>
+      <span>۸ جریان کاری</span>
+      <span>قابل انتقال به دی‌تسک</span>
+    </div>
+  </header>
+
+  <div class="total" id="total">
+    <span>پیشرفت کل</span>
+    <span class="bar"><i id="bar"></i></span>
+    <span id="count">۰ از ۰</span>
+    <button class="reset" id="reset" type="button">پاک کردن تیک‌ها</button>
+  </div>
+
+  <div class="card flag">
+    <div class="card-title">چطور با این سند کار کنیم</div>
+    <ul>
+      <li>هر وظیفه یک <strong>چک‌باکس</strong> دارد. با انجام شدن تیک می‌خورد و در همین مرورگر ذخیره می‌ماند.</li>
+      <li>برچسب کنار هر وظیفه <strong>جریان کاری</strong> آن را می‌گوید — بخش ۱.</li>
+      <li>فاز وقتی تمام است که <strong>معیار تمام شدن</strong> برآورده شود، نه وقتی همه تیک‌ها خورده باشند. تیک یعنی کار انجام شد؛ معیار یعنی نتیجه دیده شد.</li>
+      <li>ادعای بدون شواهد پذیرفته نیست: خروجی عین ترمینال یا عکس صفحه در <code>evidence/</code> می‌نشیند.</li>
+    </ul>
+  </div>
+
+  <nav class="toc" aria-label="فهرست">
+    <ol>
+      <li><a href="#lanes">هشت جریان کاری</a></li>
+      <li><a href="#ditask">انتقال به دی‌تسک</a></li>
+      <li><a href="#p0">فاز ۰ — پایدارسازی</a></li>
+      <li><a href="#p1">فاز ۱ — اولین تولید واقعی</a></li>
+      <li><a href="#p2">فاز ۲ — پروب ویدیو</a></li>
+      <li><a href="#p3">فاز ۳ — تحقیق و تجربه کاربری</a></li>
+      <li><a href="#p4">فاز ۴ — لایه ورودی</a></li>
+      <li><a href="#p5">فاز ۵ — تحلیل سناریو</a></li>
+      <li><a href="#p6">فاز ۶ — انطباق و حقوقی</a></li>
+      <li><a href="#p7">فاز ۷ — اولین ویدیو</a></li>
+      <li><a href="#p8">فاز ۸ — صدا و موسیقی</a></li>
+      <li><a href="#p9">فاز ۹ — انتشار</a></li>
+      <li><a href="#p10">فاز ۱۰ — پنل راهبر</a></li>
+      <li><a href="#p11">فاز ۱۱ — پرداخت و سطوح</a></li>
+      <li><a href="#p12">فاز ۱۲ — شاخه بازیگر</a></li>
+      <li><a href="#rules">قواعد اجرا</a></li>
+    </ol>
+  </nav>
+
+  <hr>
+
+  <!-- جریان‌ها -->
+  <section id="lanes">
+    <h2><span class="num">۱</span> هشت جریان کاری</h2>
+    <p>
+      هر وظیفه به یکی از این‌ها تعلق دارد. جریان‌ها موازی‌اند: در یک فاز ممکن است
+      هم‌زمان تحقیق و طراحی و پیاده‌سازی جلو بروند.
+    </p>
+    <div class="lanes">
+      <div class="lane-card"><div class="k">RES</div><div class="n">تحقیق و بررسی</div><div class="d">سنجش سرویس‌ها، مقایسه مدل‌ها، اندازه‌گیری هزینه واقعی، بررسی نمونه‌های بازار.</div></div>
+      <div class="lane-card"><div class="k">UX</div><div class="n">تجربه کاربری</div><div class="d">مسیر کاربر، ساختار فرم‌ها، متن رابط، حالت خطا و انتظار، طرح صفحه.</div></div>
+      <div class="lane-card"><div class="k">ARC</div><div class="n">ساختار و معماری</div><div class="d">مدل داده، مرز ماژول‌ها، قرارداد میان لایه‌ها، تصمیم‌های فنی.</div></div>
+      <div class="lane-card"><div class="k">DEV</div><div class="n">پیاده‌سازی</div><div class="d">کد سمت سرور و سمت مرورگر.</div></div>
+      <div class="lane-card"><div class="k">LAW</div><div class="n">حقوقی و انطباق</div><div class="d">متن قوانین، قوانین رایگان، مجوز کاتالوگ، رضایت چهره، تعهد کاربر.</div></div>
+      <div class="lane-card"><div class="k">OPS</div><div class="n">عملیات</div><div class="d">دیپلوی، دامنه، گواهی، پشتیبان‌گیری، پایش.</div></div>
+      <div class="lane-card"><div class="k">QA</div><div class="n">آزمون و شواهد</div><div class="d">آزمون رفتاری، خروجی ترمینال، عکس صفحه، پرونده <code>evidence/</code>.</div></div>
+      <div class="lane-card"><div class="k">DOC</div><div class="n">مستندات</div><div class="d">به‌روزرسانی سند حاکم، سند اجرا، و راهنمای کاربر.</div></div>
+    </div>
+  </section>
+
+  <!-- دی‌تسک -->
+  <section id="ditask">
+    <h2><span class="num">۲</span> انتقال به دی‌تسک</h2>
+    <p>
+      فضای کاری <span class="mono">Flowstudio</span> و پروژه <span class="mono">flowstudio</span>
+      از قبل ساخته شده. ساختار پیشنهادی برای اینکه این سند و بردها یک چیز بمانند:
+    </p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>عنصر دی‌تسک</th><th>معادلش در این سند</th><th>نکته</th></tr></thead>
+        <tbody>
+          <tr><td><strong>برد</strong></td><td>یک فاز</td><td>نام برد دقیقا شناسه فاز باشد: <span class="mono">P0</span> تا <span class="mono">P12</span>. با این کار ارجاع دادن ساده می‌ماند.</td></tr>
+          <tr><td><strong>ستون</strong></td><td>وضعیت کار</td><td>در انتظار · در حال انجام · بازبینی · انجام شده. ستون بازبینی حذف نشود؛ همان جایی است که شواهد چک می‌شود.</td></tr>
+          <tr><td><strong>تیکت</strong></td><td>یک وظیفه چک‌باکس‌دار</td><td>عنوان تیکت عین متن وظیفه. برچسب تیکت همان جریان کاری: <span class="mono">RES</span>, <span class="mono">UX</span>, …</td></tr>
+          <tr><td><strong>فایل</strong></td><td>خروجی فاز</td><td>سند طراحی، عکس صفحه، فایل شواهد.</td></tr>
+          <tr><td><strong>تحقیق محصول</strong></td><td>جریان <span class="mono">RES</span></td><td>یافته‌های سنجش سرویس‌ها همان جا بماند تا تصمیم‌ها منبع داشته باشند.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      این سند مرجع است و برد آینه آن. اگر جایی اختلاف افتاد، مرجع همین فایل است —
+      چون معیار تمام شدن و وابستگی‌ها این جا نوشته شده‌اند.
+    </p>
+  </section>
+
+  <hr>
+
+  <!-- ═══ فاز ۰ ═══ -->
+  <section id="p0">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P0</span>
+        <span class="phase-t">پایدارسازی و بستن در باز</span>
+        <span class="phase-meter" data-meter="p0"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          کاری که ساخته شده روی سرور بنشیند و هیچ دری باز نماند. تا این فاز تمام نشود،
+          هر کار تازه روی یک پایه ناامن می‌نشیند.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p0-1"><label for="t-p0-1">اجرای دیپلوی: همگام‌سازی کد و بازسازی کانتینرها</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p0-2"><label for="t-p0-2">اجرای مهاجرت پایگاه داده روی سرور برای جدول‌های کیف پول و صف</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p0-3"><label for="t-p0-3">راستی‌آزمایی قفل پنل: بدون راز ۴۰۱، با راز درست ۲۰۰</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p0-4"><label for="t-p0-4">راستی‌آزمایی سلامت همه سایت‌های همسایه روی همان سرور</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p0-5"><label for="t-p0-5">تنظیم پشتیبان‌گیری خودکار پایگاه داده فلواستودیو</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p0-6"><label for="t-p0-6">ثبت فرمان‌های عملیاتی در فایل اعتبارها روی دسکتاپ</label><span class="lane">DOC</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> درخواست بدون راز به مسیر مدیریت روی دامنه عمومی پاسخ ۴۰۱ بگیرد، و یک بار بازیابی از پشتیبان روی پایگاه داده آزمایشی موفق باشد.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱ ═══ -->
+  <section id="p1">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P1</span>
+        <span class="phase-t">اولین تولید واقعی — کلید و شات‌لیست</span>
+        <span class="phase-meter" data-meter="p1"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          موتور با یک مدل واقعی کار کند. کوچک‌ترین فاز پروژه و بازکننده بقیه.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p1-1"><label for="t-p1-1">ثبت درگاه واقعی در پنل مدل‌ها با کلید معتبر</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p1-2"><label for="t-p1-2">افزودن دست کم دو مدل متنی تا مسیر failover واقعا آزموده شود</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p1-3"><label for="t-p1-3">تولید یک شات‌لیست واقعی از یک ایده فارسی</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p1-4"><label for="t-p1-4">آزمون شکست: کلید یک درگاه را خراب کن و ببین به دومی می‌افتد</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p1-5"><label for="t-p1-5">سنجش کیفیت خروجی فارسی و اصلاح قالب پرامپت در صورت نیاز</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p1-6"><label for="t-p1-6">ثبت شواهد در <code>evidence/</code></label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک ایده فارسی وارد شود و یک شات‌لیست ساختاریافته با مدت هر نما برگردد؛ و با از کار انداختن درگاه اول، همان ایده باز هم جواب بگیرد.</div>
+        <p class="dep">وابسته به: P0</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۲ ═══ -->
+  <section id="p2">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P2</span>
+        <span class="phase-t">پروب ویدیو — عدد واقعی هزینه</span>
+        <span class="phase-meter" data-meter="p2"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          روشن شود کدام سرویس مدل ویدیو دارد، شکل پاسخش چیست، و یک ثانیه ویدیو
+          واقعا چقدر خرج می‌برد. بدون این عدد، قیمت‌گذاری سه سطح حدس است.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p2-1"><label for="t-p2-1">فهرست کردن نامزدها بر اساس شش معیار بخش ۱۶ سند حاکم</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-2"><label for="t-p2-2">بررسی دسترسی شبکه‌ای هر نامزد از سرور</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-3"><label for="t-p2-3">تهیه حداقل اعتبار روی دو نامزد</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-4"><label for="t-p2-4">اجرای یک پرامپت یکسان روی هر دو: پنج ثانیه، همان متریال، همان نسبت</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-5"><label for="t-p2-5">ثبت سه عدد برای هرکدام: هزینه واقعی، زمان تحویل، نیاز به تکرار</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-6"><label for="t-p2-6">مستندسازی شکل API ناهمگام: ارسال، نظرسنجی وضعیت، دریافت</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-7"><label for="t-p2-7">نوشتن آداپتر ناهمگام و افزودن آن به رجیستری</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p2-8"><label for="t-p2-8">بستن تصمیم تجمیع‌کننده ویدیو با عدد، نه با ادعا</label><span class="lane">DOC</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک فایل ویدیوی پنج ثانیه‌ای واقعی از راه رجیستری تولید شود و هزینه‌اش در دفتر سکه ثبت شده باشد.</div>
+        <p class="dep">وابسته به: P1 · نیازمند تصمیم مالک درباره خرید حساب</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۳ ═══ -->
+  <section id="p3">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P3</span>
+        <span class="phase-t">تحقیق و طراحی تجربه کاربری</span>
+        <span class="phase-meter" data-meter="p3"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          پیش از نوشتن رابط تازه، مسیر کاربر روی کاغذ بسته شود. این فاز هیچ کدی
+          ندارد و عمدا هم ندارد — تا بازنویسی رابط دو بار اتفاق نیفتد.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p3-1"><label for="t-p3-1">بررسی سه نمونه بازار و ثبت اینکه هر کدام ورودی چندرسانه‌ای را چطور می‌گیرند</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-2"><label for="t-p3-2">نوشتن مسیر کاربر برای سه نوع تولید منتخب، گام به گام</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-3"><label for="t-p3-3">طراحی فرم چندمرحله‌ای وابسته به نوع، با تعیین اینکه هر گام چه می‌پرسد</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-4"><label for="t-p3-4">طراحی نمایش پیشنهاد ماشین به شکلی که از نوشته کاربر تفکیک‌پذیر بماند</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-5"><label for="t-p3-5">نوشتن متن رابط: عنوان‌ها، راهنماها، پیام‌های خطا و انتظار</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-6"><label for="t-p3-6">طراحی حالت انتظار برای کاری که چند دقیقه طول می‌کشد</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-7"><label for="t-p3-7">طرح صفحه آرشیو رسانه و صفحه اثر</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-8"><label for="t-p3-8">قفل کردن مدل داده تازه: دارایی، نوع تولید، سطح خدمت، کارگردانی نما، نمایش</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-9"><label for="t-p3-9">تعیین مرز ماژول‌ها و قرارداد میان پنج لایه</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-10"><label for="t-p3-10">نوشتن سند طراحی و افزودنش به فهرست مستندات</label><span class="lane">DOC</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک نفر ناآشنا بتواند فقط از روی سند طراحی، مسیر ساخت یک فیلم کوتاه را قدم به قدم تعریف کند بدون اینکه به سوالی بربخورد که جوابش نوشته نشده.</div>
+        <p class="dep">وابسته به: تصمیم درباره نوع‌های تولید نسخه اول</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۴ ═══ -->
+  <section id="p4">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P4</span>
+        <span class="phase-t">لایه ورودی و دارایی</span>
+        <span class="phase-meter" data-meter="p4"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">کاربر بتواند متن، فایل متنی، عکس و کلیپ بدهد و هر کدام شناسنامه‌دار شود.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p4-1"><label for="t-p4-1">افزودن موجودیت دارایی به مدل داده و اجرای مهاجرت</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-2"><label for="t-p4-2">راه‌اندازی محل نگهداری فایل با دسترسی کنترل‌شده</label><span class="lane">OPS</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-3"><label for="t-p4-3">آپلود فایل متنی و استخراج متن از آن</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-4"><label for="t-p4-4">آپلود عکس با محدودیت اندازه و نوع، و ساخت پیش‌نمایش</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-5"><label for="t-p4-5">آپلود کلیپ با محدودیت مدت و حجم</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-6"><label for="t-p4-6">پیاده‌سازی فرم چندمرحله‌ای وابسته به نوع، طبق طراحی فاز ۳</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-7"><label for="t-p4-7">افزودن متریال و درجه نزدیکی و مدت تا ساعت</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p4-8"><label for="t-p4-8">آزمون فایل خراب، فایل بزرگ، و نوع غیرمجاز</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک فیلمنامه چند صفحه‌ای به شکل فایل آپلود شود، همراه یک عکس مرجع، و هر دو در آرشیو رسانه کاربر با شناسه خودشان دیده شوند.</div>
+        <p class="dep">وابسته به: P3</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۵ ═══ -->
+  <section id="p5">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P5</span>
+        <span class="phase-t">تحلیل سناریو و میزان‌سن</span>
+        <span class="phase-meter" data-meter="p5"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          سناریو عمق کارگردانی پیدا کند: میزان‌سن، حرکت دوربین، نور و زاویه برای هر نما.
+          پربازده‌ترین فاز پروژه، چون بیشترین اثر روی کیفیت را با کم‌ترین هزینه می‌گذارد.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p5-1"><label for="t-p5-1">افزودن موجودیت کارگردانی نما با تفکیک نوشته کاربر از پیشنهاد ماشین</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-2"><label for="t-p5-2">نوشتن تحلیلگر: از متن، عناصر غایب هر نما را پیدا کند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-3"><label for="t-p5-3">تولید پیشنهاد برای هر عنصر غایب، متناسب با نوع و ژانر</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-4"><label for="t-p5-4">اعلان به کاربر: چه چیزی کم بود و چه پیشنهادی داده شد</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-5"><label for="t-p5-5">ویرایشگر نما: کاربر بتواند بپذیرد، عوض کند، یا رد کند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-6"><label for="t-p5-6">پر کردن قلاب پیوستگی شخصیت و لوکیشن بین نماها</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-7"><label for="t-p5-7">آزمون با یک متن خام بدون هیچ جزئیات کارگردانی</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-8"><label for="t-p5-8">آزمون با یک فیلمنامه حرفه‌ای که خودش همه چیز را نوشته</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک متن خام سه خطی وارد شود و شات‌لیستی برگردد که برای هر نما میزان‌سن و دوربین و نور و زاویه دارد، و کاربر ببیند کدام‌ها را ماشین اضافه کرده است.</div>
+        <p class="dep">وابسته به: P1 و P4</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۶ ═══ -->
+  <section id="p6">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P6</span>
+        <span class="phase-t">انطباق، حقوقی، و دروازه بازبینی</span>
+        <span class="phase-meter" data-meter="p6"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          هیچ سکه‌ای پیش از یک بررسی خودکار و یک تایید انسانی خرج نشود؛ و تکلیف
+          حقوقی هر اثر روشن باشد.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p6-1"><label for="t-p6-1">دریافت متن قوانین و فهرست ممنوعه‌ها از مالک</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-2"><label for="t-p6-2">نوشتن بخش قوانین رایگان: محدودیت‌ها با زبان ساده</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-3"><label for="t-p6-3">پر کردن تاکسونومی کدهای دلیل رد در پایگاه داده</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-4"><label for="t-p6-4">پیاده‌سازی تعهد نسخه‌دار کاربر: چه کسی، چه نسخه‌ای، چه زمانی</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-5"><label for="t-p6-5">بررسی خودکار پرامپت با مدل متنی و ثبت نتیجه</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-6"><label for="t-p6-6">صفحه صف بازبینی برای ناظر: تایید، رد با کد دلیل، یادداشت</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-7"><label for="t-p6-7">اتصال دروازه به پاکت بودجه: بدون تایید، رزرو سکه انجام نشود</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-8"><label for="t-p6-8">بخش حقوقی پنل راهبر: انواع مجوز و اینکه هر مجوز کدام اثرها را درگیر می‌کند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-9"><label for="t-p6-9">اعلام شرط مجوز به کاربر در لحظه انتخاب، نه در صفحه قوانین</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p6-10"><label for="t-p6-10">آزمون: درخواست ناقض قوانین باید پیش از هر خرج رد شود</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک درخواست ناقض قوانین با کد دلیل مشخص رد شود بدون آنکه حتی یک سکه رزرو شده باشد؛ و یک درخواست سالم فقط پس از تایید ناظر وارد صف تولید شود.</div>
+        <p class="dep">وابسته به: متن قوانین از مالک</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۷ ═══ -->
+  <section id="p7">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P7</span>
+        <span class="phase-t">اولین ویدیوی کامل — از ایده تا فایل</span>
+        <span class="phase-meter" data-meter="p7"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">اولین باری که محصول واقعا کار خودش را انجام می‌دهد.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p7-1"><label for="t-p7-1">ساخت گراف گام‌ها از شات‌لیست: تصویر کلیدی، ویدیو، ارتقا</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-2"><label for="t-p7-2">اجرای گام‌ها روی صف کار با رزرو سکه در هر گام</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-3"><label for="t-p7-3">تلاش مجدد و تشدید کنترل‌شده در صورت خروجی ضعیف</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-4"><label for="t-p7-4">ذخیره خروجی در سطح نما، نه فقط فایل نهایی</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-5"><label for="t-p7-5">مونتاژ نماها به یک فایل با نسبت درست</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-6"><label for="t-p7-6">افزودن واترمارک متنی برای سطوحی که واترمارک دارند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-7"><label for="t-p7-7">نمایش پیشرفت زنده به کاربر: کدام نما در چه مرحله‌ای است</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-8"><label for="t-p7-8">آزمون شکست وسط کار: کاربر نباید سکه از دست بدهد</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-9"><label for="t-p7-9">ثبت شواهد با فایل خروجی و گزارش هزینه</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک ایده فارسی وارد شود و یک فایل ویدیوی قابل تماشا بیرون بیاید؛ هزینه واقعی‌اش در دفتر ثبت باشد؛ و با قطع عمدی وسط کار، موجودی کاربر دقیقا به حالت قبل برگردد.</div>
+        <p class="dep">وابسته به: P2، P5، P6</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۸ ═══ -->
+  <section id="p8">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P8</span>
+        <span class="phase-t">صدا، موسیقی، و کنترل نهایی</span>
+        <span class="phase-meter" data-meter="p8"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">اثر صدا پیدا کند و پیش از انتشار یک بار کامل دیده شود.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p8-1"><label for="t-p8-1">انتخاب منبع موسیقی و بستن تصمیمش</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-2"><label for="t-p8-2">ساخت کاتالوگ رسانه با فیلدهای مجوز کامل</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-3"><label for="t-p8-3">وارد کردن ترک‌های اولیه با برچسب ژانر و حال و هوا</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-4"><label for="t-p8-4">فیلتر شدن ترک‌ها بر اساس مقصد انتشار انتخاب‌شده کاربر</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-5"><label for="t-p8-5">انتخاب موسیقی با پیش‌گوش در استودیو</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-6"><label for="t-p8-6">گفتار راوی از متن، برای مستند و آموزشی</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-7"><label for="t-p8-7">هم‌گامی لب برای نماهایی که گفتار دارند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-8"><label for="t-p8-8">میکس صدا: موسیقی، گفتار، و تراز شنیداری</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-9"><label for="t-p8-9">صفحه کنترل نهایی: بازبینی کیفی و بازبینی انطباق روی نسخه کامل</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-10"><label for="t-p8-10">پیوست شدن پرونده مجوز موسیقی به پرونده اثر</label><span class="lane">LAW</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک اثر با موسیقی و گفتار بیرون بیاید، مجوز موسیقی‌اش در پرونده اثر ثبت باشد، و ترکی که برای مقصد انتخابی مجاز نیست اصلا در فهرست انتخاب دیده نشود.</div>
+        <p class="dep">وابسته به: P7 · تصمیم منبع موسیقی</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۹ ═══ -->
+  <section id="p9">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P9</span>
+        <span class="phase-t">انتشار، سایت عمومی، و فلک</span>
+        <span class="phase-meter" data-meter="p9"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">اثر از آرشیو خصوصی بیرون بیاید و دیده شود.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p9-1"><label for="t-p9-1">افزودن موجودیت نمایش با وضعیت هر مقصد</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-2"><label for="t-p9-2">دانلود فایل در نسبت و کیفیت متناسب با سطح خدمت</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-3"><label for="t-p9-3">خروجی گرفتن در نسبت‌های اینستاگرام و تلگرام</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-4"><label for="t-p9-4">صفحه عمومی اثر با آدرس قابل اشتراک</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-5"><label for="t-p9-5">پروفایل سازنده و صفحه کشف</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-6"><label for="t-p9-6">پسند و دیدگاه، همراه ابزار مدیریت نظرات برای راهبر</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-7"><label for="t-p9-7">روشن شدن رابط فنی فلک و مستندسازی‌اش</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-8"><label for="t-p9-8">بازتاب اثر بلند در فلک</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-9"><label for="t-p9-9">بازتاب خروجی کوتاه در بخش استوری کاربران فلک</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-10"><label for="t-p9-10">حق برداشتن راهبر از هر مقصد، از یک جا</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p9-11"><label for="t-p9-11">آزمون حذف: برداشتن اثر باید همه مقصدها را پاک کند</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک اثر با یک کلیک روی سایت عمومی و در فلک دیده شود، و با یک بار برداشتن از پنل راهبر، از هر دو جا محو شود.</div>
+        <p class="dep">وابسته به: P8 · نیازمند روشن شدن رابط فلک</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱۰ ═══ -->
+  <section id="p10">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P10</span>
+        <span class="phase-t">پنل راهبر</span>
+        <span class="phase-meter" data-meter="p10"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          گرداننده کسب و کار کل دستگاه را ببیند. بیشتر این کار خواندن داده موجود است،
+          نه ساختن سازوکار تازه.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p10-1"><label for="t-p10-1">فهرست کاربران با وضعیت، سطح، موجودی و آخرین فعالیت</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-2"><label for="t-p10-2">آمار تولید: تعداد، نوع، نرخ موفقیت، زمان متوسط</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-3"><label for="t-p10-3">گزارش مصرف و هزینه به تفکیک کاربر و مدل و نوع</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-4"><label for="t-p10-4">صفحه صف کار با امکان بازگرداندن کار گیرکرده</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-5"><label for="t-p10-5">صفحه دفتر سکه: تراکنش، رزرو، شارژ</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-6"><label for="t-p10-6">داشبورد سلامت: نرخ خطای هر درگاه</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-7"><label for="t-p10-7">ابزار تحقیق و توسعه: مقایسه مدل‌ها روی یک ورودی یکسان</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p10-8"><label for="t-p10-8">نقش‌ها و سطوح دسترسی درون پنل</label><span class="lane">ARC</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> بدون باز کردن پایگاه داده، بشود جواب داد: این هفته چند اثر ساخته شد، چقدر خرج شد، و کدام درگاه بیشترین خطا را داشت.</div>
+        <p class="dep">وابسته به: P7</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱۱ ═══ -->
+  <section id="p11">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P11</span>
+        <span class="phase-t">سطوح خدمت، پرداخت، و پیامک</span>
+        <span class="phase-meter" data-meter="p11"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">محصول از رایگان به فروش برسد.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p11-1"><label for="t-p11-1">افزودن موجودیت سطح خدمت با چهار عدد تعیین‌کننده</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-2"><label for="t-p11-2">تعیین قیمت سه سطح بر پایه عدد واقعی فاز ۲</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-3"><label for="t-p11-3">اعمال محدودیت سطح در روتر: مدل خارج از سطح انتخاب نشود</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-4"><label for="t-p11-4">اتصال درگاه پرداخت و ثبت تراکنش</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-5"><label for="t-p11-5">اتصال درگاه پیامک و خاموش کردن حالت سندباکس ورود</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-6"><label for="t-p11-6">صدور و ارسال فاکتور</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-7"><label for="t-p11-7">تنظیمات سطوح و درگاه‌ها از پنل راهبر</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-8"><label for="t-p11-8">جایگزینی توکن نشست با کوکی امن، پیش از پول واقعی</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p11-9"><label for="t-p11-9">آزمون پرداخت ناموفق و پرداخت تکراری</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک کاربر واقعی با شماره خودش وارد شود، یک سطح بخرد، فاکتورش را بگیرد، و سقف سکه‌اش دقیقا همان چیزی باشد که سطح تعریف کرده.</div>
+        <p class="dep">وابسته به: P2 و P10 · حالت سندباکس ورود باید بسته شود</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱۲ ═══ -->
+  <section id="p12">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P12</span>
+        <span class="phase-t">شاخه بازیگر و لایه رقابت</span>
+        <span class="phase-meter" data-meter="p12"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">موتور جذب مخاطب برای فلک: کاربر خودش را در نقش ببیند و رقابت شکل بگیرد.</p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p12-1"><label for="t-p12-1">تعیین منبع کلیپ پایه و بستن تکلیف حقوقی‌اش</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-2"><label for="t-p12-2">نوشتن متن رضایت چهره و شرط سنی</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-3"><label for="t-p12-3">افزودن پروفایل بازیگری با عکس و رضایت ثبت‌شده</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-4"><label for="t-p12-4">مسدود کردن هر گام چهره بدون رضایت ثبت‌شده</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-5"><label for="t-p12-5">ثبت مدل تعویض چهره و هم‌گامی لب در رجیستری</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-6"><label for="t-p12-6">مسیر کاربر: انتخاب کلیپ، آپلود چهره، پرامپت، خروجی</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-7"><label for="t-p12-7">واترمارک اجباری روی خروجی چهره‌محور</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-8"><label for="t-p12-8">لایه رقابت: امتیاز، رتبه‌بندی، چالش دوره‌ای</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p12-9"><label for="t-p12-9">بازتاب نتیجه رقابت در فلک</label><span class="lane">DEV</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> کاربر با کلیپ و چهره خودش یک خروجی بگیرد که واترمارک دارد و رضایتش ثبت شده؛ و تلاش برای همین کار بدون رضایت، پیش از هر خرج رد شود.</div>
+        <p class="dep">وابسته به: P7 · نیازمند تصمیم منبع کلیپ</p>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- قواعد -->
+  <section id="rules">
+    <h2><span class="num">۳</span> قواعد اجرا</h2>
+    <div class="card flag">
+      <div class="card-title">هفت قاعده که در هر فاز صادق‌اند</div>
+      <ol>
+        <li><strong>تصمیم پیش از کد.</strong> اگر دروازه تصمیم یک فاز باز است، فاز شروع نمی‌شود. پیش‌فرض خاموش یعنی تصمیم دزدیده‌شده.</li>
+        <li><strong>مجری حق تایید خودش را ندارد.</strong> هر ادعا با شواهد. کد ۲۰۰ اثبات تولید نیست.</li>
+        <li><strong>نام هیچ مدلی در کد ثابت نوشته نمی‌شود.</strong> مدل یک ردیف داده است.</li>
+        <li><strong>رزرو پیش از خرج، آزادسازی در شکست.</strong> هیچ سکه‌ای به خاطر خطا بلعیده نمی‌شود.</li>
+        <li><strong>گیت انسانی پیش از خرج پول، نه بعد از آن.</strong></li>
+        <li><strong>خروجی در سطح نما ذخیره می‌شود</strong>، نه فقط فایل نهایی — وگرنه ابزار ویرایش بعدی یعنی بازنویسی همه چیز.</li>
+        <li><strong>به کانتینر و شبکه و پایگاه داده پروژه‌های همسایه دست زده نمی‌شود.</strong> فقط هم‌خانه‌ایم.</li>
+      </ol>
+    </div>
+    <div class="card flag-red">
+      <div class="card-title">سه دام فنی ثبت‌شده</div>
+      <ul>
+        <li>کتابخانه پایگاه داده روی ایمیج سبک به هدف باینری صریح نیاز دارد، وگرنه کانتینر در حلقه کرش می‌افتد — و این فقط داخل داکر دیده می‌شود.</li>
+        <li>مسیر ریشه پروژه در ایمیج نباید با نام یک مسیر برنامه یکی باشد، وگرنه صفحه اصلی بی‌صدا با محتوای اشتباه ساخته می‌شود.</li>
+        <li>پیکربندی وب‌سرور روی این ماشین یک فایل واحد و مشترک بین همه سایت‌هاست. هر ویرایش باید محدود به بلوک خودمان باشد و پیش از اعمال شمرده شود.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var KEY = 'flowstudio-exec-v1';
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.task input'));
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+
+    function fa(n) {
+      return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; });
+    }
+
+    function refresh() {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      document.getElementById('count').textContent = fa(done) + ' از ' + fa(boxes.length);
+      document.getElementById('bar').style.inlineSize =
+        (boxes.length ? Math.round((done / boxes.length) * 100) : 0) + '%';
+
+      document.querySelectorAll('[data-meter]').forEach(function (el) {
+        var p = el.getAttribute('data-meter');
+        var own = boxes.filter(function (b) { return b.id.indexOf('t-' + p + '-') === 0; });
+        var d = own.filter(function (b) { return b.checked; }).length;
+        el.textContent = fa(d) + ' / ' + fa(own.length);
+      });
+    }
+
+    boxes.forEach(function (b) {
+      if (saved[b.id]) b.checked = true;
+      b.addEventListener('change', function () {
+        saved[b.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        refresh();
+      });
+    });
+
+    document.getElementById('reset').addEventListener('click', function () {
+      boxes.forEach(function (b) { b.checked = false; });
+      saved = {};
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      refresh();
+    });
+
+    refresh();
+  })();
+</script>
