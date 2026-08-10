@@ -1,0 +1,1186 @@
+<title>فلواستودیو — نسخهٔ جدید با درکِ تازه</title>
+<meta name="robots" content="noindex, nofollow">
+
+<style>
+  :root {
+    --paper:    #F2F4F6;
+    --surface:  #FFFFFF;
+    --sunk:     #E8EBEF;
+    --ink:      #151922;
+    --muted:    #596373;
+    --faint:    #8A93A1;
+    --line:     #D8DDE4;
+    --line-soft:#E6EAEF;
+    --accent:   #A3651B;
+    --accent-w: #F4E9D6;
+    --ok:       #2E7D5B;
+    --ok-w:     #E2F0E9;
+    --blocked:  #B23B3B;
+    --blocked-w:#F6E4E4;
+    --pending:  #64748B;
+    --pending-w:#E6EAEF;
+    --bronze:   #8C5A33;
+    --silver:   #6B7480;
+    --gold:     #A3651B;
+
+    --f-body: "SF Arabic", "Geeza Pro", Vazirmatn, "IRANSans", Tahoma, system-ui, sans-serif;
+    --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --step: clamp(1rem, 0.62rem + 1.5vw, 1.3rem);
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #12151A;
+      --surface:  #1A1E25;
+      --sunk:     #23282F;
+      --ink:      #E7EAEE;
+      --muted:    #A2ACBA;
+      --faint:    #78828F;
+      --line:     #2E343D;
+      --line-soft:#262B33;
+      --accent:   #E0A34A;
+      --accent-w: #3A2E1B;
+      --ok:       #6FC79C;
+      --ok-w:     #1D3128;
+      --blocked:  #E58A8A;
+      --blocked-w:#3A2323;
+      --pending:  #93A0B1;
+      --pending-w:#252B33;
+      --bronze:   #C88F62;
+      --silver:   #A9B3BF;
+      --gold:     #E0A34A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:    #12151A;
+    --surface:  #1A1E25;
+    --sunk:     #23282F;
+    --ink:      #E7EAEE;
+    --muted:    #A2ACBA;
+    --faint:    #78828F;
+    --line:     #2E343D;
+    --line-soft:#262B33;
+    --accent:   #E0A34A;
+    --accent-w: #3A2E1B;
+    --ok:       #6FC79C;
+    --ok-w:     #1D3128;
+    --blocked:  #E58A8A;
+    --blocked-w:#3A2323;
+    --pending:  #93A0B1;
+    --pending-w:#252B33;
+    --bronze:   #C88F62;
+    --silver:   #A9B3BF;
+    --gold:     #E0A34A;
+  }
+
+  * { box-sizing: border-box; }
+  html { direction: rtl; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: var(--step);
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 80ch;
+    margin: 0 auto;
+    padding: clamp(26px, 5vw, 64px) clamp(16px, 4vw, 34px) 110px;
+    display: flex; flex-direction: column; gap: 48px;
+  }
+
+  .masthead { display: flex; flex-direction: column; gap: 15px; }
+  .eyebrow {
+    font-family: var(--f-mono); font-size: 0.72em;
+    letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.85rem, 1.1rem + 3.2vw, 3.2rem);
+    line-height: 1.22; font-weight: 800; letter-spacing: -0.018em; text-wrap: balance;
+  }
+  .dek { margin: 0; max-width: var(--measure); color: var(--muted); font-size: 1.06em; }
+  .stamp {
+    display: flex; flex-wrap: wrap; gap: 8px 18px; padding-top: 10px;
+    border-top: 1px solid var(--line);
+    font-family: var(--f-mono); font-size: 0.73em; color: var(--faint);
+  }
+
+  section { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: 18px; }
+
+  h2 {
+    margin: 0; font-size: clamp(1.22rem, 1rem + 1.1vw, 1.65rem);
+    font-weight: 750; line-height: 1.35; letter-spacing: -0.012em; text-wrap: balance;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  h2 .num {
+    font-family: var(--f-mono); font-size: 0.6em; font-weight: 500;
+    color: var(--accent); letter-spacing: 0.04em; flex: none;
+  }
+  h3 { margin: 10px 0 0; font-size: 1.03em; font-weight: 700; letter-spacing: -0.005em; }
+
+  p { margin: 0; max-width: var(--measure); }
+  strong { font-weight: 700; }
+  em { font-style: normal; color: var(--muted); }
+
+  code, .mono { font-family: var(--f-mono); font-size: 0.85em; }
+  code {
+    background: var(--sunk); padding: 0.1em 0.42em; border-radius: 4px;
+    direction: ltr; display: inline-block;
+  }
+
+  ul, ol {
+    margin: 0; padding-inline-start: 1.3em; max-width: var(--measure);
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  li::marker { color: var(--faint); }
+
+  /* ── فهرست ── */
+  .toc {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px 24px;
+  }
+  .toc ol {
+    max-width: none; gap: 3px;
+    columns: 2; column-gap: 34px; display: block;
+    padding-inline-start: 1.5em;
+  }
+  .toc li { break-inside: avoid; font-size: 0.9em; line-height: 1.9; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } }
+
+  /* ── کارت ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 19px 22px;
+    display: flex; flex-direction: column; gap: 11px;
+  }
+  .card > p, .card > ul, .card > ol { max-width: none; }
+  .card.flag     { border-inline-start: 3px solid var(--accent); }
+  .card.flag-red { border-inline-start: 3px solid var(--blocked); }
+  .card.flag-ok  { border-inline-start: 3px solid var(--ok); }
+  .card-title { font-weight: 700; font-size: 1.02em; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+
+  /* ── نوارِ فیلم ── */
+  .strip-outer {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+  }
+  .perf {
+    height: 15px;
+    background: repeating-linear-gradient(to left, transparent 0 9px, var(--sunk) 9px 21px);
+    border-block: 1px solid var(--line-soft);
+  }
+  .strip { display: flex; overflow-x: auto; scroll-snap-type: x proximity; }
+  .frame {
+    flex: 0 0 min(248px, 78vw); scroll-snap-align: start;
+    padding: 16px 18px 18px; border-inline-start: 1px solid var(--line-soft);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .frame:first-child { border-inline-start: none; }
+  .frame .n { font-family: var(--f-mono); font-size: 0.73em; color: var(--accent); letter-spacing: 0.05em; }
+  .frame .t { font-weight: 700; line-height: 1.4; font-size: 0.97em; }
+  .frame .d { font-size: 0.82em; color: var(--muted); line-height: 1.65; }
+  .frame .s { margin-top: auto; padding-top: 6px; }
+
+  /* ── نشان ── */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--f-mono); font-size: 0.69em; letter-spacing: 0.02em;
+    padding: 2px 8px; border-radius: 999px; white-space: nowrap; line-height: 1.75;
+  }
+  .chip.ok      { background: var(--ok-w);      color: var(--ok); }
+  .chip.blocked { background: var(--blocked-w); color: var(--blocked); }
+  .chip.pending { background: var(--pending-w); color: var(--pending); }
+  .chip.new     { background: var(--accent-w);  color: var(--accent); }
+
+  /* ── سه سطحِ خدمت ── */
+  .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 12px; }
+  .tier {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    border-top: 3px solid var(--tone);
+  }
+  .tier.bronze { --tone: var(--bronze); }
+  .tier.silver { --tone: var(--silver); }
+  .tier.gold   { --tone: var(--gold); }
+  .tier h4 { margin: 0; font-size: 1.08em; font-weight: 750; color: var(--tone); }
+  .tier ul { max-width: none; font-size: 0.88em; gap: 5px; }
+
+  /* ── ماژول‌های پنل ── */
+  .mods { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+  .mod {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .mod .h { font-weight: 700; font-size: 0.96em; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .mod .b { font-size: 0.83em; color: var(--muted); line-height: 1.7; }
+
+  /* ── جدول ── */
+  .scroller { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+  th, td { text-align: right; padding: 11px 15px; border-bottom: 1px solid var(--line-soft); vertical-align: top; line-height: 1.65; }
+  thead th {
+    background: var(--sunk); font-size: 0.86em; font-weight: 700; color: var(--muted);
+    letter-spacing: 0.02em; white-space: nowrap; border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .id { font-family: var(--f-mono); font-size: 0.83em; color: var(--accent); white-space: nowrap; font-weight: 600; }
+  .num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ── تصمیم ── */
+  .q {
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    padding: 16px 20px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .q-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .q-head .t { font-weight: 700; }
+  .q .why { color: var(--muted); font-size: 0.92em; }
+  .q .opts { font-size: 0.89em; color: var(--muted); }
+
+  hr { border: none; border-top: 1px solid var(--line); margin: 0; }
+  .note { color: var(--muted); font-size: 0.9em; max-width: var(--measure); }
+
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  @media (prefers-reduced-motion: no-preference) { .strip { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">سندِ حاکم · نسخهٔ ۲ · جانشینِ سندِ ۱۰۰</div>
+    <h1>فلواستودیو، با درکِ تازه</h1>
+    <p class="dek">
+      این سند از صفر نوشته شده. کارِ انجام‌شده، نیازهای تازه‌ای که مالک گفت، و بارِ
+      تصمیم‌های قدیمی را کنارِ هم گذاشته تا یک فهمِ واحد از پروژه بدهد: محصول چیست،
+      برای که، از چه لایه‌هایی ساخته می‌شود، با چه چیزی خرج می‌کند، و از کجا باید شروع کرد.
+    </p>
+    <div class="stamp">
+      <span>۱۹ مرداد ۱۴۰۵</span>
+      <span>flowstudio.ir · زنده</span>
+      <span>۲۰ بخش</span>
+      <span>۱۲ تصمیمِ باز</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="فهرست">
+    <ol>
+      <li><a href="#s1">چه چیزی عوض شد</a></li>
+      <li><a href="#s2">فلواستودیو در سه جمله</a></li>
+      <li><a href="#s3">رابطه با فلک</a></li>
+      <li><a href="#s4">سه سطحِ خدمت</a></li>
+      <li><a href="#s5">خطِ تولید — ۱۱ مرحله</a></li>
+      <li><a href="#s6">عمقِ سناریو و میزان‌سن</a></li>
+      <li><a href="#s7">موسیقی و المان‌های تصویری</a></li>
+      <li><a href="#s8">لایهٔ حقوقی و انطباق</a></li>
+      <li><a href="#s9">انتشار و توزیع</a></li>
+      <li><a href="#s10">کاربر به‌جایِ بازیگر</a></li>
+      <li><a href="#s11">پنلِ راهبر</a></li>
+      <li><a href="#s12">پنلِ کاربر</a></li>
+      <li><a href="#s13">سایتِ عمومی</a></li>
+      <li><a href="#s14">معماریِ فنی</a></li>
+      <li><a href="#s15">مدلِ داده</a></li>
+      <li><a href="#s16">تأمینِ مدل و حساب</a></li>
+      <li><a href="#s17">اقتصادِ محصول</a></li>
+      <li><a href="#s18">وضعیتِ امروز</a></li>
+      <li><a href="#s19">فازبندی</a></li>
+      <li><a href="#s20">تصمیم‌های باز</a></li>
+    </ol>
+  </nav>
+
+  <hr>
+
+  <!-- ۱ -->
+  <section id="s1">
+    <h2><span class="num">۱</span> چه چیزی عوض شد</h2>
+    <p>
+      تا دیروز پروژه با فرضِ «ابزارِ ساختِ تیزرِ تبلیغاتی» جلو می‌رفت. تصحیح‌های مالک
+      آن فرض را از شش جا شکست. این‌ها ترتیبِ اهمیت دارند:
+    </p>
+    <div class="stack">
+      <div class="card flag">
+        <div class="card-title">۱ · محصول یک ابزار نیست، یک پلتفرمِ رسانه‌ای است</div>
+        <p>
+          سه سطحِ جدا با سه مخاطبِ جدا روی یک موتور: پنلِ راهبر، پنلِ کاربر، سایتِ عمومی.
+          و یک شریکِ بیرونی که جزوِ محصول است، نه بعد از آن: <strong>فلک</strong>.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۲ · خروجی هم دانلود می‌شود، هم منتشر</div>
+        <p>
+          تصحیحِ مستقیمِ مالک روی نوشتهٔ قبلیِ من: نگفت «به فایل ختم نمی‌شود» — گفت
+          <strong>هر دو</strong>. کاربر باید بتواند فایلش را بردارد، <em>و</em> بتواند
+          منتشرش کند. یکی جایگزینِ دیگری نیست.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۳ · ورودی چندرسانه‌ای است و نوعِ تولید جای هدفِ کمپین را می‌گیرد</div>
+        <p>
+          متنِ آزاد از چند خط تا چند صفحه (یعنی فیلم‌نامه)، فایلِ متنی، عکس، کلیپ.
+          زیرشاخه‌ها <strong>وابسته به نوع</strong>اند: لحن فقط برای تبلیغ، ژانر برای فیلم.
+          مدت از ثانیه تا <strong>ساعت</strong>.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۴ · سناریو باید عمقِ کارگردانی داشته باشد</div>
+        <p>
+          <strong>میزان‌سن، حرکتِ دوربین، نور، زاویه</strong> باید برای هر نما مشخص باشند.
+          اگر کاربر ننوشت، هوشِ مصنوعی تشخیص می‌دهد، بهینه می‌کند و
+          <strong>به کاربر اعلان می‌دهد</strong> — و ابزارِ چیدنِ بهترش را هم به او می‌دهیم.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۵ · موسیقی یک جزءِ درجه‌یک است</div>
+        <p>
+          نه یک «افزودنیِ آخرِ کار». باید هم موسیقیِ رایگانِ متناسب با ژانر باشد، هم
+          امکانِ خرید — و کلِ کاتالوگ از پنلِ راهبر دیده و کنترل شود.
+        </p>
+      </div>
+      <div class="card flag-red">
+        <div class="card-title">۶ · انطباقِ حقوقی شرطِ راه‌افتادن است، نه یک بندِ تزئینی</div>
+        <p>
+          قوانینِ کشورها، خشونت، تبعیضِ نژادی و مانندِ آن‌ها باید صریحاً ممنوع باشند،
+          کاربر <strong>مکلف</strong> شود، و پنلِ راهبر برای هرکدام <strong>فیلد و
+          پرونده</strong> داشته باشد.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ۲ -->
+  <section id="s2">
+    <h2><span class="num">۲</span> فلواستودیو در سه جمله</h2>
+    <p>
+      <strong>یک:</strong> فلواستودیو موتوری است که از یک ایده — با هر طولی، از چند ثانیه
+      تا چند ساعت — محتوای بصریِ آمادهٔ انتشار می‌سازد، و در هر گام به‌جای «یک مدل»، از
+      یک <em>رجیستریِ مدل</em> بهترین گزینه را انتخاب می‌کند.
+    </p>
+    <p>
+      <strong>دو:</strong> این موتور داخلِ یک پلتفرمِ رسانه‌ای نشسته — کاربر می‌سازد،
+      آرشیو می‌کند، منتشر می‌کند، و دیده می‌شود؛ هم روی سایتِ خودمان و هم روی فلک.
+    </p>
+    <p>
+      <strong>سه:</strong> پرداخت برای کاربر ساده است — <strong>برنزی، نقره‌ای، طلایی</strong> —
+      ولی پشتِ آن یک دفترِ سکه‌ایِ دقیق است که هزینهٔ واقعیِ هر گام را می‌شمارد.
+    </p>
+    <p class="note">شعار همان می‌ماند: <strong>از ایده تا دیده</strong>.</p>
+  </section>
+
+  <!-- ۳ -->
+  <section id="s3">
+    <h2><span class="num">۳</span> رابطه با فلک — چرا این پروژه تنها نیست</h2>
+    <p>
+      مالک تأکید کرد فلک «همکارِ نزدیک» است و بخشی از فرایندِ ما. این رابطه سه جهت دارد
+      و هر سه روی معماری اثر می‌گذارند:
+    </p>
+    <div class="cols">
+      <div class="card flag">
+        <div class="card-title">اثرِ بلند</div>
+        <p>خروجیِ بلندِ کاربر روی فلک منتشر می‌شود تا مخاطبِ واقعی ببیندش — چیزی که سایتِ نوپای ما به‌تنهایی ندارد.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">استوری</div>
+        <p>استوریِ اینستاگرامیِ تولیدشده باید در <strong>بخشِ استوریِ کاربرانِ فلک</strong> هم دیده شود. یعنی خروجیِ کوتاه دو مقصد دارد، نه یکی.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">بازیگر و رقابت</div>
+        <p>شاخهٔ «کاربر به‌جایِ بازیگر» عمدتاً برای فلک است: جذبِ مخاطب، حسِ بازی، و رقابت. بخشِ ۱۰.</p>
+      </div>
+    </div>
+    <div class="card flag-red">
+      <div class="card-title">پیامدِ معماری</div>
+      <p>
+        اگر فلک مقصدِ اصلیِ نمایش است، <strong>«اثر» باید موجودیتی مستقل با وضعیتِ نمایش
+        باشد</strong>، نه ردیفی خصوصی زیرِ کاربر. دستِ‌کم چهار حالت لازم است:
+        خصوصی · منتشرشده روی سایتِ ما · بازتاب‌یافته در فلک (ویدیو) · بازتاب‌یافته در
+        استوریِ فلک. و چون مالک گفت «در چند جا در پنلِ ادمین قابلِ مدیریت باشد»، این
+        وضعیت باید از بیرونِ کاربر هم قابلِ تغییر باشد.
+      </p>
+    </div>
+    <p class="note">
+      مسیرِ فنیِ این اتصال هنوز باز است — <span class="id">D-202</span> در بخشِ ۲۰.
+      امروز <code>falaktv.live</code> از بیرون پاسخِ ۳۰۷ می‌دهد و بدونِ حساب قابلِ بررسی نیست.
+    </p>
+  </section>
+
+  <!-- ۴ -->
+  <section id="s4">
+    <h2><span class="num">۴</span> سه سطحِ خدمت — سادگی برای کاربر، دقت برای ما</h2>
+    <p>
+      قیمتِ واقعی به ساعت و دقیقه و ثانیه، به کیفیت، و به نوعِ ابزار وابسته است. ولی
+      همان‌طور که مالک گفت، ریختنِ این پیچیدگی جلوی کاربر او را از خرید فراری می‌دهد.
+      راه‌حل: <strong>سه بسته در ویترین، یک دفترِ دقیق در پشتِ صحنه.</strong>
+    </p>
+
+    <div class="tiers">
+      <div class="tier bronze">
+        <h4>برنزی</h4>
+        <ul>
+          <li>تا حدودِ ۳۰ ثانیه</li>
+          <li>مدل‌های اقتصادی</li>
+          <li>موسیقیِ کتابخانهٔ رایگان</li>
+          <li>واترمارک دارد</li>
+          <li>صفِ عادی</li>
+          <li>مناسبِ آزمودن و استوری</li>
+        </ul>
+      </div>
+      <div class="tier silver">
+        <h4>نقره‌ای</h4>
+        <ul>
+          <li>تا چند دقیقه</li>
+          <li>مدل‌های استاندارد</li>
+          <li>کتابخانهٔ کامل + خریدِ تکی</li>
+          <li>بدونِ واترمارک</li>
+          <li>صفِ سریع‌تر</li>
+          <li>گفتار و زیرنویس</li>
+        </ul>
+      </div>
+      <div class="tier gold">
+        <h4>طلایی</h4>
+        <ul>
+          <li>فرم‌بلند تا ساعت</li>
+          <li>بهترین مدل‌های موجود</li>
+          <li>موسیقیِ اختصاصی</li>
+          <li>لیپ‌سینک و شاخهٔ بازیگر</li>
+          <li>اولویتِ صف</li>
+          <li>بازبینیِ انسانی</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card flag-ok">
+      <div class="card-title">چرا این کار موتور را نمی‌شکند — نکتهٔ کلیدی</div>
+      <p>
+        یک «سطح» چیزی جز <strong>یک ردیفِ داده با چهار عدد</strong> نیست:
+      </p>
+      <ul>
+        <li><strong>سقفِ سکه</strong> — همان <code>budgetCap</code>ی که پاکتِ بودجه از قبل دارد</li>
+        <li><strong>سقفِ مدت</strong> — ثانیه</li>
+        <li><strong>مجموعهٔ مدل‌های مجاز</strong> — روتر فقط از میانِ این‌ها انتخاب می‌کند</li>
+        <li><strong>مجموعهٔ قابلیت‌های مجاز</strong> — مثلاً لیپ‌سینک فقط طلایی</li>
+      </ul>
+      <p>
+        یعنی افزودنِ سه سطح <em>هیچ بازنویسی‌ای</em> در موتور نمی‌خواهد. رجیستریِ مدل و
+        دفترِ سکه که ساخته شده‌اند دقیقاً همین را پشتیبانی می‌کنند. سطحِ چهارم فردا =
+        یک ردیفِ دیگر.
+      </p>
+    </div>
+    <p class="note">
+      عددهای بالا <strong>پیشنهادند نه تصمیم</strong> — تا وقتی هزینهٔ واقعیِ یک ثانیه
+      ویدیو اندازه‌گیری نشود (بخشِ ۱۶)، هر قیمتی حدس است. <span class="id">D-204</span>
+    </p>
+  </section>
+
+  <!-- ۵ -->
+  <section id="s5">
+    <h2><span class="num">۵</span> خطِ تولید — ۱۱ مرحله</h2>
+    <p class="note">نوار افقی اسکرول می‌شود. نشانِ هر مرحله وضعیتِ امروزِ آن است.</p>
+
+    <div class="strip-outer">
+      <div class="perf" aria-hidden="true"></div>
+      <div class="strip" tabindex="0" role="group" aria-label="یازده مرحلهٔ خط تولید">
+
+        <div class="frame">
+          <div class="n">۰۱</div><div class="t">ورودی</div>
+          <div class="d">متنِ آزاد (تا چند صفحه) · فایلِ متنی · عکس · کلیپ. هر ورودی یک دارایی با مالک و شناسه می‌شود.</div>
+          <div class="s"><span class="chip blocked">فقط متنِ ساده</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۲</div><div class="t">نوع و زیرشاخه</div>
+          <div class="d">تبلیغی · مستند · فیلمِ کوتاه · انیمیشن · موزیک‌ویدیو · آموزشی. فرمِ بعدی به انتخاب وابسته است.</div>
+          <div class="s"><span class="chip blocked">هدفِ کمپینِ ثابت</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۳</div><div class="t">متریال، مدت، سطح</div>
+          <div class="d">رآل · انیمه · کمیک · فانتزی · سه‌بعدی، با درجهٔ نزدیکی. مدت تا ساعت. سطحِ برنزی/نقره‌ای/طلایی.</div>
+          <div class="s"><span class="chip blocked">وجود ندارد</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۴</div><div class="t">تحلیلِ سناریو</div>
+          <div class="d">میزان‌سن، دوربین، نور، زاویه برای هر نما. نبودشان تشخیص داده، بهینه و به کاربر اعلان می‌شود.</div>
+          <div class="s"><span class="chip blocked">قلبِ کارِ تازه</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۵</div><div class="t">انطباق و تعهد</div>
+          <div class="d">قوانینِ کشورها، خشونت، تبعیض، حقِ چهره و اثر. کاربر نسخهٔ قوانین را می‌پذیرد و رکورد می‌ماند.</div>
+          <div class="s"><span class="chip blocked">وجود ندارد</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۶</div><div class="t">تأییدِ ناظر + پاکتِ بودجه</div>
+          <div class="d">گیتِ انسانی پیش از اولین خرج. پاکت بسته می‌شود و پلان به‌عقب از آن ساخته می‌شود.</div>
+          <div class="s"><span class="chip pending">پاکت هست، صفحه نه</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۷</div><div class="t">پلان و پرامپت</div>
+          <div class="d">گرافِ گام‌های قابلیت + پرامپتِ مهندسی‌شده بر پایهٔ نوع، متریال، مدت و قواعدِ کلاسِ E.</div>
+          <div class="s"><span class="chip ok">هست، محدود به تبلیغ</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۸</div><div class="t">تولیدِ تصویر و ویدیو</div>
+          <div class="d">تصویرِ کلیدی ← ویدیو ← ارتقا. با رزروِ سکه در هر گام و بازگشتِ خودکار در شکست.</div>
+          <div class="s"><span class="chip pending">موتور آماده، مدل صفر</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۰۹</div><div class="t">صدا و موسیقی</div>
+          <div class="d">گفتارِ راوی، هم‌گامیِ لب، و موسیقیِ متناسبِ ژانر — رایگان یا خریداری‌شده، با پروندهٔ مجوز.</div>
+          <div class="s"><span class="chip blocked">وجود ندارد</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۱۰</div><div class="t">کنترلِ نهایی</div>
+          <div class="d">بازبینیِ کیفی + بازبینیِ انطباق. تنها دری که به انتشار باز می‌شود.</div>
+          <div class="s"><span class="chip blocked">وجود ندارد</span></div>
+        </div>
+        <div class="frame">
+          <div class="n">۱۱</div><div class="t">دانلود و انتشار</div>
+          <div class="d">دانلودِ فایل · سایتِ عمومی · فلک (ویدیو و استوری) · لینک برای اینستاگرام و تلگرام.</div>
+          <div class="s"><span class="chip blocked">وجود ندارد</span></div>
+        </div>
+
+      </div>
+      <div class="perf" aria-hidden="true"></div>
+    </div>
+
+    <div class="card flag">
+      <div class="card-title">دو مرحله‌ای که در نسخهٔ قبل نبودند</div>
+      <p>
+        <strong>۰۹ (صدا و موسیقی)</strong> و <strong>۱۰ (کنترلِ نهایی)</strong> از تصحیحِ
+        مالک آمدند. جایشان عمدی است: موسیقی <em>پیش از</em> کنترلِ نهایی می‌آید، چون
+        بازبینِ نهایی باید همان چیزی را ببیند که منتشر می‌شود — نه یک نسخهٔ بی‌صدا.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۶ -->
+  <section id="s6">
+    <h2><span class="num">۶</span> عمقِ سناریو — میزان‌سن، دوربین، نور، زاویه</h2>
+    <p>
+      این بند فاصلهٔ «یک ویدیوی AI» با «یک اثر» است. یک پرامپتِ خام به مدل داده شود،
+      خروجی تصادفی است. وقتی برای هر نما میزان‌سن، حرکتِ دوربین، نور و زاویه مشخص باشد،
+      خروجی <em>کارگردانی‌شده</em> است — و مهم‌تر: <strong>تکرارپذیر</strong> می‌شود.
+    </p>
+
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th>عنصرِ نما</th><th>چه چیزی مشخص می‌شود</th><th>اگر کاربر ننوشت</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>میزان‌سن</strong></td><td>چیدمانِ صحنه: بازیگر کجاست، پس‌زمینه چیست، پراپ‌ها کدام‌اند، عمقِ صحنه چطور است</td><td>از متن استنتاج می‌شود و پیشنهادِ چیدمان به کاربر نشان داده می‌شود</td></tr>
+          <tr><td><strong>حرکتِ دوربین</strong></td><td>ثابت · پن · تیلت · دالی · روی‌دست · ترکیبی — و سرعتش</td><td>پیش‌فرضِ ایمن (ثابت) با علامتِ «پیشنهادِ ماشین»</td></tr>
+          <tr><td><strong>زاویه و اندازهٔ نما</strong></td><td>لانگ · مدیوم · کلوزآپ · از پایین · از بالا · هم‌سطحِ چشم</td><td>از نقشِ نما در روایت حدس زده می‌شود</td></tr>
+          <tr><td><strong>نور</strong></td><td>ساعتِ روز، جهتِ نور، سختی/نرمی، رنگِ غالب</td><td>از لحن و ژانر استنتاج می‌شود</td></tr>
+          <tr><td><strong>پیوستگی</strong></td><td>همان شخصیت، همان لوکیشن، همان نور در نماهای بعدی</td><td>قلابش در مدلِ داده هست (<code>continuityRef</code>) ولی هنوز پر نمی‌شود</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card flag">
+      <div class="card-title">نقشِ هوشِ مصنوعی: دستیارِ کارگردان، نه جایگزینِ او</div>
+      <p>
+        دقیقاً همان چیزی که مالک گفت: تشخیص بده، بهینه کن، <strong>اعلان بده</strong>،
+        و ابزارِ چیدنِ بهتر بده. یعنی سه خروجیِ متفاوت، نه یکی:
+      </p>
+      <ul>
+        <li><strong>تشخیص</strong> — کدام عناصر غایب‌اند و کدام نما ضعیف است</li>
+        <li><strong>پیشنهاد</strong> — با برچسبِ روشنِ «این را ماشین گفت، نه تو»</li>
+        <li><strong>ابزار</strong> — کاربر بتواند پیشنهاد را بپذیرد، عوض کند، یا رد کند</li>
+      </ul>
+      <p>
+        این‌که پیشنهادِ ماشین از نوشتهٔ کاربر <em>قابلِ تفکیک</em> بماند مهم است: هم برای
+        اعتمادِ کاربر، هم برای اینکه بعداً بفهمیم کدام پیشنهادها واقعاً خروجیِ بهتری دادند.
+      </p>
+    </div>
+
+    <p class="note">
+      این مرحله کاملاً <strong>متنی</strong> است، پس با مدل‌های زبانیِ ارزان اجرا می‌شود —
+      یعنی گران‌ترین بخشِ کیفیت، ارزان‌ترین بخشِ هزینه است. همین یک نکته، بندِ ۴ خطِ تولید
+      را به پربازده‌ترین سرمایه‌گذاریِ کلِ محصول تبدیل می‌کند.
+    </p>
+  </section>
+
+  <!-- ۷ -->
+  <section id="s7">
+    <h2><span class="num">۷</span> موسیقی و المان‌های تصویری</h2>
+    <p>
+      مالک گفت انتخابِ موسیقی «خیلی مهم است»: هم موسیقیِ رایگانِ متناسب با ژانر از
+      سایت‌های معتبر، هم امکانِ خرید — و فهرستِ هر دو در پنلِ راهبر دیده و کنترل شود.
+    </p>
+
+    <div class="cols">
+      <div class="card flag">
+        <div class="card-title">کتابخانهٔ مجوزدار</div>
+        <p>ترک‌های آماده با برچسبِ ژانر و حال‌وهوا. سریع، ارزان، قابلِ پیش‌گوش‌دادن.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">موسیقیِ مولد</div>
+        <p>ساختِ اختصاصی بر پایهٔ ژانر و مدتِ دقیقِ اثر. گران‌تر، ولی دقیقاً به‌اندازه.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">خریدِ تکی</div>
+        <p>کاربر ترکِ خاصی را می‌خرد؛ سکه کسر و مجوز به پروندهٔ اثر پیوست می‌شود.</p>
+      </div>
+    </div>
+
+    <div class="card flag-red">
+      <div class="card-title">🔴 تلهٔ «رایگان» — این را جدی بگیر</div>
+      <p>
+        «رایگان» یک چیز نیست، دستِ‌کم چهار چیز است: بدونِ‌قید · نیازمندِ ذکرِ نام ·
+        رایگان فقط برای مصرفِ غیرتجاری · رایگان فقط با اشتراکِ فعال. اگر ترکی با
+        مجوزِ غیرتجاری داخلِ اثرِ کاربر برود و آن اثر روی فلک منتشر شود، تبعاتش با ماست
+        نه با کاربر.
+      </p>
+      <p>
+        پس هر ترک و هر المانِ تصویری باید <strong>پروندهٔ مجوز</strong> داشته باشد:
+        منبع، نوعِ مجوز، متنِ ذکرِ نام، مجازبودنِ مصرفِ تجاری، و قیمت به سکه.
+        بدونِ این فیلدها هیچ ترکی وارد کاتالوگ نمی‌شود — همان قاعده‌ای که برای مدل‌ها
+        داریم (<code>commercialUse</code>) و تا امروز جواب داده است.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۸ -->
+  <section id="s8">
+    <h2><span class="num">۸</span> لایهٔ حقوقی و انطباق</h2>
+    <p>
+      مالک خواست قوانین درج شود، کاربر مکلف شود، و پنل برایش فیلد داشته باشد. این سه
+      خواسته سه چیزِ متفاوت‌اند و هر سه لازم‌اند:
+    </p>
+
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th>لایه</th><th>چه کاری می‌کند</th><th>کجا می‌نشیند</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>قواعدِ ممنوعه</strong></td>
+            <td>خشونت · تبعیضِ نژادی و قومی · محتوای جنسی · کودک · توهینِ مذهبی · چهرهٔ اشخاصِ حقیقی بدونِ رضایت · نشانِ تجاریِ ثبت‌شده · اثرِ دارایِ حق · نقضِ قوانینِ کشورها</td>
+            <td>تاکسونومیِ بسته در دیتابیس — نه متنِ آزاد. جدولِ <code>ReasonCode</code> که از قبل داریم دقیقاً همین است.</td>
+          </tr>
+          <tr>
+            <td><strong>تعهدِ کاربر</strong></td>
+            <td>پذیرشِ <em>نسخه‌دارِ</em> قوانین پیش از تولید. ثبت می‌شود: چه کسی، چه نسخه‌ای، چه زمانی.</td>
+            <td>مرحلهٔ ۵ خطِ تولید. بدونِ پذیرش، پلان ساخته نمی‌شود.</td>
+          </tr>
+          <tr>
+            <td><strong>پروندهٔ انطباق</strong></td>
+            <td>برای هر اثر: نتیجهٔ بررسیِ خودکار، تصمیمِ ناظر، کدِ دلیل، تاریخچهٔ تغییرِ وضعیت، و گزارش‌های کاربران.</td>
+            <td>پنلِ راهبر، ماژولِ بازبینی. بخشِ ۱۱.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card flag">
+      <div class="card-title">چرا «نسخه‌دار» بودنِ قوانین مهم است</div>
+      <p>
+        اگر شش ماه بعد قوانین عوض شود، باید بتوانی ثابت کنی کاربرِ فلان اثر
+        <em>کدام</em> متن را پذیرفته بود. یک تیکِ ساده در فرم این را نمی‌دهد؛ یک رکورد
+        با شمارهٔ نسخه می‌دهد. هزینه‌اش امروز یک ستون است، فردا یک پرونده.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۹ -->
+  <section id="s9">
+    <h2><span class="num">۹</span> انتشار و توزیع — پنج مقصد</h2>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th>مقصد</th><th>چه چیزی می‌رود</th><th>چه کسی تصمیم می‌گیرد</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>دانلود</strong></td><td>هر خروجی، در نسبت و کیفیتِ متناسب با سطحِ خدمت</td><td>کاربر — همیشه در دسترس</td></tr>
+          <tr><td><strong>سایتِ عمومیِ ما</strong></td><td>اثرهایی که کاربر عمومی کرده و کنترلِ نهایی را رد کرده‌اند</td><td>کاربر، با حقِ برداشتنِ راهبر</td></tr>
+          <tr><td><strong>فلک — ویدیو</strong></td><td>اثرهای بلند، برای دیده‌شدن نزدِ مخاطبِ واقعی</td><td>کاربر + تأییدِ راهبر <span class="id">D-203</span></td></tr>
+          <tr><td><strong>فلک — استوری</strong></td><td>خروجی‌های کوتاهِ عمودی، در بخشِ استوریِ کاربرانِ فلک</td><td>کاربر + تأییدِ راهبر</td></tr>
+          <tr><td><strong>اینستاگرام و تلگرام</strong></td><td>لینک یا فایل، در نسبتِ درست برای هر پلتفرم</td><td>کاربر — بیرون از سیستمِ ما منتشر می‌کند</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card flag">
+      <div class="card-title">یک اثر، چند نمایش — نه چند نسخه</div>
+      <p>
+        پیشنهادِ من: فایل یک بار ساخته و یک جا نگهداری شود، و هر مقصد فقط یک
+        <strong>رکوردِ نمایش</strong> باشد با وضعیت و لینکِ بیرونیِ خودش. اگر فایل در چند
+        جا کپی شود، حذفِ یک اثرِ مشکل‌دار تبدیل به شکار در چند سامانه می‌شود — و
+        همیشه یک نسخه جا می‌ماند.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۰ -->
+  <section id="s10">
+    <h2><span class="num">۱۰</span> «کاربر به‌جایِ بازیگر» — موتورِ جذب و رقابت</h2>
+    <p>
+      مالک جایگاهِ این شاخه را تصحیح کرد: این یک قابلیتِ جانبی نیست، <strong>موتورِ
+      جذبِ مخاطب برای فلک</strong> است. حسِ بازی می‌سازد، رقابت می‌سازد، و دلیلِ
+      برگشتنِ کاربر می‌شود. پس زودتر از آنچه فکر می‌کردم باید بیاید.
+    </p>
+    <p>
+      کاربر یک کلیپ انتخاب می‌کند، عکس و داده‌اش را می‌دهد، پرامپت می‌نویسد — و خودش را
+      در آن نقش می‌بیند.
+    </p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>نیاز</th><th>وضعیت</th><th>گره</th></tr></thead>
+        <tbody>
+          <tr><td>کلیپِ پایه</td><td><span class="chip blocked">نداریم</span></td><td>از کجا؟ آپلودِ خودِ کاربر، کاتالوگِ فلک، یا کتابخانهٔ صحنهٔ آماده — سه پیامدِ حقوقیِ متفاوت. <span class="id">D-201</span></td></tr>
+          <tr><td>مدلِ چهره و لیپ‌سینک</td><td><span class="chip blocked">نداریم</span></td><td>قابلیتش در تاکسونومیِ گام‌ها هست (<code>lipsync</code>)، مدلش نه. بخشِ ۱۶.</td></tr>
+          <tr><td>رضایت و احرازِ چهره</td><td><span class="chip blocked">نداریم</span></td><td>بدونِ آن، پلتفرم ابزارِ ساختِ ویدیوی جعلی از دیگران می‌شود. شرطِ راه‌افتادن است، نه انتخاب.</td></tr>
+          <tr><td>واترمارک</td><td><span class="chip ok">تصمیمش بسته</span></td><td><span class="id">D-010</span> واترمارکِ متنی تصویب شده؛ فقط اجرا مانده.</td></tr>
+          <tr><td>لایهٔ بازی و رقابت</td><td><span class="chip blocked">طراحی نشده</span></td><td>امتیاز، رتبه‌بندی، چالشِ هفتگی — همان چیزی که مالک «گیم» نامید.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card flag">
+      <div class="card-title">پیشنهادِ من برای شروعِ کم‌ریسک</div>
+      <p>
+        نسخهٔ اول فقط با <strong>آپلودِ کلیپِ خودِ کاربر</strong> و <strong>چهرهٔ خودِ
+        کاربر</strong>. همان قابلیتِ فنی، بدونِ هیچ گرهِ حقوقی. کاتالوگِ فلک بعد از
+        روشن‌شدنِ <span class="id">D-201</span> اضافه شود — و آن‌وقت لایهٔ رقابت هم
+        معنا پیدا می‌کند، چون همه روی یک صحنهٔ مشترک رقابت می‌کنند.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۱ -->
+  <section id="s11">
+    <h2><span class="num">۱۱</span> پنلِ راهبرِ سیستم — نقشهٔ ماژول‌ها</h2>
+    <p>
+      مالک گفت این پنل «خیلی گسترده‌تر» است. این نقشهٔ کاملش است. نشانِ هر ماژول
+      وضعیتِ امروز را می‌گوید، نه آرزو را.
+    </p>
+
+    <h3>الف) نظارت و کنترلِ محتوا</h3>
+    <div class="mods">
+      <div class="mod"><div class="h">صفِ بازبینی <span class="chip blocked">نیست</span></div><div class="b">اثرهای منتظرِ تأیید، پیش از خرجِ پول و پیش از انتشار. دو ایستگاهِ متفاوت روی یک صفحه.</div></div>
+      <div class="mod"><div class="h">پروندهٔ انطباق <span class="chip blocked">نیست</span></div><div class="b">نتیجهٔ بررسیِ خودکار، کدِ دلیلِ رد، تصمیمِ ناظر، تاریخچه.</div></div>
+      <div class="mod"><div class="h">مدیریتِ نظرات <span class="chip blocked">نیست</span></div><div class="b">دیدگاه‌های سایتِ عمومی: تأیید، حذف، گزارشِ کاربران، مسدودسازی.</div></div>
+      <div class="mod"><div class="h">کنترلِ نمایش‌ها <span class="chip blocked">نیست</span></div><div class="b">چه اثری روی سایت، چه اثری در فلک، چه اثری در استوری. با حقِ برداشتن از هر جا.</div></div>
+    </div>
+
+    <h3>ب) کاربر و کسب‌وکار</h3>
+    <div class="mods">
+      <div class="mod"><div class="h">فهرستِ کاربران <span class="chip blocked">نیست</span></div><div class="b">وضعیت، سطحِ خدمت، موجودی، تعدادِ اثر، آخرین فعالیت.</div></div>
+      <div class="mod"><div class="h">CRM <span class="chip blocked">نیست</span></div><div class="b">تاریخچهٔ تعامل، یادداشت، دسته‌بندیِ مشتری، پیگیری.</div></div>
+      <div class="mod"><div class="h">پشتیبانی <span class="chip blocked">نیست</span></div><div class="b">تیکت، پاسخ، وضعیت، اتصالِ تیکت به اثر یا تراکنشِ مربوطه.</div></div>
+      <div class="mod"><div class="h">سطوحِ خدمت <span class="chip blocked">نیست</span></div><div class="b">تعریف و ویرایشِ برنزی/نقره‌ای/طلایی: سقفِ سکه، سقفِ مدت، مدل‌های مجاز.</div></div>
+    </div>
+
+    <h3>ج) مالی و درگاه‌ها</h3>
+    <div class="mods">
+      <div class="mod"><div class="h">درگاهِ پرداخت <span class="chip blocked">نیست</span></div><div class="b">تنظیمات، کلید، وضعیت. الگویِ لایهٔ درگاهِ فیلمتو قابلِ برداشت است.</div></div>
+      <div class="mod"><div class="h">درگاهِ پیامک <span class="chip blocked">نیست</span></div><div class="b">تنظیمات و قالبِ پیام. امروز OTP در حالتِ سندباکس است.</div></div>
+      <div class="mod"><div class="h">فاکتور <span class="chip blocked">نیست</span></div><div class="b">صدور، ارسال، بایگانی.</div></div>
+      <div class="mod"><div class="h">دفترِ سکه <span class="chip pending">موتور هست</span></div><div class="b">تراکنش‌ها، رزروها، شارژ. API ساخته شد، صفحه‌اش نه.</div></div>
+    </div>
+
+    <h3>د) موتور و محتوا</h3>
+    <div class="mods">
+      <div class="mod"><div class="h">رجیستریِ مدل <span class="chip ok">هست</span></div><div class="b">درگاه‌ها، مدل‌ها، قابلیت‌ها، قیمت. تنها ماژولِ کاملِ امروز.</div></div>
+      <div class="mod"><div class="h">کاتالوگِ موسیقی <span class="chip blocked">نیست</span></div><div class="b">ترک‌ها، ژانر، مجوز، قیمت. با هشدارِ بخشِ ۷.</div></div>
+      <div class="mod"><div class="h">المان‌های تصویری <span class="chip blocked">نیست</span></div><div class="b">پس‌زمینه، افکت، فونت، قالب — همان ساختارِ کاتالوگِ موسیقی.</div></div>
+      <div class="mod"><div class="h">صفِ کار <span class="chip pending">API هست</span></div><div class="b">کارهای در جریان، گیرکرده، شکست‌خورده. بازگرداندنِ دستی.</div></div>
+    </div>
+
+    <h3>ه) آمار و تحقیق</h3>
+    <div class="mods">
+      <div class="mod"><div class="h">آمارِ تولید <span class="chip blocked">نیست</span></div><div class="b">چند اثر، چه نوعی، نرخِ موفقیت، زمانِ متوسطِ تولید.</div></div>
+      <div class="mod"><div class="h">مصرف و هزینه <span class="chip blocked">نیست</span></div><div class="b">به تفکیکِ کاربر، مدل، نوعِ تولید. دادهٔ خامش در دفترِ سکه هست.</div></div>
+      <div class="mod"><div class="h">تحقیق و توسعه <span class="chip blocked">نیست</span></div><div class="b">مقایسهٔ مدل‌ها روی یک ورودیِ یکسان، ثبتِ نتیجه، انتخابِ برنده.</div></div>
+      <div class="mod"><div class="h">سلامتِ سامانه <span class="chip pending">جزئی</span></div><div class="b">امروز فقط <code>/health</code>. باید نرخِ خطای هر درگاه هم بیاید.</div></div>
+    </div>
+
+    <div class="card flag-ok">
+      <div class="card-title">خبرِ خوب: بیشترِ این‌ها «صفحه» می‌خواهند، نه «موتور»</div>
+      <p>
+        آمارِ تولید، مصرف و هزینه، صفِ کار و دفترِ سکه — دادهٔ هر چهارتا از امروز در
+        دیتابیس ثبت می‌شود. کاری که مانده خواندن و نشان‌دادن است، نه ساختنِ سازوکارِ تازه.
+        در مقابل، CRM و پشتیبانی و کاتالوگِ موسیقی واقعاً از صفرند.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۲ -->
+  <section id="s12">
+    <h2><span class="num">۱۲</span> پنلِ کاربر — آرشیوِ رسانه و استودیو</h2>
+    <p>
+      نامِ «کتابخانه» کنار گذاشته شد. درست‌ترش <strong>آرشیوِ رسانه</strong> است — چون
+      آن‌جا فقط فهرست نیست: دارایی‌های ورودی، نسخه‌های میانی، خروجی‌های نهایی و
+      وضعیتِ انتشارِ هرکدام همه آن‌جا زندگی می‌کنند.
+    </p>
+    <div class="cols">
+      <div class="card flag">
+        <div class="card-title">آرشیوِ رسانه</div>
+        <ul>
+          <li>هر اثر با وضعیتِ مرحله‌اش</li>
+          <li>دارایی‌های ورودی: متن، عکس، کلیپ</li>
+          <li>نسخه‌ها و تلاش‌های قبلی</li>
+          <li>هزینهٔ خرج‌شدهٔ هر اثر</li>
+          <li>وضعیتِ انتشار در هر مقصد</li>
+        </ul>
+      </div>
+      <div class="card flag">
+        <div class="card-title">استودیوی تولید</div>
+        <ul>
+          <li>فرمِ چندمرحله‌ایِ وابسته‌به‌نوع</li>
+          <li>ویرایشگرِ میزان‌سن و نما</li>
+          <li>پیشنهادهای ماشین، قابلِ پذیرش یا رد</li>
+          <li>انتخابِ موسیقی با پیش‌گوش</li>
+          <li>پیش‌نمایش پیش از خرجِ سکه</li>
+        </ul>
+      </div>
+      <div class="card flag">
+        <div class="card-title">ابزارهای آنلاینِ ویرایش</div>
+        <ul>
+          <li>برشِ نما و جابه‌جاییِ ترتیب</li>
+          <li>تولیدِ دوبارهٔ یک نمای خاص</li>
+          <li>تعویضِ موسیقی</li>
+          <li>زیرنویس</li>
+          <li>خروجی در نسبت‌های مختلف</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card flag">
+      <div class="card-title">تدریجی، ولی با پایهٔ درست</div>
+      <p>
+        مالک گفت ابزارِ ویرایش «کم‌کم» اضافه شود. موافقم — ولی یک شرط دارد: از همین
+        امروز هر خروجی باید <strong>در سطحِ نما</strong> ذخیره شود، نه فقط به‌صورتِ یک
+        فایلِ نهاییِ به‌هم‌چسبیده. اگر این رعایت شود، هر ابزارِ ویرایشی بعداً بدونِ
+        بازنویسی اضافه می‌شود. اگر نشود، اولین ابزارِ ویرایش یعنی بازسازیِ کلِ
+        خطِ تولید. <strong>این تنها جایی است که «تدریجی» نباید به «بعداً» ترجمه شود.</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۳ -->
+  <section id="s13">
+    <h2><span class="num">۱۳</span> سایتِ عمومی</h2>
+    <p>
+      جایی که اثرها دیده می‌شوند و کاربر به‌خاطرش برمی‌گردد. حداقلِ لازم برای اینکه
+      «اشتراک‌گذاری» معنا داشته باشد:
+    </p>
+    <ul>
+      <li><strong>صفحهٔ اثر</strong> — پخش، عنوان، سازنده، نوع، ابزارهای استفاده‌شده</li>
+      <li><strong>پروفایلِ سازنده</strong> — آثارِ عمومی‌اش، در یک آدرسِ قابلِ اشتراک</li>
+      <li><strong>کشف</strong> — تازه‌ها، پربازدیدها، به تفکیکِ نوع و ژانر</li>
+      <li><strong>تعامل</strong> — پسند و دیدگاه، با ماژولِ مدیریتِ نظراتِ بخشِ ۱۱</li>
+      <li><strong>پیوند به فلک</strong> — اگر اثر آن‌جا هم هست، از این‌جا دیده شود</li>
+    </ul>
+    <p class="note">
+      جشنواره روی همین سطح سوار می‌شود — فراخوان، ثبتِ اثر، داوری، رأیِ مردمی. مالک
+      گفت <strong>فازِ بعد</strong>، و درست هم هست: بدونِ سایتِ عمومی، جشنواره جا ندارد.
+      ولی مدلِ داده از حالا باید بتواند اثر را «شرکت‌کننده در یک رویداد» بداند.
+    </p>
+  </section>
+
+  <!-- ۱۴ -->
+  <section id="s14">
+    <h2><span class="num">۱۴</span> معماریِ فنی — پنج لایه</h2>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>لایه</th><th>مسئولیت</th><th>وضعیت</th></tr></thead>
+        <tbody>
+          <tr><td><strong>۱ · ورودی و دارایی</strong></td><td>دریافت، ذخیره و شناسنامه‌دارکردنِ متن، عکس، کلیپ و صوت</td><td><span class="chip blocked">شروع نشده</span></td></tr>
+          <tr><td><strong>۲ · فهم و پلان</strong></td><td>تحلیلِ سناریو، میزان‌سن، انطباق، ساختِ گرافِ گام‌ها</td><td><span class="chip pending">نسخهٔ سادهٔ تبلیغاتی</span></td></tr>
+          <tr><td><strong>۳ · ارکستراسیون</strong></td><td>روترِ مدل، صفِ کار، کیفِ پول، تلاشِ مجدد، پیوستگی</td><td><span class="chip ok">ساخته شد</span></td></tr>
+          <tr><td><strong>۴ · مونتاژ و پرداخت</strong></td><td>چسباندنِ نماها، صدا، موسیقی، زیرنویس، واترمارک، نسبت‌ها</td><td><span class="chip blocked">شروع نشده</span></td></tr>
+          <tr><td><strong>۵ · انتشار</strong></td><td>دانلود، سایتِ عمومی، فلک، استوری، لینکِ بیرونی</td><td><span class="chip blocked">شروع نشده</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card flag-ok">
+      <div class="card-title">لایهٔ ۳ آماده است — و این مهم‌ترین خبرِ فنیِ امروز است</div>
+      <p>
+        سخت‌ترین لایه — رجیستریِ مدل با failover، صف با قفلِ دیتابیسی، و کیفِ پول با
+        چرخهٔ رزرو/تسویه/آزادسازی — ساخته و آزموده شده. یعنی چهار لایهٔ دیگر روی یک
+        پایهٔ سفت سوار می‌شوند، نه روی هوا. هیچ‌کدام از تصحیح‌های مالک این لایه را
+        نمی‌شکند؛ فقط ورودی و خروجی‌اش را عوض می‌کند.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۵ -->
+  <section id="s15">
+    <h2><span class="num">۱۵</span> مدلِ داده — چه چیزی اضافه می‌شود</h2>
+    <p>
+      ستونِ فقراتِ فعلی (<code>Project → Sequence → Shot</code>، رجیستریِ مدل، صف، کیفِ
+      پول، <code>ReasonCode</code>) سرِ جایش می‌ماند. این‌ها اضافه می‌شوند:
+    </p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>موجودیت</th><th>برای چه</th><th>نکتهٔ کلیدی</th></tr></thead>
+        <tbody>
+          <tr><td><code>Asset</code></td><td>هر ورودی یا خروجی: متن، عکس، کلیپ، صوت</td><td>نوع، مالک، هش، مجوز، منبع. پایهٔ لایهٔ ۱.</td></tr>
+          <tr><td><code>ProductionType</code></td><td>جانشینِ <code>CampaignGoal</code></td><td>زیرشاخه‌های وابسته در ستونِ Json تا افزودنِ نوعِ تازه مهاجرت نخواهد.</td></tr>
+          <tr><td><code>ServiceTier</code></td><td>برنزی، نقره‌ای، طلایی</td><td>سقفِ سکه، سقفِ مدت، مدل‌های مجاز، قابلیت‌های مجاز.</td></tr>
+          <tr><td><code>SceneDirection</code></td><td>میزان‌سن، دوربین، نور، زاویه برای هر نما</td><td>باید نگه دارد چه چیزی را کاربر نوشت و چه چیزی را ماشین پیشنهاد داد.</td></tr>
+          <tr><td><code>ComplianceCheck</code></td><td>پروندهٔ انطباقِ هر اثر</td><td>به <code>ReasonCode</code>ی که داریم وصل می‌شود.</td></tr>
+          <tr><td><code>TermsAcceptance</code></td><td>تعهدِ نسخه‌دارِ کاربر</td><td>کاربر، نسخه، زمان. غیرقابلِ تغییر.</td></tr>
+          <tr><td><code>MediaCatalogItem</code></td><td>موسیقی و المان‌های تصویری</td><td>ژانر، مجوز، ذکرِ نام، مجازبودنِ تجاری، قیمت به سکه.</td></tr>
+          <tr><td><code>Publication</code></td><td>نمایشِ یک اثر در یک مقصد</td><td>یک اثر، چند رکوردِ نمایش. جلوی چندنسخه‌شدن را می‌گیرد.</td></tr>
+          <tr><td><code>CastingProfile</code></td><td>عکس و رضایتِ کاربر برای شاخهٔ بازیگر</td><td>بدونِ رضایتِ ثبت‌شده، هیچ گامِ چهره اجرا نمی‌شود.</td></tr>
+          <tr><td><code>SupportTicket</code> · <code>CrmNote</code></td><td>پشتیبانی و CRM</td><td>می‌توانند دیرتر بیایند — به موتور گره نخورده‌اند.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      ⚠️ ترتیب مهم است: <code>Asset</code> و <code>Publication</code> و
+      <code>SceneDirection</code> باید <strong>زود</strong> بیایند چون همه‌چیزِ بعدی به
+      آن‌ها ارجاع می‌دهد. <code>SupportTicket</code> و <code>CrmNote</code> هر وقت بیایند
+      هزینه‌شان یکی است.
+    </p>
+  </section>
+
+  <!-- ۱۶ -->
+  <section id="s16">
+    <h2><span class="num">۱۶</span> تأمینِ مدل و حساب — پیشنهادِ من</h2>
+    <div class="card flag-red">
+      <div class="card-title">اول یک صداقت</div>
+      <p>
+        من نمی‌توانم از این‌جا قیمت، دسترسی و شرایطِ امروزِ این سرویس‌ها را راستی‌آزمایی
+        کنم. پس به‌جای فهرستِ قطعی، <strong>معیارِ انتخاب</strong>، <strong>نامزدها</strong>
+        و <strong>روشِ سنجش با کم‌ترین خرج</strong> را می‌نویسم. تصمیمِ نهایی با عددِ
+        واقعیِ آزمون گرفته می‌شود، نه با ادعای فروشنده — همان قاعده‌ای که برای انتخابِ
+        مدل هم داریم.
+      </p>
+    </div>
+
+    <h3>شش معیارِ انتخاب</h3>
+    <ol>
+      <li><strong>پرداخت‌پذیری از ایران</strong> — تعیین‌کننده‌ترین بند. یا واسط، یا حسابِ خارج.</li>
+      <li><strong>دسترسیِ شبکه‌ای از سرورِ ما</strong> — اگر مسدود باشد، رله لازم می‌شود.</li>
+      <li><strong>پوششِ قابلیت</strong> — یک حساب که چند گام را پوشش دهد از سه حسابِ جدا بهتر است.</li>
+      <li><strong>شکلِ API</strong> — ویدیو همیشه ناهمگام است (<code>submit → poll → fetch</code>). آداپترِ ما باید همین را بفهمد.</li>
+      <li><strong>مجوزِ مصرفِ تجاری</strong> — گاردریلِ ۵ ما: مدلِ بدونِ مجوزِ تجاری هرگز انتخاب نمی‌شود، حتی ارزان‌ترین.</li>
+      <li><strong>هزینه به‌ازای ثانیهٔ پذیرفته‌شده</strong> — نه قیمتِ فهرستی. مدلِ ارزانی که چهار بار تکرار می‌خواهد، از مدلِ گرانِ یک‌باره گران‌تر است.</li>
+    </ol>
+
+    <h3>سه مسیرِ تأمین</h3>
+    <div class="stack">
+      <div class="card flag">
+        <div class="card-title">الف · تجمیع‌کنندهٔ سازگار با OpenAI <span class="chip ok">کد از امروز پشتیبانی می‌کند</span></div>
+        <p>
+          مثلِ ۹روتر، آوالای، گپ‌جی‌پی‌تی. برای <strong>متن</strong> (مرحله‌های ۴ و ۷ و
+          بخشی از ۵) و بخشی از <strong>تصویر</strong> عالی است: یک کلید، پرداختِ داخلی،
+          و کدِ ما همین حالا با آن کار می‌کند. برای <strong>ویدیو معمولاً کافی نیست</strong>،
+          چون کارِ ناهمگام شکلِ متفاوتی دارد.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">ب · میزبانِ مدلِ باز — <strong>پیشنهادِ اولِ من برای ویدیو و چهره</strong></div>
+        <p>
+          سرویس‌هایی که ده‌ها مدلِ باز را با <em>یک</em> API ناهمگامِ یکسان سرو می‌کنند و
+          به‌ازای ثانیهٔ محاسبه پول می‌گیرند. مزیتِ تعیین‌کننده: یک حساب، یک آداپتر، و
+          دسترسی به مدل‌های ویدیو، تعویضِ چهره و هم‌گامیِ لب با هم — دقیقاً همان سه
+          چیزی که شاخهٔ بازیگر لازم دارد. عوض‌کردنِ مدل هم می‌شود یک ردیفِ داده، نه
+          یک بازنویسی.
+        </p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">ج · حسابِ مستقیمِ سرویسِ تخصصی</div>
+        <p>
+          برای بالاترین کیفیتِ ویدیو، صدای فارسیِ طبیعی، و موسیقیِ مولد. گران‌تر و
+          سخت‌تر از نظرِ پرداخت، ولی برای سطحِ <strong>طلایی</strong> احتمالاً ناگزیر است.
+        </p>
+      </div>
+    </div>
+
+    <h3>نقشهٔ قابلیت به مسیر</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>گام</th><th>مسیرِ پیشنهادی</th><th>چرا</th></tr></thead>
+        <tbody>
+          <tr><td>تحلیلِ سناریو و میزان‌سن</td><td>الف</td><td>کارِ متنیِ خالص. ارزان‌ترین و در دسترس‌ترین.</td></tr>
+          <tr><td>بررسیِ انطباق</td><td>الف</td><td>متنی. با یک مدلِ دوم به‌عنوانِ داورِ ثانی.</td></tr>
+          <tr><td>تصویرِ کلیدی</td><td>الف یا ب</td><td>هر دو پوشش می‌دهند؛ با CPAS انتخاب شود.</td></tr>
+          <tr><td>ویدیو</td><td>ب، بعد ج برای طلایی</td><td>ناهمگام. یک آداپتر برای همه.</td></tr>
+          <tr><td>تعویضِ چهره و لیپ‌سینک</td><td>ب</td><td>هم‌خانه با ویدیو ⇒ حسابِ اضافه لازم نیست.</td></tr>
+          <tr><td>گفتار (فارسی)</td><td>ج</td><td>کیفیتِ فارسی تفاوتِ محسوسی دارد؛ ارزش دارد جدا خریده شود.</td></tr>
+          <tr><td>موسیقی</td><td>ج + کتابخانهٔ مجوزدار</td><td>مولد برای اختصاصی، کتابخانه برای برنزی.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card flag-ok">
+      <div class="card-title">روشِ سنجش — نیم‌ساعت و کم‌ترین خرجِ ممکن</div>
+      <ol>
+        <li>روی <strong>دو</strong> نامزدِ مسیرِ ب، حداقلِ اعتبار بخر.</li>
+        <li>یک پرامپتِ <strong>یکسان</strong> بده: ۵ ثانیه ویدیو، همان متریال، همان نسبت.</li>
+        <li>سه چیز را ثبت کن: هزینهٔ واقعی، زمانِ تحویل، و اینکه خروجی <em>قابلِ استفاده</em> بود یا باید تکرار می‌شد.</li>
+        <li>برنده را در رجیستری ثبت کن. بازنده هم می‌ماند — همان failoverِ ما.</li>
+      </ol>
+      <p>
+        این کار هم‌زمان <span class="id">D-03B</span> را می‌بندد، شکلِ آداپترِ ناهمگام را
+        روشن می‌کند، و اولین عددِ واقعیِ قیمت‌گذاریِ سه سطح را می‌دهد. پربازده‌ترین
+        نیم‌ساعتِ کلِ پروژه.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۷ -->
+  <section id="s17">
+    <h2><span class="num">۱۷</span> اقتصادِ محصول</h2>
+    <p>
+      سه عدد باید همیشه با هم دیده شوند، وگرنه محصول بی‌سروصدا زیان می‌دهد:
+    </p>
+    <div class="cols">
+      <div class="card flag">
+        <div class="card-title">۱ · هزینهٔ واقعی</div>
+        <p>مجموعِ خرجِ همهٔ تلاش‌ها — شاملِ آن‌هایی که دور ریخته شدند. دفترِ سکه این را از امروز می‌شمارد.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۲ · قیمتِ سطح</div>
+        <p>آنچه کاربر می‌پردازد. ساده و ثابت، تا تصمیمِ خرید آسان باشد.</p>
+      </div>
+      <div class="card flag">
+        <div class="card-title">۳ · فاصله</div>
+        <p>اگر منفی شد، یا سقفِ سطح باید پایین بیاید یا مدلِ ارزان‌تر انتخاب شود. پنلِ راهبر باید این را نشان دهد.</p>
+      </div>
+    </div>
+    <div class="card flag-red">
+      <div class="card-title">تلهٔ سطحِ ثابت روی هزینهٔ متغیر</div>
+      <p>
+        دو کاربرِ طلایی می‌توانند هزینهٔ ده‌برابر متفاوت داشته باشند: یکی یک بار تولید
+        می‌کند، دیگری ده بار تکرار. برای همین <strong>سقفِ سکه</strong> جزوِ تعریفِ سطح
+        است، نه فقط «کیفیتِ بالاتر». وقتی سقف تمام شد، کاربر یا صبر می‌کند یا شارژ
+        می‌خرد — و هیچ‌وقت خرجِ بی‌سقف اتفاق نمی‌افتد. این دقیقاً همان چیزی است که
+        پاکتِ بودجهٔ ساخته‌شده تضمین می‌کند.
+      </p>
+    </div>
+  </section>
+
+  <!-- ۱۸ -->
+  <section id="s18">
+    <h2><span class="num">۱۸</span> وضعیتِ امروز</h2>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>چه</th><th>وضعیت</th><th>توضیح</th></tr></thead>
+        <tbody>
+          <tr><td><span class="mono">flowstudio.ir</span></td><td><span class="chip ok">زنده</span></td><td>گواهی گرفته شد، nginx وصل شد. <code>noindex</code> برقرار.</td></tr>
+          <tr><td>ورود با موبایل</td><td><span class="chip ok">کار می‌کند</span></td><td>سندباکس با کدِ ثابت تا خریدِ درگاهِ پیامک.</td></tr>
+          <tr><td>ایده ← شات‌لیست</td><td><span class="chip pending">لوله کامل</span></td><td>بدونِ کلیدِ واقعی خطای صادقانهٔ ۵۰۳.</td></tr>
+          <tr><td>رجیستریِ مدل</td><td><span class="chip ok">کامل</span></td><td>با قابلیت، قیمت، و گاردریلِ مصرفِ تجاری.</td></tr>
+          <tr><td>کیفِ پول و صف</td><td><span class="chip ok">ساخته شد</span></td><td>۱۵ ادعا با شواهدِ ترمینال. هنوز دیپلوی نشده.</td></tr>
+          <tr><td>پنلِ ادمین</td><td><span class="chip pending">قفلش نوشته شد</span></td><td>تا دیپلوی نشود، روی دامنهٔ عمومی باز است.</td></tr>
+          <tr><td>لایه‌های ۱، ۴، ۵</td><td><span class="chip blocked">شروع نشده</span></td><td>ورودی، مونتاژ، انتشار.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ۱۹ -->
+  <section id="s19">
+    <h2><span class="num">۱۹</span> فازبندی</h2>
+    <p class="note">هر فاز با چیزی تمام می‌شود که بتوانی ببینی و بیازمایی — نه با «کد نوشته شد».</p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>فاز</th><th>چه چیزی تمام می‌شود</th><th>پیش‌نیاز</th></tr></thead>
+        <tbody>
+          <tr><td class="num-cell"><strong>۰ · حالا</strong></td><td>دیپلویِ قفلِ پنل و کیفِ پول. بستنِ درِ باز.</td><td>مجوزِ اجرای فرمانِ دیپلوی</td></tr>
+          <tr><td class="num-cell"><strong>۱</strong></td><td>کلیدِ واقعی ⇒ اولین شات‌لیستِ واقعی از یک ایده</td><td>کارِ مالک در پنل</td></tr>
+          <tr><td class="num-cell"><strong>۲</strong></td><td>پروبِ ویدیو ⇒ عددِ واقعیِ هزینه و شکلِ آداپتر</td><td>حسابِ مسیرِ ب</td></tr>
+          <tr><td class="num-cell"><strong>۳</strong></td><td>لایهٔ ورودی + <code>Asset</code>: آپلودِ متن، عکس، کلیپ</td><td>پاسخِ <span class="id">D-101</span></td></tr>
+          <tr><td class="num-cell"><strong>۴</strong></td><td>تحلیلِ سناریو و میزان‌سن با اعلان به کاربر</td><td>فازِ ۱</td></tr>
+          <tr><td class="num-cell"><strong>۵</strong></td><td>انطباق و تعهد + صفِ بازبینیِ راهبر</td><td>متنِ قوانین از مالک</td></tr>
+          <tr><td class="num-cell"><strong>۶</strong></td><td>اولین ویدیوی کوتاهِ واقعی، از ایده تا فایل</td><td>فازِ ۲ و ۴</td></tr>
+          <tr><td class="num-cell"><strong>۷</strong></td><td>موسیقی و صدا + کنترلِ نهایی</td><td>کاتالوگِ موسیقی</td></tr>
+          <tr><td class="num-cell"><strong>۸</strong></td><td>انتشار: دانلود، سایتِ عمومی، سپس فلک</td><td><span class="id">D-202</span></td></tr>
+          <tr><td class="num-cell"><strong>۹</strong></td><td>پنلِ راهبر: آمار، مصرف، کاربران، نمایش‌ها</td><td>فازِ ۶</td></tr>
+          <tr><td class="num-cell"><strong>۱۰</strong></td><td>سه سطحِ خدمت + درگاهِ پرداخت و پیامک</td><td>عددِ واقعیِ فازِ ۲</td></tr>
+          <tr><td class="num-cell"><strong>۱۱</strong></td><td>شاخهٔ بازیگر + لایهٔ رقابت</td><td><span class="id">D-201</span></td></tr>
+          <tr><td class="num-cell"><strong>۱۲</strong></td><td>فرم‌بلند · CRM و پشتیبانی · جشنواره</td><td>فازهای قبل</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ۲۰ -->
+  <section id="s20">
+    <h2><span class="num">۲۰</span> تصمیم‌های باز</h2>
+    <p>
+      قاعدهٔ حاکمِ پروژه: <strong>تصمیم پیش از کد</strong>. اگر بی‌جواب بمانند و من
+      پیش‌فرض بگذارم، تصمیمِ تو را دزدیده‌ام.
+    </p>
+    <div class="stack">
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-101</span><span class="t">کدام نوع‌های تولید در نسخهٔ اول؟</span></div>
+        <div class="why">هر نوع یعنی یک فرم و یک قالبِ پرامپتِ متفاوت.</div>
+        <div class="opts">پیشنهاد: سه‌تا — تبلیغی (موجود)، فیلمِ کوتاه، مستند.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-201</span><span class="t">کلیپِ پایهٔ شاخهٔ بازیگر از کجا؟</span></div>
+        <div class="why">آپلودِ کاربر / کاتالوگِ فلک / کتابخانهٔ آماده — سه پیامدِ حقوقیِ متفاوت.</div>
+        <div class="opts">پیشنهاد: نسخهٔ اول فقط آپلودِ خودِ کاربر.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-202</span><span class="t">رابطِ فنی با فلک چیست؟</span></div>
+        <div class="why">API دارد؟ حسابِ آپلود داریم؟ چه کسی آن سمت را می‌سازد؟ بدونِ این، مرحلهٔ ۱۱ فقط «دانلود» می‌ماند.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-203</span><span class="t">انتشار خودکار است یا با تأییدِ راهبر؟</span></div>
+        <div class="why">تو گفتی نمایش‌ها در چند جای پنل مدیریت شوند. معلوم نیست حقِ <em>پیش‌ازانتشار</em> هم می‌خواهی یا فقط حقِ برداشتن.</div>
+        <div class="opts">خودکار + حقِ برداشتن ← سریع · تأیید پیش از انتشار ← امن ولی گلوگاهِ انسانی.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-204</span><span class="t">قیمتِ سه سطح</span></div>
+        <div class="why">تا پروبِ فازِ ۲ انجام نشود هر عددی حدس است. بعد از آن یک جدولِ واقعی می‌دهم و تو تأیید می‌کنی.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-205</span><span class="t">متنِ قوانین و شرطِ سنی</span></div>
+        <div class="why">متنِ تعهدِ کاربر و فهرستِ ممنوعه‌ها باید از تو بیاید. من ساختارش را می‌سازم، محتوایش تصمیمِ توست.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-206</span><span class="t">کدام حساب‌ها خریداری شوند</span></div>
+        <div class="why">بخشِ ۱۶ معیار و مسیر را داد. تصمیمِ خرید و بودجه‌اش با توست.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-207</span><span class="t">ناظرِ انسانی کیست؟</span></div>
+        <div class="why">مرحله‌های ۶ و ۱۰ گیتِ انسانی دارند. اگر ناظری نبود، کار در صف بماند یا خودکار رد شود؟</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-208</span><span class="t">منبعِ موسیقی</span></div>
+        <div class="why">کتابخانهٔ مجوزدار، مولد، یا هر دو. با هشدارِ بخشِ ۷ دربارهٔ معنی‌های مختلفِ «رایگان».</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-006</span><span class="t">عددِ بودجهٔ ۹۰ روز <span class="chip pending">از قبل باز</span></span></div>
+        <div class="why">کیفِ پول ساخته شد و منتظرِ یک عدد است. تا نیاید، هر گامِ پولی با پیامِ صریح رد می‌شود.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-03B</span><span class="t">تجمیع‌کنندهٔ ویدیو <span class="chip pending">از قبل باز</span></span></div>
+        <div class="why">با روشِ سنجشِ بخشِ ۱۶ در نیم‌ساعت بسته می‌شود.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-head"><span class="id">D-209</span><span class="t">مجوزِ دیپلوی</span></div>
+        <div class="why">فرمانِ <code>rsync</code> در نشستِ من مجوز نگرفت. تا دیپلوی نشود، قفلِ پنلِ ادمین روی سرور نیست.</div>
+        <div class="opts">فرمانِ آماده در <span class="mono">~/Desktop/flowstudio-credentials.txt</span> بندِ ۴.</div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
