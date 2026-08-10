@@ -34,9 +34,12 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  wallet    Wallet?
-  projects  Project[]
-  jobGroups JobGroup[]
+  wallet         Wallet?
+  projects       Project[]
+  jobGroups      JobGroup[]
+  assets         Asset[]
+  termsAccepted  TermsAcceptance[]
+  castingProfile CastingProfile?
 
   @@unique([authProvider, externalId])
 }
@@ -69,20 +72,20 @@ enum HoldStatus {
 /// بدونِ این جدول، شکستِ یک فراخوانِ پولی یعنی سکهٔ گم‌شده: کسر شده ولی
 /// هیچ خروجی‌ای در برابرش نیست و هیچ ردی هم از برگشتش نمانده.
 model WalletHold {
-  id         String    @id @default(cuid())
-  walletId   String
-  wallet     Wallet    @relation(fields: [walletId], references: [id])
-  jobGroupId String?
-  jobGroup   JobGroup? @relation(fields: [jobGroupId], references: [id])
+  id            String     @id @default(cuid())
+  walletId      String
+  wallet        Wallet     @relation(fields: [walletId], references: [id])
+  jobGroupId    String?
+  jobGroup      JobGroup?  @relation(fields: [jobGroupId], references: [id])
   /// مبلغِ رزروشده — سقفِ خرج. تسویه هرگز از این بیشتر نمی‌شود.
-  amount     Int
+  amount        Int
   /// مبلغِ واقعیِ خرج‌شده. تفاوتش با `amount` به `balance` برمی‌گردد.
   settledAmount Int?
-  status     HoldStatus @default(HELD)
+  status        HoldStatus @default(HELD)
   /// برایِ چه رزرو شد — متنِ کوتاهِ قابلِ خواندن در دفتر.
-  purpose    String
-  createdAt  DateTime   @default(now())
-  resolvedAt DateTime?
+  purpose       String
+  createdAt     DateTime   @default(now())
+  resolvedAt    DateTime?
 
   entries WalletEntry[]
 
@@ -100,12 +103,12 @@ enum WalletEntryType {
 /// دفترِ ثبتِ **غیرقابلِ‌تغییر**. `Wallet.balance` فقط یک خلاصهٔ سریع است؛
 /// حقیقت این‌جاست و باید همیشه با آن جمع بخورد. هیچ ردیفی UPDATE نمی‌شود.
 model WalletEntry {
-  id       String          @id @default(cuid())
-  walletId String
-  wallet   Wallet          @relation(fields: [walletId], references: [id])
-  type     WalletEntryType
+  id           String          @id @default(cuid())
+  walletId     String
+  wallet       Wallet          @relation(fields: [walletId], references: [id])
+  type         WalletEntryType
   /// همیشه **مثبت** — جهت را `type` تعیین می‌کند، نه علامتِ عدد.
-  amount   Int
+  amount       Int
   /// عکسِ لحظه‌ایِ کیفِ پول بعد از این ردیف — تا ممیزی به بازپخشِ کلِ دفتر
   /// نیاز نداشته باشد.
   balanceAfter Int
@@ -121,8 +124,287 @@ model WalletEntry {
   @@index([holdId])
 }
 
+// ═══ رجیستری محصول — نوع تولید، سطح خدمت، مجوز، کاتالوگ ═══
+//
+// قاعده حاکم این بخش: هر چیزی که ممکن است فردا عوض شود **ردیف داده** است،
+// نه enum و نه ثابت در کد. افزودن یک نوع تولید تازه، یک سطح خدمت تازه یا یک
+// نوع مجوز تازه هیچ مهاجرتی نمی‌خواهد.
+
+/// نوع تولید: تبلیغی، فیلم کوتاه، مستند، انیمیشن، موزیک ویدیو، آموزشی.
+///
+/// `fieldSchema` همان چیزی است که فرم **بعد از** انتخاب نوع می‌پرسد — چون
+/// زیرشاخه‌ها به نوع وابسته‌اند: لحن فقط برای تبلیغ معنا دارد و برای فیلم
+/// کوتاه جایش را ژانر می‌گیرد. نگه داشتن این در ستون Json یعنی نوع تازه یا
+/// فیلد تازه فقط یک ردیف است.
+model ProductionType {
+  id             String  @id @default(cuid())
+  key            String  @unique
+  title          String
+  description    String?
+  minDurationSec Int
+  maxDurationSec Int
+  /// آرایه‌ای از { key, label, kind, options?, required } — قرارداد فرم.
+  fieldSchema    Json
+  /// راهنمای لحن پرامپت برای این نوع؛ به موتور پرامپت داده می‌شود.
+  promptGuide    String
+  orderIndex     Int     @default(0)
+  /// انتخاب نوع‌های نسخه اول یک **تنظیم** است، نه یک استقرار تازه.
+  isActive       Boolean @default(false)
+
+  projects Project[]
+}
+
+/// جنس تصویر. `materialFidelity` درجه نزدیکی به آن جنس است (۰ تا ۱۰۰).
+enum MaterialStyle {
+  REAL
+  ANIME
+  COMIC
+  FANTASY
+  THREE_D
+  STOP_MOTION
+}
+
+/// سطح خدمت — برنزی، نقره‌ای، طلایی.
+///
+/// 🔑 نکته طراحی: سطح با **سیاست** تعریف می‌شود نه با فهرست شناسه مدل.
+/// «مدل‌های اقتصادی» یعنی `maxCostPerUnit`، نه ده شناسه که با افزودن مدل
+/// یازدهم کهنه می‌شود. با این کار رجیستری مدل و سطوح خدمت مستقل می‌مانند.
+model ServiceTier {
+  id               String   @id @default(cuid())
+  key              String   @unique
+  title            String
+  orderIndex       Int      @default(0)
+  /// سقف سکه هر پاکت بودجه در این سطح.
+  coinAllowance    Int
+  maxDurationSec   Int
+  /// سقف هزینه هر واحد. null یعنی بی‌سقف (فقط برای بالاترین سطح).
+  maxCostPerUnit   Int?
+  /// گام‌های مجاز از تاکسونومی بسته. خالی یعنی همه.
+  allowedStepTypes String[] @default([])
+  watermark        Boolean  @default(true)
+  queuePriority    Int      @default(0)
+  /// آیا اثر این سطح پیش از انتشار بازبینی انسانی می‌شود.
+  humanReview      Boolean  @default(false)
+  /// قیمت فروش. **عمدا null است** تا پیش از اندازه‌گیری هزینه واقعی،
+  /// عددی اختراع نشود (D-204).
+  priceIrt         Int?
+  isActive         Boolean  @default(true)
+
+  projects Project[]
+}
+
+/// پرونده مجوز — پاسخ به «رایگان یک چیز نیست، چهار چیز است».
+///
+/// `allowedTargets` تعیین می‌کند اثری که از این مجوز استفاده کرده، در کدام
+/// مقصدها قابل انتشار است. ترکی که برای دانلود شخصی آزاد است ممکن است برای
+/// انتشار روی فلک آزاد نباشد؛ سیستم این را می‌داند و فیلتر می‌کند.
+model MediaLicense {
+  id                  String              @id @default(cuid())
+  code                String              @unique
+  title               String
+  /// خلاصه شرط به زبان ساده — همین متن کنار هر آیتم به کاربر نشان داده می‌شود.
+  userFacingSummary   String
+  commercialUse       Boolean
+  attributionRequired Boolean
+  attributionTemplate String?
+  /// مقصدهای مجاز. خالی یعنی همه مقصدها.
+  allowedTargets      PublicationTarget[] @default([])
+  sourceUrl           String?
+  notes               String?
+
+  catalogItems MediaCatalogItem[]
+  assets       Asset[]
+}
+
+/// کاتالوگ موسیقی و المان تصویری. `priceCoins = 0` یعنی رایگان — ولی
+/// «رایگان» بدون `licenseId` بی‌معناست، پس مجوز اجباری است.
+model MediaCatalogItem {
+  id          String       @id @default(cuid())
+  kind        String // music | sfx | background | overlay | font | template
+  title       String
+  genres      String[]     @default([])
+  moods       String[]     @default([])
+  durationSec Int?
+  previewUrl  String?
+  storageKey  String?
+  licenseId   String
+  license     MediaLicense @relation(fields: [licenseId], references: [id])
+  priceCoins  Int          @default(0)
+  sourceName  String
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+
+  @@index([kind, isActive])
+}
+
+// ═══ دارایی — لایه ۱ معماری ═══
+
+enum AssetKind {
+  TEXT
+  IMAGE
+  CLIP
+  AUDIO
+}
+
+/// هر ورودی و هر خروجی یک دارایی شناسنامه‌دار است.
+///
+/// `role` می‌گوید این دارایی چه کاره است؛ `kind` می‌گوید چه جنسی دارد. جدا
+/// نگه داشتنشان لازم است: یک عکس هم می‌تواند مرجع سبک باشد هم چهره کاربر.
+model Asset {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  projectId     String?
+  project       Project?      @relation(fields: [projectId], references: [id])
+  kind          AssetKind
+  /// input_script | reference_image | face | base_clip | music |
+  /// shot_output | final_output
+  role          String
+  storageKey    String
+  mimeType      String
+  byteSize      Int
+  sha256        String
+  durationSec   Int?
+  width         Int?
+  height        Int?
+  /// متن استخراج‌شده از فایل متنی — تا لایه فهم دوباره فایل را باز نکند.
+  extractedText String?
+  licenseId     String?
+  license       MediaLicense? @relation(fields: [licenseId], references: [id])
+  createdAt     DateTime      @default(now())
+
+  publications Publication[]
+
+  @@index([userId, kind])
+  @@index([projectId, role])
+  @@index([sha256])
+}
+
+// ═══ حقوقی و انطباق ═══
+
+/// متن نسخه‌دار. نسخه تازه ردیف تازه است، نه ویرایش ردیف قبلی — وگرنه
+/// نمی‌شود ثابت کرد کاربر کدام متن را پذیرفته بود.
+model TermsDocument {
+  id          String    @id @default(cuid())
+  /// terms | free_content_rules | face_consent | privacy
+  slug        String
+  version     Int
+  title       String
+  body        String
+  publishedAt DateTime?
+
+  acceptances TermsAcceptance[]
+
+  @@unique([slug, version])
+}
+
+model TermsAcceptance {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id])
+  documentId String
+  document   TermsDocument @relation(fields: [documentId], references: [id])
+  acceptedAt DateTime      @default(now())
+  /// هش نشانی، نه خود نشانی — برای اثبات کافی است و داده شخصی کمتری نگه می‌دارد.
+  ipHash     String?
+
+  @@unique([userId, documentId])
+  @@index([userId])
+}
+
+enum ComplianceStage {
+  PRE_PRODUCTION
+  PRE_PUBLICATION
+}
+
+enum ComplianceStatus {
+  PENDING
+  AUTO_PASSED
+  AUTO_FLAGGED
+  APPROVED
+  REJECTED
+}
+
+/// دروازه بازبینی. دو ایستگاه دارد و هر دو از یک جدول می‌آیند: یکی پیش از
+/// خرج پول، یکی پیش از انتشار.
+model ComplianceCheck {
+  id           String           @id @default(cuid())
+  projectId    String
+  project      Project          @relation(fields: [projectId], references: [id])
+  stage        ComplianceStage
+  status       ComplianceStatus @default(PENDING)
+  /// خروجی خام بررسی خودکار — تا تصمیم ماشین قابل بازبینی بماند.
+  autoVerdict  Json?
+  reasonCodeId String?
+  reasonCode   ReasonCode?      @relation(fields: [reasonCodeId], references: [id])
+  reviewerNote String?
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  createdAt    DateTime         @default(now())
+
+  @@unique([projectId, stage])
+  @@index([status, stage])
+}
+
+// ═══ انتشار — لایه ۵ معماری ═══
+
+enum PublicationTarget {
+  DOWNLOAD
+  PUBLIC_SITE
+  FALAK_VIDEO
+  FALAK_STORY
+  EXTERNAL_LINK
+}
+
+enum PublicationStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  WITHDRAWN
+  FAILED
+}
+
+/// یک اثر، چند رکورد نمایش — نه چند نسخه از فایل.
+///
+/// کلید یکتا روی (پروژه، مقصد) یعنی یک اثر در هر مقصد فقط یک بار می‌نشیند،
+/// و برداشتنش از پنل راهبر یک UPDATE است نه شکار در چند سامانه.
+model Publication {
+  id           String            @id @default(cuid())
+  projectId    String
+  project      Project           @relation(fields: [projectId], references: [id])
+  assetId      String?
+  asset        Asset?            @relation(fields: [assetId], references: [id])
+  target       PublicationTarget
+  status       PublicationStatus @default(DRAFT)
+  externalUrl  String?
+  externalId   String?
+  publishedAt  DateTime?
+  withdrawnAt  DateTime?
+  withdrawnBy  String?
+  reasonCodeId String?
+  reasonCode   ReasonCode?       @relation(fields: [reasonCodeId], references: [id])
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([projectId, target])
+  @@index([status])
+}
+
+/// شاخه بازیگر — بدون رضایت ثبت‌شده هیچ گام چهره اجرا نمی‌شود.
+model CastingProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
+  consentVersion    Int?
+  consentAcceptedAt DateTime?
+  faceAssetIds      String[]  @default([])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
 // ─── محتوا: پروژه → سکانس → شات — طول‌آگاه از روزِ اول ───
 
+/// ⚠️ منسوخ — جایش را `ProductionType` گرفت. برای ردیف‌های موجود می‌ماند.
 enum CampaignGoal {
   BRAND_AWARENESS
   ORDER_CAPTURE
@@ -136,18 +418,40 @@ enum Tone {
 }
 
 model Project {
-  id        String       @id @default(cuid())
-  userId    String
-  user      User         @relation(fields: [userId], references: [id])
-  title     String
-  goal      CampaignGoal
-  tone      Tone
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  title  String
 
-  sequences Sequence[]
+  /// ⚠️ منسوخ — فقط برای ردیف‌های ساخته‌شده پیش از رجیستری نوع تولید.
+  goal CampaignGoal?
+  tone Tone?
+
+  productionTypeId String?
+  productionType   ProductionType? @relation(fields: [productionTypeId], references: [id])
+  /// پاسخ کاربر به زیرشاخه‌های همان نوع، طبق `fieldSchema`. اعتبارسنجی در
+  /// سرویس انجام می‌شود، نه در پایگاه داده — چون شما به نوع وابسته است.
+  attributes       Json?
+
+  materialStyle     MaterialStyle?
+  /// درجه نزدیکی به آن جنس، ۰ تا ۱۰۰.
+  materialFidelity  Int?           @default(70)
+  /// مدت هدف به ثانیه. تا ساعت هم می‌رود — ۳۶۰۰ و بیشتر مجاز است.
+  targetDurationSec Int?
+
+  serviceTierId String?
+  serviceTier   ServiceTier? @relation(fields: [serviceTierId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sequences        Sequence[]
+  assets           Asset[]
+  publications     Publication[]
+  complianceChecks ComplianceCheck[]
 
   @@index([userId])
+  @@index([productionTypeId])
 }
 
 model Sequence {
@@ -206,8 +510,41 @@ model Shot {
   jobs        Job[]
   generations Generation[]
   planSteps   PlanStep[]
+  direction   SceneDirection?
 
   @@index([sequenceId])
+}
+
+/// چه کسی این تصمیم کارگردانی را گرفت.
+enum DirectionOrigin {
+  USER
+  MACHINE
+}
+
+/// عمق کارگردانی هر نما: میزان‌سن، حرکت دوربین، اندازه و زاویه نما، نور.
+///
+/// 🔑 `origins` برای هر فیلد می‌گوید نوشته کاربر است یا پیشنهاد ماشین.
+/// تفکیک‌پذیر ماندن این دو دو فایده دارد: کاربر می‌بیند ماشین چه اضافه کرده،
+/// و بعدا می‌شود سنجید کدام پیشنهادها واقعا خروجی بهتری دادند.
+model SceneDirection {
+  id     String @id @default(cuid())
+  shotId String @unique
+  shot   Shot   @relation(fields: [shotId], references: [id])
+
+  miseEnScene    String?
+  cameraMovement String?
+  shotSize       String?
+  cameraAngle    String?
+  lighting       String?
+  colorMood      String?
+
+  /// { fieldName: "USER" | "MACHINE" }
+  origins            Json
+  /// پیشنهادهایی که ماشین داد و کاربر هنوز درباره‌شان تصمیم نگرفته.
+  pendingSuggestions Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ─── لایهٔ درگاهِ AI — رجیستری (اسپرینتِ ۱ از این می‌خواند) ───
@@ -306,17 +643,17 @@ model JobGroup {
   // پاکت پیش از اولین فراخوانِ پولی بسته می‌شود و پلان به‌عقب از آن ساخته
   // می‌شود. اگر پلان جا نشد، پیش از خرج‌کردن اعلام می‌شود — نه تنزلِ بی‌صدا.
   /// D-O14: واحد **سکه** و `Int` است، نه Decimal — دفتر هرگز اعشاری نمی‌شود.
-  budgetCap     Int    @default(0)
+  budgetCap      Int    @default(0)
   /// اعمال در سرور. اعمال در UI یعنی اعمال‌نشده (گاردریلِ ۳).
-  spentAmount   Int    @default(0)
+  spentAmount    Int    @default(0)
   /// سکه‌ای که رزرو شده ولی هنوز تسویه نشده. بدونِ این ستون، دو گامِ هم‌زمان
   /// هر دو «جا داریم» می‌بینند و پاکت از سقف رد می‌شود.
   /// شرطِ پاکت: `spentAmount + reservedAmount + مبلغِ تازه ≤ budgetCap`.
-  reservedAmount Int   @default(0)
+  reservedAmount Int    @default(0)
   /// سقفِ پله‌های نردبانِ تشدید. سیستم هرگز بی‌سقف بالا نمی‌رود.
-  escalationCap Int    @default(1)
+  escalationCap  Int    @default(1)
   /// انتظارِ کاربر: draft | standard | hero
-  qualityTier   String @default("standard")
+  qualityTier    String @default("standard")
 
   jobs      Job[]
   planSteps PlanStep[]
@@ -379,13 +716,19 @@ model Job {
 
 // ─── کدهایِ دلیل — تاکسونومیِ بسته، نه متنِ آزاد ───
 
+/// تاکسونومی بسته دلیل — هم برای رد شدن یک خروجی، هم برای رد شدن یک
+/// درخواست در دروازه انطباق، هم برای برداشتن یک اثر از یک مقصد. متن آزاد
+/// نیست چون بعدا باید بشود شمرد و گزارش گرفت.
 model ReasonCode {
   id       String @id @default(cuid())
   code     String @unique
   label    String
+  /// quality | compliance | legal | technical
   category String
 
-  generations Generation[]
+  generations      Generation[]
+  complianceChecks ComplianceCheck[]
+  publications     Publication[]
 }
 
 // ─── دفترِ ثبت — هر رکورد غیرقابلِ‌تغییر است ───

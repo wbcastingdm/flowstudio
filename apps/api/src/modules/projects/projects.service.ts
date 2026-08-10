@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { AiGatewayService } from '../ai-gateway/ai-gateway.service';
+import { RegistryService } from '../registry/registry.service';
 import { buildBriefPrompt } from './brief.prompt';
-import type { CampaignGoal, Tone, CameraMovement } from '@prisma/client';
+import type { CameraMovement, MaterialStyle, Prisma } from '@prisma/client';
 
 const VALID_MOVEMENTS: CameraMovement[] = [
   'STATIC',
@@ -13,17 +14,38 @@ const VALID_MOVEMENTS: CameraMovement[] = [
   'COMBINED',
 ];
 
-interface CreateFromIdeaInput {
+const VALID_SHOT_SIZES = ['EXTREME_WIDE', 'WIDE', 'MEDIUM', 'CLOSE_UP', 'EXTREME_CLOSE_UP'];
+const VALID_ANGLES = ['EYE_LEVEL', 'LOW', 'HIGH', 'OVERHEAD', 'DUTCH'];
+const VALID_MATERIALS: MaterialStyle[] = [
+  'REAL',
+  'ANIME',
+  'COMIC',
+  'FANTASY',
+  'THREE_D',
+  'STOP_MOTION',
+];
+
+export interface CreateFromIdeaInput {
   rawIdea: string;
-  goal: CampaignGoal;
-  tone: Tone;
+  /** کلید نوع تولید از رجیستری. */
+  productionType: string;
+  /** پاسخ زیرشاخه‌های همان نوع. */
+  attributes?: Record<string, unknown>;
   targetDurationSec?: number;
+  materialStyle?: string;
+  materialFidelity?: number;
+  serviceTier?: string;
 }
 
 interface ParsedShot {
   durationSec: number;
   description: string;
   cameraMovement: string;
+  miseEnScene?: string;
+  shotSize?: string;
+  cameraAngle?: string;
+  lighting?: string;
+  colorMood?: string;
 }
 
 interface ParsedSequence {
@@ -36,39 +58,78 @@ interface ParsedBrief {
   sequences: ParsedSequence[];
 }
 
+/**
+ * لایه ۲ معماری — فهم و پلان.
+ *
+ * ورودی: ایده کاربر و انتخاب‌هایش. خروجی: پروژه با سلسله مراتب نما و
+ * **کارگردانی هر نما**. هیچ نام مدلی این‌جا نیست و هیچ قاعده‌ای مخصوص یک
+ * نوع تولید در کد ثابت نشده — همه از رجیستری می‌آید.
+ */
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: AiGatewayService,
+    private readonly registry: RegistryService,
   ) {}
-
-  // ✅ جای‌گیرِ `+000000000000` در اسپرینتِ ۴ برداشته شد — هر پروژه به کاربرِ
-  // واردشده (D-008: موبایل+OTP) تعلق دارد.
 
   async createFromIdea(userId: string, input: CreateFromIdeaInput) {
     if (!input.rawIdea?.trim()) {
-      throw new BadRequestException('ایده نمی‌تواند خالی باشد');
+      throw new BadRequestException('ایده نمی‌تواند خالی باشد.');
     }
-    const targetDurationSec = input.targetDurationSec ?? 30;
+    if (!input.productionType?.trim()) {
+      throw new BadRequestException('نوع تولید را انتخاب کن.');
+    }
 
-    // مرحلهٔ متن همیشه رایگان است (نیازِ ۷، docs/60).
+    const type = await this.registry.getProductionType(input.productionType.trim());
+    if (!type.isActive) {
+      throw new BadRequestException(`نوع «${type.title}» فعلا در دسترس نیست.`);
+    }
+
+    // زیرشاخه‌ها در برابر شمای همان نوع سنجیده می‌شوند، نه یک شمای ثابت.
+    const attributes = this.registry.validateAttributes(type.fieldSchema, input.attributes ?? {});
+
+    const targetDurationSec = input.targetDurationSec ?? type.minDurationSec;
+    if (targetDurationSec < type.minDurationSec || targetDurationSec > type.maxDurationSec) {
+      throw new BadRequestException(
+        `مدت «${type.title}» باید بین ${type.minDurationSec} تا ${type.maxDurationSec} ثانیه باشد.`,
+      );
+    }
+
+    // سطح خدمت پیش از هر کاری سنجیده می‌شود — نه بعد از تولید.
+    let tier = null;
+    if (input.serviceTier) {
+      tier = await this.registry.getServiceTier(input.serviceTier);
+      this.registry.assertWithinTier(tier, { durationSec: targetDurationSec });
+    }
+
+    const materialStyle = this.normalizeMaterial(input.materialStyle);
+
+    // مرحله متنی همیشه رایگان است، پس بدون رزرو سکه اجرا می‌شود.
     const prompt = buildBriefPrompt({
       rawIdea: input.rawIdea,
-      goal: input.goal,
-      tone: input.tone,
+      promptGuide: type.promptGuide,
+      typeKey: type.key,
+      typeTitle: type.title,
+      fieldSchema: type.fieldSchema,
+      attributes,
       targetDurationSec,
+      materialStyle,
+      materialFidelity: input.materialFidelity ?? null,
     });
     const aiResult = await this.gateway.chat({ text: prompt });
-
     const parsed = this.parseBriefJson(aiResult.text);
 
     const project = await this.prisma.project.create({
       data: {
         userId,
         title: parsed.title,
-        goal: input.goal,
-        tone: input.tone,
+        productionTypeId: type.id,
+        attributes: attributes as Prisma.InputJsonValue,
+        materialStyle,
+        materialFidelity: input.materialFidelity ?? null,
+        targetDurationSec,
+        serviceTierId: tier?.id ?? null,
         sequences: {
           create: parsed.sequences.map((seq, seqIdx) => ({
             order: seqIdx + 1,
@@ -76,34 +137,110 @@ export class ProjectsService {
             shots: {
               create: seq.shots.map((shot, shotIdx) => ({
                 order: shotIdx + 1,
-                durationSec: shot.durationSec,
-                description: shot.description,
+                durationSec: this.clampDuration(shot.durationSec),
+                description: shot.description ?? '',
                 cameraMovement: this.normalizeMovement(shot.cameraMovement),
                 aspectRatio: 'R9_16',
-                continuityRef: undefined, // فازِ ۱ خالی می‌گذارد، حذف نمی‌کند
+                continuityRef: undefined,
+                // کارگردانی نما در همان تراکنش ساخته می‌شود. همه فیلدهایش
+                // این‌جا از ماشین آمده‌اند، چون کاربر هنوز چیزی نگفته.
+                direction: {
+                  create: {
+                    miseEnScene: shot.miseEnScene ?? null,
+                    cameraMovement: this.normalizeMovement(shot.cameraMovement),
+                    shotSize: this.pick(shot.shotSize, VALID_SHOT_SIZES),
+                    cameraAngle: this.pick(shot.cameraAngle, VALID_ANGLES),
+                    lighting: shot.lighting ?? null,
+                    colorMood: shot.colorMood ?? null,
+                    origins: this.machineOrigins(shot),
+                  },
+                },
               })),
             },
           })),
         },
       },
-      include: { sequences: { include: { shots: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } } },
+      include: this.fullInclude(),
     });
 
     return {
       project,
       modelUsed: aiResult.modelUsed,
       providerUsed: aiResult.providerUsed,
-      costActual: aiResult.costActual, // همیشه ۰ برایِ TEXT
+      costActual: aiResult.costActual,
     };
   }
 
-  /** `userId` در شرط است، نه فقط `id` — کتابخانهٔ کاربرِ دیگر دیده نمی‌شود. */
+  /**
+   * ویرایش کارگردانی یک نما توسط کاربر.
+   *
+   * هر فیلدی که کاربر دست بزند، مبدأش به USER تغییر می‌کند — چون از آن لحظه
+   * دیگر پیشنهاد ماشین نیست، تصمیم کاربر است. همین تفکیک بعدا اجازه می‌دهد
+   * سنجیده شود کدام پیشنهادهای ماشین پذیرفته شدند.
+   */
+  async updateDirection(
+    userId: string,
+    shotId: string,
+    patch: Record<string, string | null>,
+  ) {
+    const shot = await this.prisma.shot.findFirst({
+      where: { id: shotId, sequence: { project: { userId } } },
+      include: { direction: true },
+    });
+    if (!shot) throw new BadRequestException('نما پیدا نشد.');
+
+    const EDITABLE = [
+      'miseEnScene',
+      'cameraMovement',
+      'shotSize',
+      'cameraAngle',
+      'lighting',
+      'colorMood',
+    ] as const;
+
+    const data: Record<string, unknown> = {};
+    const origins: Record<string, string> = {
+      ...((shot.direction?.origins as Record<string, string>) ?? {}),
+    };
+
+    for (const key of EDITABLE) {
+      if (!(key in patch)) continue;
+      const value = patch[key];
+      if (key === 'shotSize' && value && !VALID_SHOT_SIZES.includes(value)) {
+        throw new BadRequestException(`اندازه نما باید یکی از ${VALID_SHOT_SIZES.join('، ')} باشد.`);
+      }
+      if (key === 'cameraAngle' && value && !VALID_ANGLES.includes(value)) {
+        throw new BadRequestException(`زاویه دوربین باید یکی از ${VALID_ANGLES.join('، ')} باشد.`);
+      }
+      data[key] = value;
+      origins[key] = 'USER';
+    }
+
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException('هیچ فیلد قابل ویرایشی فرستاده نشد.');
+    }
+
+    // حرکت دوربین در دو جا زندگی می‌کند: روی خود نما (که موتور تولید از آن
+    // می‌خواند) و در کارگردانی. هر دو با هم به‌روز می‌شوند تا واگرا نشوند.
+    if (typeof data.cameraMovement === 'string') {
+      await this.prisma.shot.update({
+        where: { id: shotId },
+        data: { cameraMovement: this.normalizeMovement(data.cameraMovement) },
+      });
+    }
+
+    return this.prisma.sceneDirection.upsert({
+      where: { shotId },
+      update: { ...data, origins },
+      create: { shotId, ...data, origins },
+    });
+  }
+
+  /** `userId` در شرط است، نه فقط `id` — آرشیو کاربر دیگر دیده نمی‌شود. */
   async findOne(userId: string, id: string) {
     return this.prisma.project.findFirst({
       where: { id, userId },
-      include: {
-        sequences: { include: { shots: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
-      },
+      include: this.fullInclude(),
     });
   }
 
@@ -111,11 +248,56 @@ export class ProjectsService {
     return this.prisma.project.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      include: {
-        sequences: { include: { shots: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
-      },
       take: 50,
+      include: {
+        productionType: { select: { key: true, title: true } },
+        serviceTier: { select: { key: true, title: true } },
+        publications: { select: { target: true, status: true, externalUrl: true } },
+        sequences: {
+          include: { shots: { orderBy: { order: 'asc' }, include: { direction: true } } },
+          orderBy: { order: 'asc' },
+        },
+      },
     });
+  }
+
+  private fullInclude() {
+    return {
+      productionType: true,
+      serviceTier: true,
+      publications: true,
+      sequences: {
+        include: { shots: { orderBy: { order: 'asc' as const }, include: { direction: true } } },
+        orderBy: { order: 'asc' as const },
+      },
+    };
+  }
+
+  private machineOrigins(shot: ParsedShot): Record<string, string> {
+    const keys: Array<keyof ParsedShot> = [
+      'miseEnScene',
+      'cameraMovement',
+      'shotSize',
+      'cameraAngle',
+      'lighting',
+      'colorMood',
+    ];
+    const o: Record<string, string> = {};
+    for (const k of keys) {
+      if (shot[k]) o[k] = 'MACHINE';
+    }
+    return o;
+  }
+
+  private pick(value: string | undefined, allowed: string[]): string | null {
+    const v = (value ?? '').toUpperCase().trim();
+    return allowed.includes(v) ? v : null;
+  }
+
+  private clampDuration(raw: number): number {
+    const n = Math.round(Number(raw));
+    if (!Number.isFinite(n)) return 4;
+    return Math.min(15, Math.max(2, n));
   }
 
   private normalizeMovement(raw: string): CameraMovement {
@@ -123,10 +305,19 @@ export class ProjectsService {
     return VALID_MOVEMENTS.includes(upper) ? upper : 'STATIC';
   }
 
+  private normalizeMaterial(raw?: string): MaterialStyle | null {
+    if (!raw) return null;
+    const upper = raw.toUpperCase().trim() as MaterialStyle;
+    if (!VALID_MATERIALS.includes(upper)) {
+      throw new BadRequestException(`جنس تصویر باید یکی از ${VALID_MATERIALS.join('، ')} باشد.`);
+    }
+    return upper;
+  }
+
   /**
-   * مدل ممکن است JSON را داخلِ ```json ... ``` بپیچد یا متنِ اضافه بگذارد.
-   * اینجا سخت‌گیرانه استخراج می‌کنیم و اگر شکل درست نبود، صریح خطا می‌دهیم —
-   * نه اینکه بی‌صدا یک شات‌لیستِ ساختگی برگردانیم.
+   * مدل ممکن است JSON را داخل حصار markdown بپیچد یا متن اضافه بگذارد.
+   * این‌جا سخت‌گیرانه استخراج می‌شود و اگر شکل درست نبود صریح خطا داده
+   * می‌شود — نه اینکه بی‌صدا یک شات‌لیست ساختگی برگردد.
    */
   private parseBriefJson(raw: string): ParsedBrief {
     let text = raw.trim();
@@ -143,12 +334,12 @@ export class ProjectsService {
       parsed = JSON.parse(text);
     } catch {
       throw new BadRequestException(
-        'پاسخِ مدل JSONِ معتبر نبود. دوباره تلاش کن یا مدلِ دیگری در رجیستری اضافه کن.',
+        'پاسخ مدل JSON معتبر نبود. دوباره تلاش کن یا مدل دیگری در رجیستری اضافه کن.',
       );
     }
 
     if (!parsed?.title || !Array.isArray(parsed.sequences) || parsed.sequences.length === 0) {
-      throw new BadRequestException('پاسخِ مدل ساختارِ شات‌لیست نداشت (title/sequences).');
+      throw new BadRequestException('پاسخ مدل ساختار شات‌لیست نداشت.');
     }
     for (const seq of parsed.sequences) {
       if (!Array.isArray(seq.shots) || seq.shots.length === 0) {

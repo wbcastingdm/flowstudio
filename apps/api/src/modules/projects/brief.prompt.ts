@@ -1,79 +1,145 @@
-import type { CampaignGoal, Tone } from '@prisma/client';
-
-const GOAL_FA: Record<CampaignGoal, string> = {
-  BRAND_AWARENESS: 'آگاهی از برند',
-  ORDER_CAPTURE: 'جذب سفارشِ آنلاین',
-  PRODUCT_INTRO: 'معرفیِ محصولِ جدید',
-};
-
-const TONE_FA: Record<Tone, string> = {
-  WARM_FRIENDLY: 'گرم و صمیمی',
-  PROFESSIONAL: 'حرفه‌ای',
-  ENERGETIC: 'پرانرژی',
-};
+import type { MaterialStyle } from '@prisma/client';
+import type { TypeField } from '../registry/registry.service';
 
 /**
- * قواعدِ کلاسِ E که در پرامپت تزریق می‌شوند — از knowledge/rules/E-class-v1.md.
- * منبع: راهنمایِ رسمیِ ABCDِ گوگل (۵۰۰۰+ تبلیغ، بازبینیِ Nielsen/Kantar).
- * فقط قواعدی که روی «ساختِ شات‌لیست» اثرِ مستقیم دارند اینجا می‌آیند.
+ * قواعد کلاس E — از knowledge/rules/E-class-v1.md، برگرفته از راهنمای رسمی
+ * ABCD گوگل. **فقط برای نوع تبلیغی صادق‌اند**: قلاب پنج ثانیه‌ای و فراخوان
+ * اقدام در یک مستند نه لازم است نه درست.
+ *
+ * تزریق این قواعد به هر نوعی، همان اشتباهی است که کل محصول را به «ابزار
+ * تیزرسازی» تقلیل می‌دهد.
  */
-const E_RULES_FOR_SHOTLIST = [
-  'برند یا محصول باید در پنج ثانیهٔ اولِ ویدیو معرفی شود.',
-  'در پنج ثانیهٔ اول بیش از دو نما/کات باشد تا مخاطب قلاب شود.',
-  'نمای ابتدایی، نمای نزدیک (tightly-framed) از شخص یا محصول باشد.',
-  'اگر ویدیو شخصی دارد، با حضورِ او روی صحنه باز شود.',
-  'فراخوانِ اقدامِ پایانی مشخص باشد (مثلاً «به سایت برو»، «همین حالا سفارش بده»).',
+const E_RULES_FOR_ADS = [
+  'برند یا محصول باید در پنج ثانیه اول ویدیو معرفی شود.',
+  'در پنج ثانیه اول بیش از دو نما یا کات باشد تا مخاطب قلاب شود.',
+  'نمای ابتدایی، نمای نزدیک از شخص یا محصول باشد.',
+  'اگر ویدیو شخصی دارد، با حضور او روی صحنه باز شود.',
+  'فراخوان اقدام پایانی مشخص باشد.',
   'پیام ساده، متمرکز و ملموس باشد.',
 ];
 
+const MATERIAL_FA: Record<MaterialStyle, string> = {
+  REAL: 'واقعی و زنده',
+  ANIME: 'انیمه',
+  COMIC: 'کمیک',
+  FANTASY: 'فانتزی',
+  THREE_D: 'سه بعدی',
+  STOP_MOTION: 'استاپ موشن',
+};
+
 export interface BriefPromptInput {
   rawIdea: string;
-  goal: CampaignGoal;
-  tone: Tone;
+  /** راهنمای لحن همان نوع تولید — از رجیستری می‌آید، نه از کد. */
+  promptGuide: string;
+  typeKey: string;
+  typeTitle: string;
+  /** شمای فیلدهای همان نوع، برای اینکه پاسخ‌ها با برچسب خوانا نوشته شوند. */
+  fieldSchema: unknown;
+  attributes: Record<string, unknown>;
   targetDurationSec: number;
+  materialStyle?: MaterialStyle | null;
+  materialFidelity?: number | null;
+}
+
+/** پاسخ‌های کاربر را با برچسب فارسی و مقدار خوانا می‌نویسد. */
+function renderAttributes(fieldSchema: unknown, attributes: Record<string, unknown>): string {
+  const fields = (Array.isArray(fieldSchema) ? fieldSchema : []) as TypeField[];
+  const lines: string[] = [];
+  for (const f of fields) {
+    const v = attributes?.[f.key];
+    if (v === undefined || v === null || String(v).trim() === '') continue;
+    let shown = String(v);
+    if (f.kind === 'select') {
+      shown = f.options?.find((o) => o.value === v)?.label ?? shown;
+    }
+    lines.push(`${f.label}: ${shown}`);
+  }
+  return lines.join('\n');
 }
 
 /**
- * خروجیِ موردِ انتظار عمداً JSONِ سخت‌گیرانه است تا مستقیماً به ShotIR نگاشت
- * شود — نه متنِ آزاد. هر فیلدِ متنِ آزادِ اضافه یعنی شکافِ واژگان
- * (گاردریلِ منشورِ اجرا).
+ * مدت طولانی یعنی تعداد نمای زیاد. برای فرم بلند نمی‌شود کل شات‌لیست را در
+ * یک فراخوان خواست — نه در پنجره متن جا می‌شود، نه خروجی‌اش منسجم می‌ماند.
+ * پس سقف نما در هر فراخوان گذاشته می‌شود و بقیه در گام بعدی ساخته می‌شود.
+ */
+const MAX_SHOTS_PER_CALL = 40;
+
+function shotBudget(targetDurationSec: number) {
+  const avgShotSec = targetDurationSec > 600 ? 6 : targetDurationSec > 120 ? 5 : 4;
+  const ideal = Math.ceil(targetDurationSec / avgShotSec);
+  return { ideal, capped: Math.min(ideal, MAX_SHOTS_PER_CALL) };
+}
+
+/**
+ * خروجی عمدا JSON سخت‌گیرانه است تا مستقیم به ساختار نما نگاشت شود، نه متن
+ * آزاد. هر فیلد متن آزاد اضافه یعنی شکاف واژگان میان لایه فهم و لایه تولید.
  */
 export function buildBriefPrompt(input: BriefPromptInput): string {
-  return `تو یک کارگردانِ تیزرِ تبلیغاتیِ فارسی‌زبانی. از ایدهٔ زیر یک شات‌لیستِ حرفه‌ای بساز.
+  const { ideal, capped } = shotBudget(input.targetDurationSec);
+  const partial = capped < ideal;
 
-ایدهٔ کاربر:
+  const material = input.materialStyle
+    ? `\nجنس تصویر: ${MATERIAL_FA[input.materialStyle]}` +
+      (input.materialFidelity != null
+        ? ` (درجه نزدیکی به این جنس: ${input.materialFidelity} از ۱۰۰)`
+        : '')
+    : '';
+
+  const attrs = renderAttributes(input.fieldSchema, input.attributes);
+  const rules = input.typeKey === 'ad' ? E_RULES_FOR_ADS : [];
+
+  return `${input.promptGuide}
+
+از ایده زیر یک شات‌لیست حرفه‌ای بساز.
+
+ایده کاربر:
 """
 ${input.rawIdea}
 """
 
-هدفِ کمپین: ${GOAL_FA[input.goal]}
-لحن: ${TONE_FA[input.tone]}
-مدتِ کلِ هدف: حدودِ ${input.targetDurationSec} ثانیه
+نوع تولید: ${input.typeTitle}${material}
+مدت کل هدف: ${input.targetDurationSec} ثانیه
+${attrs}
 
-قواعدی که باید رعایت کنی (مبتنی بر پژوهشِ ABCDِ گوگل):
-${E_RULES_FOR_SHOTLIST.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+${
+  rules.length > 0
+    ? `قواعدی که باید رعایت کنی:\n${rules.map((r, i) => `${i + 1}. ${r}`).join('\n')}\n`
+    : ''
+}برای هر نما علاوه بر توضیح، عناصر کارگردانی را هم بنویس. اگر ایده کاربر
+درباره‌شان چیزی نگفته، خودت متناسب با نوع و جنس تصویر پیشنهاد بده.
 
-خروجی را **فقط** به‌شکلِ JSONِ زیر بده، بدونِ هیچ متنِ اضافه، بدونِ markdown:
+خروجی را فقط به شکل JSON زیر بده، بدون هیچ متن اضافه و بدون markdown:
 {
-  "title": "عنوانِ کوتاهِ پروژه",
+  "title": "عنوان کوتاه پروژه",
   "sequences": [
     {
-      "title": "نامِ سکانس",
+      "title": "نام سکانس",
       "shots": [
         {
-          "durationSec": 3,
-          "description": "توضیحِ دقیقِ آنچه در این نما دیده می‌شود",
-          "cameraMovement": "STATIC"
+          "durationSec": 4,
+          "description": "توضیح دقیق آنچه در این نما دیده می‌شود",
+          "cameraMovement": "STATIC",
+          "miseEnScene": "چیدمان صحنه: چه کسی کجاست، پس‌زمینه چیست",
+          "shotSize": "MEDIUM",
+          "cameraAngle": "EYE_LEVEL",
+          "lighting": "نور و ساعت روز",
+          "colorMood": "رنگ غالب و حال و هوا"
         }
       ]
     }
   ]
 }
 
-قواعدِ خروجی:
-- cameraMovement فقط یکی از این‌ها: STATIC, PAN, TILT, DOLLY, HANDHELD, COMBINED
-- durationSec عددِ صحیح بینِ ۲ تا ۱۰
-- جمعِ مدتِ همهٔ نماها تقریباً برابرِ ${input.targetDurationSec} ثانیه باشد
-- description فارسی، مشخص و بصری باشد (چه چیزی در کادر دیده می‌شود)
-- برایِ تیزرِ کوتاه یک سکانس کافی است؛ برایِ محتوایِ بلندتر چند سکانس بساز`;
+قواعد خروجی:
+- cameraMovement فقط یکی از: STATIC, PAN, TILT, DOLLY, HANDHELD, COMBINED
+- shotSize فقط یکی از: EXTREME_WIDE, WIDE, MEDIUM, CLOSE_UP, EXTREME_CLOSE_UP
+- cameraAngle فقط یکی از: EYE_LEVEL, LOW, HIGH, OVERHEAD, DUTCH
+- durationSec عدد صحیح بین ۲ تا ۱۵
+- description و miseEnScene و lighting و colorMood فارسی و بصری باشند
+- تعداد نماها حدود ${capped} تا باشد${
+    partial
+      ? `\n- ⚠️ این ایده برای ${ideal} نما است ولی فقط ${capped} نمای **اول** را بساز؛ ادامه‌اش جداگانه خواسته می‌شود. سکانس‌ها را نیمه‌کاره رها نکن — تا پایان آخرین سکانسی که جا می‌شود برو.`
+      : `\n- جمع مدت همه نماها تقریبا برابر ${input.targetDurationSec} ثانیه باشد`
+  }
+- برای محتوای کوتاه یک سکانس کافی است؛ برای بلندتر چند سکانس بساز`;
 }
