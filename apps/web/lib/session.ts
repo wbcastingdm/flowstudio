@@ -13,13 +13,18 @@ const TOKEN_KEY = 'flowstudio_token';
 const PHONE_KEY = 'flowstudio_phone';
 
 /**
- * لوکال: API روی پورتِ جدا (۳۲۰۰). روی سرور: nginx مسیرِ /api را می‌فرستد
+ * لوکال: API روی پورتِ جدا (۳۲۵۰). روی سرور: nginx مسیرِ /api را می‌فرستد
  * ⇒ same-origin.
+ *
+ * ⚠️ ۲۰ مرداد ۱۴۰۵ — لوکال از ۳۲۰۰ به ۳۲۵۰ منتقل شد. پورتِ ۳۲۰۰ روی ماشینِ مالک به
+ * ماژولِ پورتفولیوی وبکستینگ داده شد. **این فقط لوکال را عوض می‌کند** — شرطِ
+ * `hostname === 'localhost'` یعنی سرور دست‌نخورده روی same-origin می‌ماند و
+ * `deploy/docker-compose.prod.yml` هنوز ۳۲۰۰ است.
  */
 export function apiBase(): string {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3200';
+    return 'http://localhost:3250';
   }
   return '';
 }
