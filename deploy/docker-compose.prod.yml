@@ -49,10 +49,18 @@ services:
       DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:-flowstudio_dev_password}@postgres:5432/flowstudio?schema=public
       REDIS_URL: redis://redis:6379
       FLOWSTUDIO_SECRET: ${FLOWSTUDIO_SECRET:-change-me-in-env-file}
+      # 🔒 قفلِ پنلِ راهبر. عمدا پیش‌فرض ندارد: اگر تنظیم نشود، گارد
+      # fail-closed می‌شود و پنل ۵۰۳ می‌دهد — که از پنلِ بازِ اینترنتی بهتر است.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      # محلِ نگهداریِ داراییِ کاربر. روی والیوم است، وگرنه هر بازسازیِ
+      # کانتینر همهٔ آپلودها را می‌برد.
+      STORAGE_DIR: /data/storage
       # 🟡 ورود در حالتِ سندباکس: بدونِ درگاهِ پیامک، کدِ ثابتِ زیر پذیرفته
       # می‌شود و در پاسخِ API برمی‌گردد. روزِ اتصالِ درگاه ⇒ OTP_SANDBOX=false
       OTP_SANDBOX: ${OTP_SANDBOX:-true}
       OTP_SANDBOX_CODE: ${OTP_SANDBOX_CODE:-123456}
+    volumes:
+      - fs_storage:/data/storage
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3200/health"]
       interval: 30s
@@ -91,5 +99,6 @@ services:
 
 volumes:
   fs_data:
+  fs_storage:
   fs_postgres:
   fs_redis:
