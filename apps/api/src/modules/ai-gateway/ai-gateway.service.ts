@@ -177,6 +177,7 @@ export class AiGatewayService {
 
     let lastError: unknown;
     for (const candidate of candidates) {
+      const startedAt = Date.now();
       try {
         const apiKey = decryptApiKey(candidate.provider.apiKeyEncrypted);
         const responseText = await this.callOpenAiCompatible(
@@ -185,6 +186,7 @@ export class AiGatewayService {
           candidate.modelKey,
           text,
         );
+        void this.recordCall(candidate, true, Date.now() - startedAt);
         return {
           text: responseText,
           modelUsed: candidate.modelKey,
@@ -193,6 +195,7 @@ export class AiGatewayService {
         };
       } catch (err) {
         lastError = err;
+        void this.recordCall(candidate, false, Date.now() - startedAt, err);
         // رزرو دورِ کلِ این حلقه است (بندِ `billing` در `chat`)، پس شکستِ
         // اینجا سکه‌ای نمی‌بلعد: یا کاندیدایِ بعدی موفق می‌شود و همان رزرو
         // تسویه می‌شود، یا همه شکست می‌خورند و `runWithHold` آزادش می‌کند.
@@ -207,6 +210,48 @@ export class AiGatewayService {
     throw new ServiceUnavailableException(
       `همهٔ ${candidates.length} کاندیدایِ TEXT شکست خوردند: ${String(lastError)}`,
     );
+  }
+
+  /**
+   * ثبت نتیجه یک فراخوان.
+   *
+   * ⚠️ سه چیز عمدا ثبت **نمی‌شود**: پرامپت، پاسخ، و کلید. جدول لاگ نباید به
+   * محل نشت محتوای کاربر تبدیل شود. از خطا هم فقط **دسته**اش نگه داشته
+   * می‌شود، چون متن خام خطای بعضی درگاه‌ها کلید را در خودش تکرار می‌کند.
+   *
+   * شکست ثبت هم هرگز فراخوان اصلی را نمی‌شکند — لاگ نباید علت خرابی شود.
+   */
+  private async recordCall(
+    candidate: { id: string; providerId: string },
+    ok: boolean,
+    latencyMs: number,
+    err?: unknown,
+  ): Promise<void> {
+    try {
+      const message = err instanceof Error ? err.message : String(err ?? '');
+      const httpMatch = message.match(/HTTP (\d{3})/);
+      await this.prisma.providerCall.create({
+        data: {
+          providerId: candidate.providerId,
+          modelId: candidate.id,
+          ok,
+          latencyMs,
+          httpStatus: httpMatch ? Number(httpMatch[1]) : null,
+          errorKind: ok ? null : this.classifyError(message),
+        },
+      });
+    } catch {
+      // بی‌صدا. اگر ثبت لاگ خودش خطا بدهد، کار کاربر نباید قربانی شود.
+    }
+  }
+
+  private classifyError(message: string): string {
+    const m = message.toLowerCase();
+    if (m.includes('abort') || m.includes('timeout')) return 'timeout';
+    if (m.includes('http ')) return 'http';
+    if (m.includes('بدونِ content') || m.includes('نامعتبر')) return 'shape';
+    if (m.includes('fetch') || m.includes('econn') || m.includes('network')) return 'network';
+    return 'unknown';
   }
 
   private async callOpenAiCompatible(

@@ -566,6 +566,7 @@ model AiProvider {
   updatedAt       DateTime @updatedAt
 
   models AiModel[]
+  calls  ProviderCall[]
 }
 
 model AiModel {
@@ -595,9 +596,38 @@ model AiModel {
 
   jobs   Job[]
   scores ModelScore[]
+  calls  ProviderCall[]
 
   @@unique([providerId, modelKey])
   @@index([modality])
+}
+
+/// ثبت هر فراخوان درگاه — پایه داشبورد سلامت و ابزار مقایسه مدل‌ها.
+///
+/// 🔒 عمدا سبک است: **نه پرامپت ذخیره می‌شود، نه پاسخ، نه کلید**. فقط
+/// نتیجه و زمان. هر چیز بیشتر یعنی محتوای کاربر در جدول لاگ نشت می‌کند و
+/// پشتیبان‌گیری را هم بی‌دلیل سنگین می‌کند.
+///
+/// بدون این جدول، «نرخ خطای هر درگاه» عددی برای نشان دادن ندارد و انتخاب
+/// مدل تا ابد بر پایه ادعای فروشنده می‌ماند.
+model ProviderCall {
+  id         String     @id @default(cuid())
+  providerId String
+  provider   AiProvider @relation(fields: [providerId], references: [id])
+  modelId    String?
+  model      AiModel?   @relation(fields: [modelId], references: [id])
+  /// نوع گام از تاکسونومی بسته. برای مسیر متنی خالی می‌ماند.
+  stepType   String?
+  ok         Boolean
+  httpStatus Int?
+  /// دسته خطا، نه متن خام: timeout | http | shape | network | unknown.
+  /// متن خام می‌تواند کلید یا محتوای کاربر را با خودش بیاورد.
+  errorKind  String?
+  latencyMs  Int
+  createdAt  DateTime   @default(now())
+
+  @@index([providerId, createdAt])
+  @@index([ok, createdAt])
 }
 
 /// معیارِ انتخاب: **هزینه به‌ازای ثانیهٔ پذیرفته‌شده** (سندِ ۸۱).

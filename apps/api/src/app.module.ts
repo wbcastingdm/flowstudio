@@ -10,6 +10,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { RegistryModule } from './modules/registry/registry.module';
 import { AssetsModule } from './modules/assets/assets.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AssetsModule } from './modules/assets/assets.module';
     JobsModule,
     RegistryModule,
     AssetsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
