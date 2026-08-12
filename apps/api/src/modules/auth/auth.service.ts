@@ -26,27 +26,43 @@ export class AuthService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  /** رمزِ عددیِ مشترک. از متغیرِ محیطی می‌آید تا عوض‌کردنش کد نخواهد. */
-  private get password(): string {
-    return (process.env.AUTH_PASSWORD ?? '123456').trim();
+  /**
+   * رمزِ عددیِ مشترک — **بدونِ پیش‌فرض**.
+   *
+   * 🔴 پیش از ۲۱ مرداد این `?? '123456'` بود. یعنی هر استقراری که یادش
+   *    می‌رفت `AUTH_PASSWORD` را ست کند، با رمزِ `123456` بالا می‌آمد و
+   *    هیچ‌کس خبردار نمی‌شد — چون همه‌چیز «کار می‌کرد». پیش‌فرضی که
+   *    به‌سمتِ ناامنی باز شود، پیش‌فرض نیست، یک در است.
+   *    حالا نبودنش یعنی هیچ ورودی پذیرفته نمی‌شود.
+   */
+  private get password(): string | null {
+    const value = (process.env.AUTH_PASSWORD ?? '').trim();
+    return value.length > 0 ? value : null;
   }
 
   /**
-   * آیا صفحهٔ ورود رمز را نشان بدهد.
+   * آیا رمز به کلاینت داده شود.
    *
-   * تا وقتی رمز عمومی و مشترک است، پنهان‌کردنش امنیتی اضافه نمی‌کند و فقط
-   * کاربرِ آزمایشی را سرگردان می‌کند. روزِ بستنِ سندباکس این را `false` کن.
+   * 🔴 پیش‌فرض **خاموش**. پیش از ۲۱ مرداد پیش‌فرض `true` بود و نتیجه‌اش این:
+   *      GET https://flowstudio.ir/api/auth/policy
+   *      → {"mode":"shared_password","digits":6,"hint":"123456"}
+   *    روی تولید، بدونِ هیچ احرازی، به هر کسی. این «نمایش در صفحهٔ ورود»
+   *    نبود؛ یک اندپوینتِ عمومی بود که رمزِ خودش را پخش می‌کرد.
+   *    برای محیطِ نمایش با `AUTH_PASSWORD_HINT=true` صریحاً روشنش کنید.
    */
   private get showHint(): boolean {
-    return (process.env.AUTH_PASSWORD_HINT ?? 'true').toLowerCase() !== 'false';
+    return (process.env.AUTH_PASSWORD_HINT ?? 'false').toLowerCase() === 'true';
   }
 
   /** آنچه صفحهٔ ورود پیش از هر تلاشی می‌پرسد. */
   policy() {
+    const password = this.password;
     return {
       mode: 'shared_password' as const,
-      digits: this.password.length,
-      hint: this.showHint ? this.password : null,
+      // بدونِ رمزِ پیکربندی‌شده، حتی طولش هم گفته نمی‌شود.
+      digits: password?.length ?? 0,
+      configured: password !== null,
+      hint: password && this.showHint ? password : null,
     };
   }
 
@@ -88,8 +104,17 @@ export class AuthService {
    * عوض کند.
    */
   private matches(candidate: string): boolean {
+    const expected = this.password;
+    // 🔴 رمزِ پیکربندی‌نشده = هیچ ورودی. با پیش‌فرضِ قبلی، همین‌جا `123456`
+    //    را می‌پذیرفت و استقرارِ فراموش‌شده بی‌صدا باز می‌ماند.
+    if (expected === null) {
+      this.logger.error(
+        'AUTH_PASSWORD ست نشده — همهٔ ورودها رد می‌شوند. این عمدی است، نه خرابی.',
+      );
+      return false;
+    }
     const a = Buffer.from((candidate ?? '').trim(), 'utf8');
-    const b = Buffer.from(this.password, 'utf8');
+    const b = Buffer.from(expected, 'utf8');
     if (a.length !== b.length) return false;
     return timingSafeEqual(a, b);
   }
