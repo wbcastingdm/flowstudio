@@ -76,22 +76,22 @@ export default function DiscoverPage() {
             <b style={{ fontSize: 15, lineHeight: 1.6 }}>{w.title}</b>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
               {w.type && (
-                <span className="chip" style={{ fontSize: 11.5, padding: '3px 9px' }}>
+                <span className="chip" style={{ fontSize: 13, padding: '3px 9px' }}>
                   {w.type}
                 </span>
               )}
               {w.material && (
-                <span className="chip" style={{ fontSize: 11.5, padding: '3px 9px' }}>
+                <span className="chip" style={{ fontSize: 13, padding: '3px 9px' }}>
                   {MATERIAL_FA[w.material] ?? w.material}
                 </span>
               )}
               {w.durationSec && (
-                <span className="chip" style={{ fontSize: 11.5, padding: '3px 9px' }}>
+                <span className="chip" style={{ fontSize: 13, padding: '3px 9px' }}>
                   {dur(w.durationSec)}
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 'auto' }}>
+            <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 'auto' }}>
               {w.creator.name} · {w.views.toLocaleString('fa-IR')} بازدید
               {w.comments > 0 && ` · ${w.comments.toLocaleString('fa-IR')} دیدگاه`}
             </div>

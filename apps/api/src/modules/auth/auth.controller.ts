@@ -7,14 +7,20 @@ import type { SessionPayload } from './token.util';
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-  @Post('otp/request')
-  request(@Body() body: { phone: string }) {
-    return this.auth.requestOtp(body?.phone);
+  /**
+   * صفحهٔ ورود پیش از هر چیز این را می‌پرسد تا بداند چه بپرسد.
+   *
+   * روزی که ورود به OTP برگردد، فقط `mode` عوض می‌شود و همان صفحه دو
+   * مرحله‌ای می‌شود — بدونِ اینکه رابط چیزی دربارهٔ سازوکارِ ورود حدس بزند.
+   */
+  @Get('policy')
+  policy() {
+    return this.auth.policy();
   }
 
-  @Post('otp/verify')
-  verify(@Body() body: { phone: string; code: string }) {
-    return this.auth.verifyOtp(body?.phone, body?.code);
+  @Post('login')
+  login(@Body() body: { phone: string; password: string }) {
+    return this.auth.login(body?.phone, body?.password);
   }
 
   @Get('me')

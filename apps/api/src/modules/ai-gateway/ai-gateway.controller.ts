@@ -50,6 +50,17 @@ export class AiGatewayAdminController {
   stepTypes() {
     return STEP_TYPES;
   }
+
+  /**
+   * کاتالوگِ درگاه‌های نمونه — فقط برایِ پرکردنِ فرم.
+   *
+   * ⚠️ این‌ها **ثبت‌شده نیستند**. تا مالک کلیدِ واقعی نزند، هیچ‌کدام در
+   * انتخابِ روتر شرکت نمی‌کنند و `/studio` مثلِ امروز کار می‌کند.
+   */
+  @Get('gateway-presets')
+  gatewayPresets() {
+    return this.gateway.listGatewayPresets();
+  }
 }
 
 @Controller('api')

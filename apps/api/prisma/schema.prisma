@@ -492,6 +492,7 @@ model Project {
   publications     Publication[]
   complianceChecks ComplianceCheck[]
   comments         Comment[]
+  jobGroups        JobGroup[]
 
   @@index([userId])
   @@index([productionTypeId])
@@ -597,6 +598,36 @@ enum Modality {
   IMAGE
   AUDIO
   VIDEO
+}
+
+/// کاتالوگِ درگاه‌های شناخته‌شده — **نمونه، نه رجیستریِ زنده**.
+///
+/// 🔑 چرا جدا از `AiProvider` است و نه چند ردیفِ آماده در خودِ آن:
+/// روترِ متن هر مدلِ ثبت‌شده‌ای را کاندیدا می‌گیرد. اگر درگاه‌های نمونه با
+/// کلیدِ الکی داخلِ رجیستریِ زنده می‌نشستند، `/studio` دیگر به برنامه‌ریزِ
+/// محلی نمی‌افتاد و به‌جایش برای هر کاربر ۵۰۳ می‌داد — یعنی افزودنِ «نمونه»
+/// محصولِ کارکننده را می‌شکست. این جدول فقط **فرم را پر می‌کند**؛ تا مالک
+/// کلیدِ واقعی نزند هیچ‌چیز زنده نمی‌شود.
+///
+/// منبع: ماژولِ استودیوی AIِ وبکستینگ (فقط خوانده شد؛ نه کلیدی کپی شد و نه
+/// چیزی از آن پروژه تغییر کرد).
+model GatewayPreset {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  title       String
+  baseUrl     String
+  /// چرا این درگاه — یک جملهٔ کوتاه که کنارِ دکمه دیده می‌شود.
+  summary     String
+  /// آیا کلید در هدرِ `Authorization: Bearer` می‌رود. بعضی درگاه‌ها
+  /// (مثلِ arvancloudai) احراز را داخلِ خودِ آدرس دارند و این `false` است.
+  bearerAuth  Boolean @default(true)
+  /// گام‌هایی که این درگاه معمولاً پوشش می‌دهد — از تاکسونومیِ بسته.
+  stepTypes   String[] @default([])
+  /// نمونه شناسهٔ مدل برایِ پرکردنِ فرم. هرگز مبنایِ انتخابِ روتر نیست.
+  sampleModels String[] @default([])
+  docsUrl     String?
+  orderIndex  Int     @default(0)
+  isActive    Boolean @default(true)
 }
 
 model AiProvider {
@@ -711,6 +742,21 @@ model JobGroup {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
+  /// کدام پروژه را می‌سازد. از راهِ `Job → Shot → Sequence` هم درمی‌آمد، ولی
+  /// صفحهٔ زندهٔ وضعیت باید با شناسهٔ پروژه یک کوئری بزند نه سه پرش.
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  /// ⏱ لحظهٔ بسته‌شدنِ گروه: همهٔ نماها تمام شدند و فایلِ نهایی چسبانده شد.
+  ///
+  /// 🔒 این ستون **قفلِ مسابقه** هم هست، نه فقط یک زمان. دو کارگر می‌توانند
+  /// هم‌زمان آخرین کارِ گروه را ببندند و هر دو ببینند «همه تمام شد»؛ بدونِ
+  /// این، هر دو مونتاژ می‌کنند و دو فایلِ نهایی می‌سازند. برنده با
+  /// `updateMany … WHERE finalizedAt IS NULL` معلوم می‌شود.
+  finalizedAt  DateTime?
+  /// داراییِ فایلِ نهایی — همان چیزی که کاربر تماشا می‌کند.
+  finalAssetId String?
+
   // ─── وارونگیِ بودجه (سندِ ۸۱ بخشِ ۱۳) ───
   // مبلغی که کاربر پرداخت کرده **ورودیِ الگوریتم است، نه خروجیِ آن**.
   // پاکت پیش از اولین فراخوانِ پولی بسته می‌شود و پلان به‌عقب از آن ساخته
@@ -754,6 +800,10 @@ model PlanStep {
   capability String
   /// شناسهٔ گام‌هایی که باید پیش از این تمام شوند — گرافِ جهت‌دار.
   dependsOn  Json?
+  /// پارامترِ همان گام. بدونِ این ستون دو گامِ هم‌قابلیت از هم جدا نمی‌شوند:
+  /// زنجیرهٔ هر نما **دو** `html2image` دارد — یکی زمینه و یکی لایهٔ شفافِ
+  /// متن — و «کدام لایه» یک پارامتر است، نه یک قابلیتِ تازه در تاکسونومی.
+  params     Json?
   orderIndex Int      @default(0)
   createdAt  DateTime @default(now())
 
@@ -769,9 +819,16 @@ model Job {
   group     JobGroup  @relation(fields: [groupId], references: [id])
   shotId    String
   shot      Shot      @relation(fields: [shotId], references: [id])
-  aiModelId String
-  aiModel   AiModel   @relation(fields: [aiModelId], references: [id])
+  /// 🔑 اختیاری است چون **هر کاری مدل ندارد**. زنجیرهٔ مسیرِ ج
+  /// (`html2image` → `programmatic_motion`) هیچ فراخوانِ AIای نمی‌زند و
+  /// هیچ ردیفِ `AiModel`ی پشتش نیست. ساختنِ یک مدلِ ساختگی برایِ پرکردنِ این
+  /// ستون یعنی آلوده‌کردنِ رجیستری با ردیفی که روتر ممکن است انتخابش کند.
+  /// موتورِ واقعیِ هر گام در `Generation.modelKeySnap` منجمد می‌شود.
+  aiModelId String?
+  aiModel   AiModel?  @relation(fields: [aiModelId], references: [id])
   status    JobStatus @default(PENDING)
+  /// آخرین خطا — تا کاربر در رابط ببیند چرا کارش نشد، نه فقط «شکست خورد».
+  lastError String?
   /// قفلِ کرونِ کارگر: UPDATE Job SET lockedAt=now(),lockedBy=$1
   ///   WHERE status='PENDING' AND lockedAt IS NULL ... RETURNING *
   lockedAt  DateTime?
@@ -836,6 +893,13 @@ model Generation {
   // تلاش‌های ردشدهٔ همان زنجیره را جمع بزنیم. **حذف نشوند.**
   /// شمارهٔ تلاش در زنجیره — از ۱ شروع می‌شود.
   attemptIndex Int         @default(1)
+  /// ⏱ چقدر طول کشید. **صورتِ کسرِ CPAS از این ساخته می‌شود** — بدونِ آن
+  /// هزینهٔ واقعیِ یک گامِ محلی (که سکه‌ای خرج نمی‌کند ولی ثانیهٔ CPU می‌خورد)
+  /// هیچ‌جا ثبت نمی‌شود و مقایسه‌اش با مدلِ پولی ناممکن می‌ماند.
+  latencyMs         Int?
+  /// ⏱ چند ثانیه خروجیِ **قابلِ‌تماشا** تولید شد. مخرجِ کسرِ CPAS.
+  /// برایِ خروجیِ تصویری null می‌ماند — تصویر ثانیه ندارد.
+  outputDurationSec Int?
   /// تلاشِ قبلی که این یکی جایگزینش شد.
   supersedesId String?     @unique
   supersedes   Generation? @relation("AttemptChain", fields: [supersedesId], references: [id])

@@ -46,7 +46,7 @@ export default function AppPage() {
         <div className="grid-half">
           <div className="card">
             <div style={{ fontWeight: 800, color: 'var(--green)', marginBottom: 10 }}>آماده است</div>
-            <ul style={{ paddingInlineStart: 18, color: 'var(--muted)', fontSize: 13.4, lineHeight: 2 }}>
+            <ul style={{ paddingInlineStart: 18, color: 'var(--muted)', fontSize: 14, lineHeight: 2 }}>
               {READY.map((t) => (
                 <li key={t}>{t}</li>
               ))}
@@ -54,7 +54,7 @@ export default function AppPage() {
           </div>
           <div className="card">
             <div style={{ fontWeight: 800, color: 'var(--amber)', marginBottom: 10 }}>هنوز نه</div>
-            <ul style={{ paddingInlineStart: 18, color: 'var(--muted)', fontSize: 13.4, lineHeight: 2 }}>
+            <ul style={{ paddingInlineStart: 18, color: 'var(--muted)', fontSize: 14, lineHeight: 2 }}>
               {NOT_READY.map((t) => (
                 <li key={t}>{t}</li>
               ))}

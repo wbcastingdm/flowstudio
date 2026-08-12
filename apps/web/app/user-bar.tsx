@@ -22,9 +22,9 @@ export function UserBar({ active }: { active?: 'studio' | 'library' }) {
   if (!ready) return <div style={{ height: 44 }} />;
 
   const linkStyle = (isActive: boolean): React.CSSProperties => ({
-    fontSize: 13.5,
+    fontSize: 15,
     color: isActive ? 'var(--accent)' : 'var(--muted)',
-    fontWeight: isActive ? 700 : 400,
+    fontWeight: isActive ? 800 : 500,
   });
 
   return (
@@ -44,29 +44,22 @@ export function UserBar({ active }: { active?: 'studio' | 'library' }) {
       <span style={{ flex: 1 }} />
       {phone ? (
         <>
-          <span style={{ fontSize: 12.5, color: 'var(--dim)', direction: 'ltr' }}>
+          <span style={{ fontSize: 14, color: 'var(--dim)', direction: 'ltr' }}>
             {displayPhone(phone)}
           </span>
           <button
+            type="button"
+            className="btn btn-ghost btn-sm"
             onClick={() => {
               clearSession();
               router.push('/login');
-            }}
-            style={{
-              background: 'none',
-              border: '1px solid var(--line)',
-              borderRadius: 8,
-              padding: '5px 12px',
-              color: 'var(--muted)',
-              fontSize: 12.5,
-              cursor: 'pointer',
             }}
           >
             خروج
           </button>
         </>
       ) : (
-        <a href="/login" style={{ fontSize: 13.5 }}>ورود</a>
+        <a href="/login" style={{ fontSize: 15 }}>ورود</a>
       )}
     </div>
   );

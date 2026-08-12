@@ -3,6 +3,7 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import { AiGatewayService } from '../ai-gateway/ai-gateway.service';
 import { RegistryService } from '../registry/registry.service';
 import { buildBriefPrompt } from './brief.prompt';
+import { buildLocalPlan } from './local-planner';
 import type { CameraMovement, MaterialStyle, Prisma } from '@prisma/client';
 
 const VALID_MOVEMENTS: CameraMovement[] = [
@@ -106,19 +107,15 @@ export class ProjectsService {
     const materialStyle = this.normalizeMaterial(input.materialStyle);
 
     // مرحله متنی همیشه رایگان است، پس بدون رزرو سکه اجرا می‌شود.
-    const prompt = buildBriefPrompt({
+    const plan = await this.buildPlan({
       rawIdea: input.rawIdea,
-      promptGuide: type.promptGuide,
-      typeKey: type.key,
-      typeTitle: type.title,
-      fieldSchema: type.fieldSchema,
+      type,
       attributes,
       targetDurationSec,
       materialStyle,
       materialFidelity: input.materialFidelity ?? null,
     });
-    const aiResult = await this.gateway.chat({ text: prompt });
-    const parsed = this.parseBriefJson(aiResult.text);
+    const parsed = plan.brief;
 
     const project = await this.prisma.project.create({
       data: {
@@ -165,9 +162,79 @@ export class ProjectsService {
 
     return {
       project,
+      modelUsed: plan.modelUsed,
+      providerUsed: plan.providerUsed,
+      costActual: plan.costActual,
+      /// `local` یعنی هیچ مدلی صدا زده نشد. رابط این را صریح نشان می‌دهد —
+      /// کاربر باید بداند شات‌لیستش را چه چیزی نوشته.
+      planner: plan.planner,
+    };
+  }
+
+  /**
+   * شات‌لیست را از کجا بیاوریم.
+   *
+   * شرط **وجودِ مدل** است، نه یک پرچمِ دستی: تا وقتی هیچ ردیفِ `AiModel`ی با
+   * `modality=TEXT` و مصرفِ تجاری ثبت نشده، مسیرِ محلی کار می‌کند؛ لحظه‌ای
+   * که مالک کلیدِ واقعی را در `/admin/models` ثبت کند، همین تابع بدونِ هیچ
+   * تغییرِ کدی به مدلِ واقعی سوئیچ می‌کند.
+   *
+   * ⚠️ شکستِ یک مدلِ **ثبت‌شده** عمداً به مسیرِ محلی نمی‌افتد. اگر مالک کلید
+   * گذاشته و درگاه خطا می‌دهد، باید خطا را ببیند — نه اینکه سیستم بی‌صدا
+   * کیفیتِ پایین‌تر تحویل دهد و او هرگز نفهمد پولی که داده کار نمی‌کند.
+   */
+  private async buildPlan(input: {
+    rawIdea: string;
+    type: { key: string; title: string; promptGuide: string; fieldSchema: unknown };
+    attributes: Record<string, unknown>;
+    targetDurationSec: number;
+    materialStyle: MaterialStyle | null;
+    materialFidelity: number | null;
+  }): Promise<{
+    brief: ParsedBrief;
+    modelUsed: string;
+    providerUsed: string;
+    costActual: number;
+    planner: 'model' | 'local';
+  }> {
+    const textModels = await this.prisma.aiModel.count({
+      where: { modality: 'TEXT', commercialUse: true },
+    });
+
+    if (textModels === 0) {
+      const local = buildLocalPlan({
+        rawIdea: input.rawIdea,
+        targetDurationSec: input.targetDurationSec,
+        typeTitle: input.type.title,
+        attributes: input.attributes,
+      });
+      return {
+        brief: local as ParsedBrief,
+        modelUsed: 'برنامه‌ریزِ محلی',
+        providerUsed: 'بدونِ درگاه',
+        costActual: 0,
+        planner: 'local',
+      };
+    }
+
+    const prompt = buildBriefPrompt({
+      rawIdea: input.rawIdea,
+      promptGuide: input.type.promptGuide,
+      typeKey: input.type.key,
+      typeTitle: input.type.title,
+      fieldSchema: input.type.fieldSchema,
+      attributes: input.attributes,
+      targetDurationSec: input.targetDurationSec,
+      materialStyle: input.materialStyle,
+      materialFidelity: input.materialFidelity,
+    });
+    const aiResult = await this.gateway.chat({ text: prompt });
+    return {
+      brief: this.parseBriefJson(aiResult.text),
       modelUsed: aiResult.modelUsed,
       providerUsed: aiResult.providerUsed,
       costActual: aiResult.costActual,
+      planner: 'model',
     };
   }
 

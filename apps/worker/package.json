@@ -1,0 +1,19 @@
+{
+  "name": "@flowstudio/worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "پروسهٔ کارگر — از صف برمی‌دارد، زنجیرهٔ گام‌های یک نما را اجرا می‌کند، ردیفِ تولید می‌نویسد. جدا از API، با حلقهٔ داخلِ خودش.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@flowstudio/ledger": "*",
+    "@prisma/client": "^5.19.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.2"
+  }
+}

@@ -12,6 +12,7 @@ import { RegistryModule } from './modules/registry/registry.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { PublicationsModule } from './modules/publications/publications.module';
+import { RenderModule } from './modules/render/render.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PublicationsModule } from './modules/publications/publications.module';
     AssetsModule,
     AdminModule,
     PublicationsModule,
+    RenderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

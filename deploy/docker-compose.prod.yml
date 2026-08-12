@@ -55,10 +55,12 @@ services:
       # محلِ نگهداریِ داراییِ کاربر. روی والیوم است، وگرنه هر بازسازیِ
       # کانتینر همهٔ آپلودها را می‌برد.
       STORAGE_DIR: /data/storage
-      # 🟡 ورود در حالتِ سندباکس: بدونِ درگاهِ پیامک، کدِ ثابتِ زیر پذیرفته
-      # می‌شود و در پاسخِ API برمی‌گردد. روزِ اتصالِ درگاه ⇒ OTP_SANDBOX=false
-      OTP_SANDBOX: ${OTP_SANDBOX:-true}
-      OTP_SANDBOX_CODE: ${OTP_SANDBOX_CODE:-123456}
+      # 🟡 ورود با شماره + رمزِ عددیِ مشترک. بدونِ درگاهِ پیامک، هر «کد
+      # فرستادم» یک نمایشِ توخالی بود؛ این دستِ‌کم دروغ نمی‌گوید.
+      # 🔴 این یک درِ باز است — روزِ اتصالِ درگاهِ پیامک بسته می‌شود (قلمِ ۲۱).
+      AUTH_PASSWORD: ${AUTH_PASSWORD:-123456}
+      # صفحهٔ ورود رمز را نشان بدهد یا نه. روزِ بستنِ در ⇒ false
+      AUTH_PASSWORD_HINT: ${AUTH_PASSWORD_HINT:-true}
     volumes:
       - fs_storage:/data/storage
     healthcheck:
@@ -67,6 +69,38 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+  # ─── کارگرِ صف — قلبِ محصول ───
+  #
+  # 🔑 پروسهٔ **جدا** از API، با حلقهٔ داخلِ خودش. قاعدهٔ ۱۱ سندِ ۸۱: هیچ
+  # حلقهٔ اجرایی داخلِ API، چون APIی چندرپلیکا هر کار را چند بار برمی‌دارد.
+  # زیاد کردنِ کارگر با `--scale worker=N` امن است؛ قفلِ دیتابیسی بینشان
+  # داوری می‌کند.
+  #
+  # ⚠️ والیومِ `fs_storage` با API **مشترک** است. اگر جدا شود، کارگر فایل را
+  # می‌نویسد و API همان را پیدا نمی‌کند — بدونِ هیچ خطایی، فقط ۴۰۴ در دانلود.
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/worker/Dockerfile
+    container_name: flowstudio_worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:-flowstudio_dev_password}@postgres:5432/flowstudio?schema=public
+      STORAGE_DIR: /data/storage
+      WORKER_TMP: /tmp/flowstudio-worker
+      # سرور سه هسته دارد؛ دو نخ برایِ ffmpeg و یکی برایِ باقیِ سیستم.
+      FFMPEG_THREADS: ${FFMPEG_THREADS:-2}
+      CHROME_BIN: /usr/bin/chromium-browser
+    volumes:
+      - fs_storage:/data/storage
+    # خاموشیِ نرم: کارگر منتظرِ تمام‌شدنِ نمای جاری می‌ماند. یک نما روی این
+    # سرور تا ~۹۰ ثانیه طول می‌کشد، پس مهلتِ پیش‌فرضِ ۱۰ ثانیه کوتاه است.
+    stop_grace_period: 120s
 
   postgres:
     image: postgres:16

@@ -38,7 +38,18 @@ export const STEP_TYPES = [
   'image2video',
   'text2video',
   'upscale',
+  /// متن → گفتار.
   'tts',
+  /// گفتار → متن. قرینهٔ `tts` و پایهٔ دو کار: زیرنویسِ خودکار از صدای خودِ
+  /// ویدیو، و مسیرِ ورودیِ دومِ محصول (محتوای موجودِ کاربر را می‌گیرد و به
+  /// زبانِ دیگری می‌برد — سندِ ۱۰۵).
+  'stt',
+  /// متن → زیرنویسِ زمان‌بندی‌شده (SRT/VTT) و کارتِ عنوان.
+  ///
+  /// ⚠️ این گام **فایلِ زیرنویس** می‌سازد، نه پیکسل. سوزاندنِ زیرنویس روی
+  /// تصویر کارِ `programmatic_motion` است و از همان لایهٔ شفافِ متن رد
+  /// می‌شود — چون قاعدهٔ ۹ می‌گوید متن هرگز داخلِ پیکسلِ مدل نمی‌رود.
+  'subtitle',
   'lipsync',
   'programmatic_motion',
   'html2image',
@@ -119,6 +130,29 @@ export class AiGatewayService {
       },
     });
     return model;
+  }
+
+  /**
+   * کاتالوگِ نمونه — جدا از رجیستریِ زنده.
+   *
+   * برایِ هر ردیف می‌گوید آیا مالک قبلاً درگاهی با همان آدرس ساخته یا نه، تا
+   * پنل بتواند «ثبت‌شده» را از «هنوز نه» جدا نشان دهد. مقایسه روی `baseUrl`
+   * است نه روی نام، چون نام دلخواهِ مالک است و ممکن است هر چیزی باشد.
+   */
+  async listGatewayPresets() {
+    const [presets, providers] = await Promise.all([
+      this.prisma.gatewayPreset.findMany({
+        where: { isActive: true },
+        orderBy: { orderIndex: 'asc' },
+      }),
+      this.prisma.aiProvider.findMany({ select: { baseUrl: true } }),
+    ]);
+
+    const registered = new Set(providers.map((p) => p.baseUrl.replace(/\/+$/, '')));
+    return presets.map((p) => ({
+      ...p,
+      registered: registered.has(p.baseUrl.replace(/\/+$/, '')),
+    }));
   }
 
   async listModels() {

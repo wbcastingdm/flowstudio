@@ -86,30 +86,30 @@ export default function WorkPage() {
 
   return (
     <main style={{ padding: '44px 22px', maxWidth: 860, margin: '0 auto' }}>
-      <a href="/discover" style={{ fontSize: 13, color: 'var(--muted)' }}>
+      <a href="/discover" style={{ fontSize: 14, color: 'var(--muted)' }}>
         ← کارهای منتشرشده
       </a>
       <h1 style={{ fontSize: 27, fontWeight: 800, margin: '14px 0 10px' }}>{work.title}</h1>
       <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', marginBottom: 26 }}>
         {work.productionType && (
-          <span className="chip" style={{ fontSize: 12, padding: '4px 10px' }}>
+          <span className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
             {work.productionType.title}
           </span>
         )}
-        <span className="chip" style={{ fontSize: 12, padding: '4px 10px' }}>
+        <span className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
           {total} ثانیه
         </span>
-        <span className="chip" style={{ fontSize: 12, padding: '4px 10px' }}>
+        <span className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
           {work.views.toLocaleString('fa-IR')} بازدید
         </span>
-        <a href={`/u/${work.user.id}`} className="chip" style={{ fontSize: 12, padding: '4px 10px' }}>
+        <a href={`/u/${work.user.id}`} className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
           {work.user.name}
         </a>
       </div>
 
       {work.sequences.map((seq) => (
         <div key={seq.id} style={{ marginBottom: 22 }}>
-          <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 10 }}>
+          <div style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 10 }}>
             سکانس {seq.order} — {seq.title}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -134,11 +134,11 @@ export default function WorkPage() {
                 <div style={{ flex: 1 }}>
                   <div style={{ lineHeight: 1.95, fontSize: 14 }}>{shot.description}</div>
                   {shot.direction?.miseEnScene && (
-                    <div style={{ marginTop: 7, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.9 }}>
+                    <div style={{ marginTop: 7, fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.9 }}>
                       {shot.direction.miseEnScene}
                     </div>
                   )}
-                  <div style={{ marginTop: 6, fontSize: 12, color: 'var(--muted)' }}>
+                  <div style={{ marginTop: 6, fontSize: 13.5, color: 'var(--muted)' }}>
                     {shot.durationSec} ثانیه
                   </div>
                 </div>
@@ -175,13 +175,13 @@ export default function WorkPage() {
           <button className="btn btn-sm" disabled={sending || body.trim().length < 2} style={{ alignSelf: 'flex-start' }}>
             {sending ? 'در حال فرستادن…' : 'ثبت دیدگاه'}
           </button>
-          {note && <div style={{ fontSize: 13, color: '#e08a8a' }}>{note}</div>}
+          {note && <div style={{ fontSize: 14, color: '#e08a8a' }}>{note}</div>}
         </form>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
           {work.comments.map((c) => (
             <div key={c.id} className="card" style={{ padding: 14 }}>
-              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 6 }}>{c.author}</div>
+              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 6 }}>{c.author}</div>
               <div style={{ fontSize: 14, lineHeight: 1.95 }}>{c.body}</div>
             </div>
           ))}

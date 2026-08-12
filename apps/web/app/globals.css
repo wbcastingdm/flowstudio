@@ -38,9 +38,14 @@
   --input: #0b0d12;
   --line: #2a2f3a;
 
-  --text: #e6e9ef;
-  --muted: #a8b0be;
-  --dim: #7a8394;
+  /* ─── متن ───
+     ⚠️ این سه رنگ یک بار بالا برده شدند و دلیلش سلیقه نیست: روی زمینهٔ
+     #171a21، رنگِ قبلیِ --dim نسبتِ کنتراستِ ۴٫۳ می‌داد که زیرِ حدِ خوانایی
+     است و روی نمایشگرِ کم‌کیفیت یا نورِ روز عملاً ناپیدا می‌شد. عددهای
+     امروز همگی بالایِ ۶ هستند. پایین‌آوردنشان یعنی برگرداندنِ همان مشکل. */
+  --text: #edf0f6;
+  --muted: #b8c0ce;
+  --dim: #97a1b2;
   --white: #fff;
 
   --accent: #4ea3ff;
@@ -76,8 +81,11 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: Vazirmatn, Tahoma, sans-serif;
-  font-size: 15px;
-  line-height: 1.9;
+  /* ۱۶ پیکسل پایهٔ خواندنِ راحتِ فارسی است؛ با ۱۵ پیکسل کشیدگیِ حروف و
+     نقطه‌های زیرِ «پ» و «ژ» روی نمایشگرِ معمولی به هم می‌چسبند. */
+  font-size: 16px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -85,12 +93,113 @@ a:hover { color: var(--accent-soft); }
 ::selection { background: #24405c; }
 input, textarea, select, button { font-family: inherit; }
 
+/* ─── فیلدهای فرم ───
+   🔴 پیش از این، `<select>` و `<input>`ِ بدونِ کلاس هیچ استایلی نمی‌گرفتند و
+   مرورگر شکلِ پیش‌فرضِ روشنِ خودش را می‌کشید: کادرِ سفید با متنِ سیاه، وسطِ
+   یک صفحهٔ تیره. هر صفحه‌ای که فرم دارد از همین‌جا درست می‌شود، نه با
+   استایلِ درون‌خطیِ تکراری. */
+input, textarea, select {
+  width: 100%;
+  background: var(--input);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+select {
+  appearance: none;
+  /* فلشِ پیش‌فرض در حالتِ تیره ناپیدا می‌شود؛ این یکی همیشه دیده می‌شود. */
+  /* ترتیبِ این دو مهم است: نیمهٔ چپِ «v» باید چپ‌تر بنشیند. برعکسش یک
+     پیکانِ رو‌به‌بالا می‌سازد که برایِ فهرستِ بازشو معنایِ اشتباه می‌دهد. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%),
+                    linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+  background-position: left 12px center, left 18px center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-left: 34px;
+  cursor: pointer;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(78, 163, 255, .14);
+}
+input::placeholder, textarea::placeholder { color: var(--dim); }
+input[type="range"] { padding: 0; border: 0; background: transparent; accent-color: var(--accent); }
+
 .wrap { max-width: var(--wrap); margin: 0 auto; }
 .section { padding: 70px 22px; border-bottom: 1px solid var(--line); }
 .h2 { font-size: 28px; font-weight: 800; margin: 0 0 10px; letter-spacing: -.3px; scroll-margin-top: 120px; }
 .lead { margin: 0 0 30px; color: var(--muted); max-width: 60ch; }
-.eyebrow { font-size: 12.5px; font-weight: 800; color: var(--accent); letter-spacing: .4px; margin-bottom: 8px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.eyebrow { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: .4px; margin-bottom: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+
+/* ─── آیتم‌های فهرست ───
+   قاعده: هر آیتم یک **سطرِ مستقل** با مرزِ خودش است، نه چند خطِ چسبیده.
+   چشم باید بدونِ خواندن بفهمد کجا یک آیتم تمام و بعدی شروع می‌شود. */
+.row {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px 17px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.row + .row { margin-top: 9px; }
+.row-num {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; color: var(--muted);
+}
+.row-body { flex: 1; min-width: 0; }
+.row-title { font-size: 15px; line-height: 1.85; color: var(--text); }
+/* هرگز زیرِ ۱۳ پیکسل نرود — زیرِ آن، فارسی خوانده نمی‌شود، حدس زده می‌شود. */
+.meta { font-size: 13.5px; color: var(--dim); line-height: 1.8; }
+.meta-strong { font-size: 13.5px; color: var(--muted); }
+
+/* برچسبِ کوچکِ اطلاعات — «۶ ثانیه»، «دوربین: پن» و مانندش. */
+.tag {
+  display: inline-block;
+  font-size: 13px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tag-accent { border-color: var(--accent-line-2); background: var(--accent-bg); color: var(--accent-soft); }
+.tag-green { border-color: var(--green-line); background: var(--green-bg); color: var(--green); }
+.tag-amber { border-color: var(--amber-line); background: var(--amber-bg); color: var(--amber); }
+.tag-red { border-color: var(--red-line); background: var(--red-bg); color: var(--red); }
+.tags { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+
+/* برچسبِ بالایِ فیلد */
+.field-row { display: flex; flex-direction: column; gap: 7px; }
+.field-name { font-size: 13.5px; color: var(--muted); font-weight: 500; }
+.grid-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+
+/* سرِ صفحه‌های داخلی */
+.page-title { font-size: 27px; font-weight: 800; margin: 12px 0 8px; letter-spacing: -.3px; }
+.page-lead { color: var(--muted); margin: 0 0 26px; font-size: 15px; line-height: 1.95; max-width: 64ch; }
+.card-title { font-size: 15.5px; font-weight: 800; color: var(--white); }
+
+/* جعبه‌های خبری */
+.note { border-radius: 11px; padding: 14px 16px; font-size: 14px; line-height: 1.9; }
+.note-amber { background: var(--amber-bg); border: 1px solid var(--amber-line); color: var(--amber); }
+.note-red { background: var(--red-bg); border: 1px solid var(--red-line); color: var(--red); }
+.note-accent { background: var(--accent-bg); border: 1px solid var(--accent-line); color: var(--accent-soft); }
+
+/* نوارِ پیشرفت */
+.bar { height: 8px; border-radius: 999px; background: var(--input); overflow: hidden; border: 1px solid var(--line); }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--violet)); transition: width .5s ease; }
 .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
 .grid-half { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .placeholder {
@@ -136,7 +245,7 @@ input, textarea, select, button { font-family: inherit; }
 .brand { display: flex; align-items: center; gap: 10px; margin-left: 18px; }
 .brand-mark { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--violet)); }
 .brand-name { font-weight: 800; font-size: 15px; color: var(--white); }
-.navlink { font-size: 13.5px; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.navlink { font-size: 14.5px; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
 .navlink:hover { background: var(--surface-2); color: var(--white); }
 .nav-cta { margin-right: auto; }
 
@@ -158,37 +267,33 @@ input, textarea, select, button { font-family: inherit; }
 /* ─── چهار مرحله ─── */
 .step-num { font-size: 12px; font-weight: 800; color: var(--accent); direction: ltr; text-align: right; }
 .step-num.violet { color: var(--violet-soft); }
-.step-title { font-weight: 800; color: var(--white); font-size: 16px; margin: 6px 0 8px; }
-.step-body { font-size: 13.4px; color: var(--muted); line-height: 1.95; }
+.step-title { font-weight: 800; color: var(--white); font-size: 16.5px; margin: 6px 0 8px; }
+.step-body { font-size: 14px; color: var(--muted); line-height: 1.95; }
 
 /* ─── خروجی‌ها ─── */
 .chip {
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-  padding: 11px 15px; font-size: 13.4px; color: var(--muted);
+  padding: 11px 15px; font-size: 14px; color: var(--muted);
 }
 .chip b { color: var(--white); }
 
 /* ─── آمار ─── */
 .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; text-align: center; }
-.stat-n { font-size: 22px; font-weight: 800; color: var(--green); }
-.stat-l { font-size: 12.4px; color: var(--dim); margin-top: 3px; }
+.stat-n { font-size: 23px; font-weight: 800; color: var(--green); }
+.stat-l { font-size: 13.5px; color: var(--dim); margin-top: 3px; }
 
 /* ─── فرمِ تماس ─── */
-.field-label { font-size: 12.3px; color: var(--dim); margin-bottom: 5px; }
-.field {
-  width: 100%; box-sizing: border-box; background: var(--input); border: 1px solid var(--line);
-  border-radius: 9px; color: var(--text); padding: 10px 12px; font-size: 13.8px;
-}
-.field:focus { outline: none; border-color: var(--accent); }
+.field-label { font-size: 13.5px; color: var(--muted); margin-bottom: 6px; }
+.field { font-size: 14.5px; }
 .field.ltr { direction: ltr; text-align: right; }
 textarea.field { min-height: 96px; line-height: 1.95; resize: vertical; }
 .contact-row {
   background: var(--surface); border: 1px solid var(--line); border-radius: 11px;
-  padding: 12px 16px; display: flex; gap: 12px; align-items: center;
+  padding: 13px 16px; display: flex; gap: 12px; align-items: center;
 }
 .contact-row .icon { color: var(--accent-soft); }
-.contact-row .k { font-size: 12.3px; color: var(--dim); }
-.contact-row .v { font-size: 14px; color: var(--white); }
+.contact-row .k { font-size: 13px; color: var(--dim); }
+.contact-row .v { font-size: 15px; color: var(--white); }
 .contact-row .v.ltr { direction: ltr; text-align: right; }
 
 /* ─── فراخوانِ پایانی ─── */
@@ -203,8 +308,8 @@ textarea.field { min-height: 96px; line-height: 1.95; resize: vertical; }
 /* ─── فوتر ─── */
 .footer { border-top: 1px solid var(--line); background: var(--panel); padding: 46px 22px 0; }
 .footer-grid { max-width: var(--wrap); margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 28px; }
-.footer h4 { font-size: 12.5px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
-.footer-col { display: flex; flex-direction: column; gap: 8px; font-size: 13.2px; }
+.footer h4 { font-size: 13.5px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+.footer-col { display: flex; flex-direction: column; gap: 9px; font-size: 14px; }
 .footer-col a { color: var(--muted); }
 .footer-col a:hover { color: var(--accent-soft); }
 .social { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); }
@@ -212,7 +317,7 @@ textarea.field { min-height: 96px; line-height: 1.95; resize: vertical; }
 .footer-bottom {
   max-width: var(--wrap); margin: 36px auto 0; border-top: 1px solid var(--line);
   padding: 18px 0 26px; display: flex; flex-wrap: wrap; gap: 14px;
-  justify-content: space-between; font-size: 12.4px; color: var(--dim);
+  justify-content: space-between; font-size: 13.5px; color: var(--dim);
 }
 
 /* ─── ریسپانسیو ───

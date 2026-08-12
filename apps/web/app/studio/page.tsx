@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiBase, apiFetch, getToken } from '@/lib/session';
 import { UserBar } from '../user-bar';
+import { RenderPanel } from '../render-panel';
 
 // ─── قرارداد رجیستری ───
 // هیچ فهرستی این‌جا ثابت نوشته نمی‌شود. نوع تولید، زیرشاخه‌هایش و سطوح خدمت
@@ -61,6 +62,8 @@ type Result = {
   modelUsed: string;
   providerUsed: string;
   costActual: number;
+  /** `local` یعنی هیچ مدلی صدا زده نشد — کاربر باید این را بداند. */
+  planner?: 'model' | 'local';
 };
 
 type UploadedAsset = {
@@ -107,17 +110,22 @@ const MOVE_FA: Record<string, string> = {
   COMBINED: 'ترکیبی',
 };
 
+/** رقم لاتین وسط متن فارسی جهت خواندن را می‌شکند. */
+function toFa(value: number | string): string {
+  return String(value).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+}
+
 /** ثانیه را به شکل خوانا می‌نویسد — چون مدت تا ساعت می‌رود. */
 function humanDuration(sec: number): string {
-  if (sec < 60) return `${sec} ثانیه`;
+  if (sec < 60) return `${toFa(sec)} ثانیه`;
   if (sec < 3600) {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return s ? `${m} دقیقه و ${s} ثانیه` : `${m} دقیقه`;
+    return s ? `${toFa(m)} دقیقه و ${toFa(s)} ثانیه` : `${toFa(m)} دقیقه`;
   }
   const h = Math.floor(sec / 3600);
   const m = Math.round((sec % 3600) / 60);
-  return m ? `${h} ساعت و ${m} دقیقه` : `${h} ساعت`;
+  return m ? `${toFa(h)} ساعت و ${toFa(m)} دقیقه` : `${toFa(h)} ساعت`;
 }
 
 /** گام‌های پیشنهادی مدت، متناسب با بازه همان نوع تولید. */
@@ -254,40 +262,31 @@ export default function StudioPage() {
     }
   }
 
-  const totalDuration =
-    result?.project.sequences.flatMap((s) => s.shots).reduce((n, s) => n + s.durationSec, 0) ?? 0;
-
-  const lbl: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 6,
-    fontSize: 13,
-  };
-  const lblSpan: React.CSSProperties = { color: 'var(--muted)' };
+  const resultShots = result?.project.sequences.flatMap((s) => s.shots) ?? [];
+  const totalDuration = resultShots.reduce((n, s) => n + s.durationSec, 0);
+  const shotCount = resultShots.length;
 
   return (
     <main style={{ padding: '40px 22px', maxWidth: 1000, margin: '0 auto' }}>
       <UserBar active="studio" />
-      <div className="pill">استودیو تولید · مرحله ایده تا شات‌لیست · رایگان</div>
-      <h1 style={{ fontSize: 28, fontWeight: 800, margin: '12px 0 8px' }}>
-        ایده‌ات را بده، شات‌لیست کارگردانی‌شده بگیر
-      </h1>
-      <p style={{ color: 'var(--muted)', margin: '0 0 26px', lineHeight: 2, maxWidth: '62ch' }}>
+      <div className="pill">استودیو تولید · از ایده تا فایل · رایگان</div>
+      <h1 className="page-title">ایده را بده، شات‌لیست و فایل بگیر</h1>
+      <p className="page-lead">
         متن را بنویس یا فایلش را بده؛ عکس مرجع و کلیپ پایه هم می‌توانی اضافه کنی. سیستم
-        برای هر نما میزان‌سن، حرکت دوربین، اندازه و زاویه نما و نور را هم مشخص می‌کند.
-        این مرحله همیشه رایگان است.
+        برای هر نما میزان‌سن، حرکت دوربین، اندازه و زاویه نما و نور را مشخص می‌کند و بعد
+        از هر نما یک کلیپ می‌سازد.
       </p>
 
       {types !== null && types.length === 0 && (
-        <div className="card" style={{ borderColor: '#a32f2f' }}>
+        <div className="note note-red">
           هیچ نوع تولیدی فعال نیست. از پنل مدیریت دست کم یکی را روشن کن.
         </div>
       )}
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* ── گام ۱: نوع تولید ── */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <b style={{ fontSize: 14 }}>۱ · چه چیزی می‌سازی؟</b>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+          <b className="card-title">۱ · چه چیزی می‌سازی؟</b>
           <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
             {(types ?? []).map((t) => {
               const on = t.key === typeKey;
@@ -297,16 +296,16 @@ export default function StudioPage() {
                   type="button"
                   onClick={() => pickType(t.key)}
                   style={{
-                    padding: '9px 15px',
+                    padding: '10px 17px',
                     borderRadius: 10,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
-                    fontSize: 13.5,
+                    fontSize: 14.5,
                     textAlign: 'right',
-                    border: `1px solid ${on ? 'var(--accent-line-2, #7c8cff)' : 'var(--line)'}`,
-                    background: on ? 'var(--accent-bg, rgba(124,140,255,.12))' : 'transparent',
-                    color: on ? 'var(--accent-soft, #a8b3ff)' : 'var(--muted)',
-                    fontWeight: on ? 700 : 400,
+                    border: `1px solid ${on ? 'var(--accent-line-2)' : 'var(--line)'}`,
+                    background: on ? 'var(--accent-bg)' : 'var(--surface-2)',
+                    color: on ? 'var(--accent-soft)' : 'var(--muted)',
+                    fontWeight: on ? 800 : 500,
                   }}
                 >
                   {t.title}
@@ -315,7 +314,7 @@ export default function StudioPage() {
             })}
           </div>
           {type?.description && (
-            <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.9 }}>
+            <div className="meta">
               {type.description} · مدت مجاز: {humanDuration(type.minDurationSec)} تا{' '}
               {humanDuration(type.maxDurationSec)}
             </div>
@@ -323,25 +322,14 @@ export default function StudioPage() {
         </div>
 
         {/* ── گام ۲: ایده و فایل‌ها ── */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <b style={{ fontSize: 14 }}>۲ · ایده یا فیلمنامه</b>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+          <b className="card-title">۲ · ایده یا فیلمنامه</b>
           <textarea
             value={rawIdea}
             onChange={(e) => setRawIdea(e.target.value)}
             placeholder="به زبان خودت بنویس. از چند خط تا چند صفحه — هر چه دقیق‌تر، خروجی نزدیک‌تر."
             rows={7}
-            style={{
-              width: '100%',
-              padding: 14,
-              borderRadius: 10,
-              border: '1px solid var(--line)',
-              background: 'var(--surface-2, #171a21)',
-              color: 'var(--white)',
-              fontFamily: 'inherit',
-              fontSize: 14.5,
-              lineHeight: 2,
-              resize: 'vertical',
-            }}
+            style={{ fontSize: 15.5, lineHeight: 2, resize: 'vertical', padding: 15 }}
           />
 
           <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -402,9 +390,7 @@ export default function StudioPage() {
             >
               {uploading === 'base_clip' ? 'در حال آپلود…' : 'کلیپ پایه'}
             </button>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-              متن تا ۲ مگابایت · عکس تا ۱۵ · کلیپ تا ۲۰۰
-            </span>
+            <span className="meta">متن تا ۲ مگابایت · عکس تا ۱۵ · کلیپ تا ۲۰۰</span>
           </div>
 
           {assets.length > 0 && (
@@ -414,12 +400,12 @@ export default function StudioPage() {
                   key={a.id}
                   className="chip"
                   style={{
-                    padding: a.previewUrl ? '4px 4px 4px 10px' : '4px 10px',
-                    fontSize: 12,
+                    padding: a.previewUrl ? '5px 5px 5px 12px' : '6px 12px',
+                    fontSize: 13.5,
                     direction: 'rtl',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 8,
+                    gap: 9,
                   }}
                 >
                   {a.previewUrl && (
@@ -428,16 +414,16 @@ export default function StudioPage() {
                       src={a.previewUrl}
                       alt={a.name}
                       style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: 6,
+                        width: 34,
+                        height: 34,
+                        borderRadius: 7,
                         objectFit: 'cover',
                         border: '1px solid var(--line)',
                       }}
                     />
                   )}
                   <span>
-                    {a.name} · {Math.max(1, Math.round(a.byteSize / 1024))} کیلوبایت
+                    {a.name} · {toFa(Math.max(1, Math.round(a.byteSize / 1024)))} کیلوبایت
                   </span>
                 </span>
               ))}
@@ -447,20 +433,14 @@ export default function StudioPage() {
 
         {/* ── گام ۳: زیرشاخه‌های وابسته به نوع ── */}
         {type && type.fieldSchema.length > 0 && (
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <b style={{ fontSize: 14 }}>۳ · جزئیات {type.title}</b>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-                gap: 12,
-              }}
-            >
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+            <b className="card-title">۳ · جزئیات {type.title}</b>
+            <div className="grid-fields">
               {type.fieldSchema.map((f) => (
-                <label key={f.key} style={lbl}>
-                  <span style={lblSpan}>
+                <label key={f.key} className="field-row">
+                  <span className="field-name">
                     {f.label}
-                    {f.required ? ' *' : ''}
+                    {f.required ? <span style={{ color: 'var(--amber)' }}> *</span> : ''}
                   </span>
                   {f.kind === 'select' ? (
                     <select
@@ -492,17 +472,11 @@ export default function StudioPage() {
         )}
 
         {/* ── گام ۴: جنس تصویر، مدت، سطح ── */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <b style={{ fontSize: 14 }}>۴ · جنس تصویر و مدت</b>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-              gap: 12,
-            }}
-          >
-            <label style={lbl}>
-              <span style={lblSpan}>جنس تصویر</span>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+          <b className="card-title">۴ · جنس تصویر و مدت</b>
+          <div className="grid-fields">
+            <label className="field-row">
+              <span className="field-name">جنس تصویر</span>
               <select value={material} onChange={(e) => setMaterial(e.target.value)}>
                 {MATERIALS.map(([v, l]) => (
                   <option key={v} value={v}>
@@ -512,8 +486,8 @@ export default function StudioPage() {
               </select>
             </label>
 
-            <label style={lbl}>
-              <span style={lblSpan}>نزدیکی به این جنس: {fidelity}٪</span>
+            <label className="field-row">
+              <span className="field-name">نزدیکی به این جنس: {toFa(fidelity)}٪</span>
               <input
                 type="range"
                 min={0}
@@ -521,12 +495,11 @@ export default function StudioPage() {
                 step={5}
                 value={fidelity}
                 onChange={(e) => setFidelity(Number(e.target.value))}
-                style={{ accentColor: 'var(--accent-soft, #7c8cff)' }}
               />
             </label>
 
-            <label style={lbl}>
-              <span style={lblSpan}>مدت هدف</span>
+            <label className="field-row">
+              <span className="field-name">مدت هدف</span>
               <select value={durationSec} onChange={(e) => setDurationSec(Number(e.target.value))}>
                 {durationChoices(type?.minDurationSec ?? 6, type?.maxDurationSec ?? 60).map((d) => (
                   <option key={d} value={d}>
@@ -537,8 +510,8 @@ export default function StudioPage() {
             </label>
 
             {tiers.length > 0 && (
-              <label style={lbl}>
-                <span style={lblSpan}>سطح خدمت</span>
+              <label className="field-row">
+                <span className="field-name">سطح خدمت</span>
                 <select value={tierKey} onChange={(e) => setTierKey(e.target.value)}>
                   <option value="">— بدون سطح (آزمایشی) —</option>
                   {tiers.map((t) => (
@@ -552,15 +525,15 @@ export default function StudioPage() {
           </div>
 
           {tier && (
-            <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.9 }}>
-              {tier.title}: تا {humanDuration(tier.maxDurationSec)} · سقف {tier.coinAllowance} سکه
+            <div className="meta">
+              {tier.title}: تا {humanDuration(tier.maxDurationSec)} · سقف {toFa(tier.coinAllowance)}{' '}
+              سکه
               {tier.watermark ? ' · با واترمارک' : ' · بدون واترمارک'}
-              {tier.priceIrt == null ? ' · قیمت هنوز تعیین نشده' : ` · ${tier.priceIrt} تومان`}
+              {tier.priceIrt == null
+                ? ' · قیمت هنوز تعیین نشده'
+                : ` · ${toFa(tier.priceIrt)} تومان`}
               {durationSec > tier.maxDurationSec && (
-                <span style={{ color: '#e08a8a' }}>
-                  {' '}
-                  — مدت انتخابی از سقف این سطح بیشتر است
-                </span>
+                <span style={{ color: 'var(--red)' }}> — مدت انتخابی از سقف این سطح بیشتر است</span>
               )}
             </div>
           )}
@@ -576,18 +549,15 @@ export default function StudioPage() {
       </form>
 
       {error && (
-        <div className="card" style={{ borderColor: '#a32f2f', marginTop: 20 }}>
-          <b style={{ color: '#e08a8a' }}>ساخته نشد</b>
-          <p style={{ margin: '8px 0 0', color: 'var(--muted)', lineHeight: 1.9, fontSize: 13.5 }}>
+        <div className="card" style={{ borderColor: 'var(--red-line)', marginTop: 20 }}>
+          <b style={{ color: 'var(--red)', fontSize: 15.5 }}>ساخته نشد</b>
+          <p className="meta-strong" style={{ margin: '9px 0 0' }}>
             {error}
           </p>
           {error.includes('مدل') && (
-            <p style={{ margin: '10px 0 0', color: 'var(--muted)', fontSize: 12.5 }}>
+            <p className="meta" style={{ margin: '10px 0 0' }}>
               اگر می‌گوید هیچ مدل متنی ثبت نشده: اول از{' '}
-              <a href="/admin/models" style={{ color: 'var(--accent, #7c8cff)' }}>
-                پنل رجیستری مدل‌ها
-              </a>{' '}
-              یک درگاه با کلید واقعی اضافه کن.
+              <a href="/admin/models">پنل رجیستری مدل‌ها</a> یک درگاه با کلید واقعی اضافه کن.
             </p>
           )}
         </div>
@@ -596,62 +566,40 @@ export default function StudioPage() {
       {result && (
         <section style={{ marginTop: 30 }}>
           <div
-            style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 16 }}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 14 }}
           >
-            <h2 style={{ fontSize: 21, fontWeight: 800, margin: 0 }}>{result.project.title}</h2>
-            <span className="chip" style={{ padding: '5px 11px', fontSize: 12.5 }}>
-              {humanDuration(totalDuration)}
-            </span>
-            <span className="chip" style={{ padding: '5px 11px', fontSize: 12.5 }}>
-              مدل: {result.modelUsed}
-            </span>
-            <span className="chip" style={{ padding: '5px 11px', fontSize: 12.5 }}>
-              هزینه: {result.costActual} سکه
-            </span>
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>{result.project.title}</h2>
+            <span className="tag">{humanDuration(totalDuration)}</span>
+            <span className="tag">{toFa(shotCount)} نما</span>
+            <span className="tag">هزینه: {toFa(result.costActual)} سکه</span>
           </div>
 
-          <div
-            style={{
-              fontSize: 12.5,
-              color: 'var(--muted)',
-              marginBottom: 14,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 7,
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-block',
-                width: 9,
-                height: 9,
-                borderRadius: 3,
-                background: 'var(--accent-soft, #7c8cff)',
-              }}
-            />
-            عناصر نشان‌دار را سیستم پیشنهاد داده، چون در متن تو نبودند. می‌توانی تغییرشان بدهی.
-          </div>
+          {result.planner === 'local' ? (
+            <div className="note note-amber" style={{ marginBottom: 14 }}>
+              <b>این شات‌لیست را مدل زبانی ننوشته.</b> هنوز هیچ کلید درگاهی ثبت نشده، پس متن
+              با یک قاعده محلی به نما شکسته شد — بدون هیچ فراخوان بیرونی و بدون هیچ هزینه.
+              به‌محض ثبت یک کلید واقعی در <a href="/admin/models">پنل مدل‌ها</a>، همین دکمه
+              خروجی مدل می‌دهد.
+            </div>
+          ) : (
+            <div className="meta" style={{ marginBottom: 14 }}>
+              نوشته {result.modelUsed} از {result.providerUsed} · عناصر نشان‌دار پیشنهاد سیستم‌اند،
+              چون در متن تو نبودند.
+            </div>
+          )}
 
           {result.project.sequences.map((seq) => (
-            <div key={seq.id} style={{ marginBottom: 22 }}>
-              <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 10 }}>
-                سکانس {seq.order} — {seq.title}
+            <div key={seq.id} style={{ marginBottom: 20 }}>
+              <div className="meta-strong" style={{ marginBottom: 9 }}>
+                سکانس {toFa(seq.order)} — {seq.title}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {seq.shots.map((shot) => (
-                  <ShotCard key={shot.id} shot={shot} />
-                ))}
-              </div>
+              {seq.shots.map((shot) => (
+                <ShotCard key={shot.id} shot={shot} />
+              ))}
             </div>
           ))}
 
-          <div className="card" style={{ marginTop: 8 }}>
-            <b>مرحله بعد</b>
-            <p style={{ margin: '8px 0 0', color: 'var(--muted)', fontSize: 13.4, lineHeight: 1.95 }}>
-              تولید فریم کلیدی هر نما مرحله پرداختی است و پیش از شروعش، پاکت بودجه بسته و
-              یک بار بازبینی می‌شود.
-            </p>
-          </div>
+          <RenderPanel projectId={result.project.id} title={result.project.title} />
         </section>
       )}
     </main>
@@ -672,61 +620,37 @@ function ShotCard({ shot }: { shot: Shot }) {
   ];
 
   return (
-    <div className="card" style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 16 }}>
-      <div
-        style={{
-          flexShrink: 0,
-          width: 44,
-          height: 44,
-          borderRadius: 10,
-          border: '1px solid var(--line)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 800,
-          fontSize: 15,
-        }}
-      >
-        {shot.order}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ lineHeight: 1.95, fontSize: 14 }}>{shot.description}</div>
+    <div className="row">
+      <div className="row-num">{toFa(shot.order)}</div>
+      <div className="row-body">
+        <div className="row-title">{shot.description}</div>
 
         {d?.miseEnScene && (
           <div
             style={{
-              marginTop: 9,
-              fontSize: 12.8,
+              marginTop: 10,
+              fontSize: 14,
               color: 'var(--muted)',
               lineHeight: 1.9,
-              paddingInlineStart: 10,
+              paddingInlineStart: 11,
               borderInlineStart: `2px solid ${
-                origins.miseEnScene === 'MACHINE' ? 'var(--accent-soft, #7c8cff)' : 'var(--line)'
+                origins.miseEnScene === 'MACHINE' ? 'var(--accent-soft)' : 'var(--line)'
               }`,
             }}
           >
-            <span style={{ opacity: 0.75 }}>میزان‌سن: </span>
+            <span style={{ color: 'var(--dim)' }}>میزان‌سن: </span>
             {d.miseEnScene}
           </div>
         )}
 
-        <div style={{ marginTop: 9, display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, color: 'var(--muted)' }}>{shot.durationSec} ثانیه</span>
+        <div className="tags" style={{ marginTop: 10 }}>
+          <span className="tag">{toFa(shot.durationSec)} ثانیه</span>
           {items
             .filter((i) => i.value)
             .map((i) => (
               <span
                 key={i.key}
-                style={{
-                  fontSize: 11.5,
-                  padding: '2px 9px',
-                  borderRadius: 999,
-                  border: `1px solid ${
-                    origins[i.key] === 'MACHINE' ? 'var(--accent-line-2, #7c8cff)' : 'var(--line)'
-                  }`,
-                  color: origins[i.key] === 'MACHINE' ? 'var(--accent-soft, #a8b3ff)' : 'var(--muted)',
-                  whiteSpace: 'nowrap',
-                }}
+                className={origins[i.key] === 'MACHINE' ? 'tag tag-accent' : 'tag'}
                 title={origins[i.key] === 'MACHINE' ? 'پیشنهاد سیستم' : 'نوشته خودت'}
               >
                 {i.label}: {i.value}

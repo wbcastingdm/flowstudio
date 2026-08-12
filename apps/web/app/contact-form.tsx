@@ -82,7 +82,7 @@ export default function ContactForm() {
       {status.message && (
         <div
           style={{
-            fontSize: 12.8,
+            fontSize: 13.5,
             marginTop: 10,
             textAlign: 'center',
             color: status.kind === 'ok' ? 'var(--green)' : 'var(--red)',
@@ -92,7 +92,7 @@ export default function ContactForm() {
         </div>
       )}
 
-      <div style={{ fontSize: 11.8, color: 'var(--dim)', marginTop: 9, textAlign: 'center' }}>
+      <div style={{ fontSize: 13, color: 'var(--dim)', marginTop: 9, textAlign: 'center' }}>
         با ارسال، با شرایط استفاده و سیاست حریم خصوصی موافقت می‌کنید.
       </div>
     </form>

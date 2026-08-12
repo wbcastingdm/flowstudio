@@ -119,3 +119,103 @@ export function buildFfmpegArgs(spec, inputPath, outputPath) {
     outputPath,
   ];
 }
+
+/**
+ * همان مسیرِ ج، ولی با **لایهٔ متنِ مستقل** روی زمینهٔ متحرک.
+ *
+ * 🔴 قاعدهٔ ۹ منشور: «متن هرگز داخلِ پیکسلِ مدل نمی‌رود». پس متن نه در
+ * پرامپتِ یک مدلِ تصویری می‌نشیند و نه با `drawtext` روی ویدیو نوشته
+ * می‌شود — `drawtext` چسبشِ حروف و جهتِ راست‌به‌چپِ فارسی را **بی‌صدا**
+ * خراب می‌کند. متن یک PNGِ شفاف است که موتورِ HTML شکل داده، و اینجا فقط
+ * روی زمینه گذاشته می‌شود.
+ *
+ * ترتیب عمدی است: حرکت فقط رویِ **زمینه** اعمال می‌شود (`[0:v]`)، بعد متن
+ * روی نتیجه می‌نشیند، و محوشدگی بعد از آن می‌آید تا متن هم با تصویر محو
+ * شود نه جدا از آن. اگر متن پیش از zoompan اضافه می‌شد، بزرگ‌نمایی حروف را
+ * هم می‌کشید و لبه‌ها نرم می‌شد.
+ *
+ * @param {{preset:string, aspect:string, durationSec:number, fps?:number,
+ *          fadeSec?:number, vignette?:boolean, grain?:boolean, threads?:number,
+ *          crf?:number, encodePreset?:string}} spec
+ * @param {string} backgroundPath زمینه — تصویرِ ثابت
+ * @param {string|null} overlayPath لایهٔ شفافِ متن. `null` ⇒ بدونِ متن.
+ * @param {string} outputPath
+ */
+export function buildLayeredFfmpegArgs(spec, backgroundPath, overlayPath, outputPath) {
+  const fps = spec.fps ?? 30;
+  const aspect = ASPECTS[spec.aspect];
+  if (!aspect) {
+    throw new Error(`نسبتِ ناشناخته: ${spec.aspect} — یکی از ${Object.keys(ASPECTS).join(', ')}`);
+  }
+
+  if (!overlayPath) {
+    return buildFfmpegArgs(spec, backgroundPath, outputPath);
+  }
+
+  // حرکت بدونِ محوشدگی و بدونِ format — آن دو بعد از ترکیبِ لایه‌ها می‌آیند.
+  const motion = buildMotionFilter({ ...spec, fadeSec: 0, grain: false, vignette: false })
+    .replace(/,format=yuv420p$/, '');
+
+  const after = [];
+  // دانه و وینیت بعد از ترکیب‌اند تا متن هم همان بافت را بگیرد و مثلِ یک
+  // برچسبِ چسبانده‌شده بیرون نزند.
+  if (spec.grain) after.push('noise=alls=6:allf=t+u');
+  if (spec.vignette) after.push('vignette=PI/5');
+  const fade = spec.fadeSec ?? 0;
+  if (fade > 0) {
+    after.push(`fade=t=in:st=0:d=${fade}`);
+    after.push(`fade=t=out:st=${Math.max(0, spec.durationSec - fade)}:d=${fade}`);
+  }
+  after.push('format=yuv420p');
+
+  // لایهٔ متن به اندازهٔ دقیقِ کادر کِش داده می‌شود تا اگر مرورگر یک پیکسل
+  // کم‌وزیاد گرفت، overlay بی‌صدا کج ننشیند.
+  const filter =
+    `[0:v]${motion}[bg];` +
+    `[1:v]scale=${aspect.w}:${aspect.h}[txt];` +
+    `[bg][txt]overlay=0:0:format=auto[ov];` +
+    `[ov]${after.join(',')}[v]`;
+
+  return [
+    '-y',
+    '-threads', String(spec.threads ?? 1),
+    '-loop', '1',
+    '-i', backgroundPath,
+    '-loop', '1',
+    '-i', overlayPath,
+    '-filter_complex', filter,
+    '-map', '[v]',
+    '-t', String(spec.durationSec),
+    '-r', String(fps),
+    '-c:v', 'libx264',
+    '-x264-params', `threads=${spec.threads ?? 1}`,
+    '-preset', spec.encodePreset ?? 'medium',
+    '-crf', String(spec.crf ?? 20),
+    '-pix_fmt', 'yuv420p',
+    '-movflags', '+faststart',
+    outputPath,
+  ];
+}
+
+/**
+ * چسباندنِ کلیپ‌های نما به یک فایلِ نهایی.
+ *
+ * ⚠️ چرا `concat` demuxer و نه فیلترِ concat: همهٔ کلیپ‌ها را خودمان با یک
+ * کدک و یک نرخِ فریم و یک اندازه ساخته‌ایم، پس چسباندن در سطحِ جریان کافی
+ * است و **هیچ رمزگذاریِ دوباره‌ای** لازم نیست (`-c copy`). فیلترِ concat کلِ
+ * ویدیو را دوباره انکود می‌کند — روی سرورِ سه‌هسته‌ای یعنی چند برابرِ کلِ
+ * زمانِ تولید، برایِ کاری که کپیِ بایت است.
+ *
+ * @param {string} listPath فایلِ متنیِ فهرست، هر خط `file '<مسیر>'`
+ */
+export function buildConcatArgs(listPath, outputPath) {
+  return [
+    '-y',
+    '-f', 'concat',
+    '-safe', '0',
+    '-i', listPath,
+    '-c', 'copy',
+    '-movflags', '+faststart',
+    outputPath,
+  ];
+}

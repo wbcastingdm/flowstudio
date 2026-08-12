@@ -1,0 +1,184 @@
+# کارگر صف + ثبت ردیف تولید — قلم ۷ و ۸
+# ۲۱ مرداد ۱۴۰۵ · خروجی عین ترمینال · هیچ فراخوان AI انجام نشد
+
+## ۰) پیش از این سشن
+$ docker exec flowstudio-postgres psql -U flowstudio -d flowstudio -c 'select count(*) from "Job"'
+0            ⇒ صف هرگز مصرف نشده بود
+$ ls apps/
+api  web         ⇒ هیچ پروسه کارگری وجود نداشت
+$ psql -c 'select count(*) from "AiProvider"'
+0            ⇒ هیچ کلید درگاهی ثبت نیست ⇒ مسیر بدون مدل ساخته شد
+
+
+## ۱) دفتر پول بعد از بیرون کشیدنش به packages/ledger
+# منطق رزرو و تسویه و آزادسازی از WalletService به یک بسته مشترک رفت تا
+# کارگر هم همان را صدا بزند. آزمون یکپارچه همان قبلی، بدون تغییر:
+
+$ node dist/test/wallet-ledger.check.js
+✅ موجودی اولیه  →  {"balance":0,"held":0}
+✅ رزرو بدون موجودی  →  موجودی سکه کافی نیست — 100 سکه لازم است و 0 موجود است.
+✅ رزرو از balance به held منتقل می‌کند  →  {"balance":700,"held":300}
+✅ ۳۰۰ رزرو، ۱۸۰ خرج ⇒ ۱۲۰ برگشت  →  {"balance":820,"held":0}
+✅ بعد از آزادسازی همه‌چیز سر جایش  →  {"balance":820,"held":0}
+✅ آزادسازی دوباره noop است  →  true
+✅ تسویه ۱۵۰ روی رزرو ۱۰۰  →  خرج واقعی (150) از رزرو (100) بیشتر شد
+✅ پاکت بدون سقف گام پولی نمی‌گیرد  →  سقف بودجه این گروه تعیین نشده (D-006)
+✅ رزرو دوم از سقف پاکت رد می‌شود  →  سقف 400، رزروشده 250، درخواست 250
+✅ بعد از شکست، موجودی دقیقا مثل قبل  →  {"balance":520,"held":0}
+✅ Σ دفتر = balance + held  →  400
+✅ همه بندها گذشت            ⇒ ۱۵ بند، صفر شکست
+
+
+## ۲) ورود با رمز عددی
+$ curl -s localhost:3250/api/auth/policy
+{"mode":"shared_password","digits":6,"hint":"123456"}
+
+$ curl -s -X POST localhost:3250/api/auth/login -d '{"phone":"09121112233","password":"000000"}'
+{"message":"رمز درست نیست.","error":"Unauthorized","statusCode":401}
+
+$ curl -s -X POST localhost:3250/api/auth/login -d '{"phone":"09121112233","password":"123456"}'
+{"token":"eyJzdWIiOiJjbXNwMzZxdWcw…","user":{"id":"cmsp36qug0000…","phone":"+989121112233","balance":0}}
+
+
+## ۳) شات‌لیست بدون مدل
+$ curl -s -X POST localhost:3250/api/projects -d '{"rawIdea":"کارگاه چوب سپهر…","productionType":"ad",…,"targetDurationSec":30}'
+planner: local | model: برنامه‌ریز محلی | provider: بدون درگاه
+title: کارگاه چوب سپهر
+ سکانس 1 بخش ۱
+    1 6s STATIC | کارگاه چوب سپهر، سی سال است که در بازار تهران میز و صندلی دست‌ساز می‌سازد.
+    2 6s DOLLY  | هر تکه چوب را استادکار خودش انتخاب می‌کند.
+    3 6s PAN    | کار با اره و رنده شروع می‌شود و با روغن گیاهی تمام می‌شود.
+    4 6s STATIC | مشتری می‌تواند اندازه و رنگ را خودش سفارش بدهد.
+ سکانس 2 بخش ۲
+    1 6s TILT   | تحویل در تهران رایگان است.
+total sec: 30          ⇒ جمع دقیقا برابر مدت هدف
+
+$ curl -s -X POST localhost:3250/api/projects/<id>/render
+group: cmsp3fw29000jlmmnft8kv4oh
+jobs: 5 | steps: 15 | counts: {'PENDING': 5, 'RUNNING': 0, 'DONE': 0, 'FAILED': 0}
+# سه گام به ازای هر نما: زمینه، لایه متن، حرکت برنامه‌ای
+
+
+## ۴) کارگر صف را مصرف می‌کند
+$ node apps/worker/dist/main.js
+[…] کارگر بالا آمد
+[…]   انبار: /Users/rln/Projects/flowstudio/.storage
+[…]   نخ ffmpeg: 7
+[…]   موتورها: Google Chrome 151.0.7922.76 · ffmpeg version 8.1.2
+[…] کار cmsp3fw2j000r — 6s · کارگاه چوب سپهر، سی سال است…
+[…] ✅ کار cmsp3fw2j000r در 18.1 ثانیه — 3 گام
+[…] ✅ کار cmsp3fw2q000z در 19.3 ثانیه — 3 گام
+[…] ✅ کار cmsp3fw2s0017 در 17.9 ثانیه — 3 گام
+[…] ✅ کار cmsp3fw2u001f در 17.5 ثانیه — 3 گام
+[…] ✅ کار cmsp3fw2v001n در 17.9 ثانیه — 3 گام
+[…] 🎬 گروه cmsp3fw29000j بسته شد — فایل نهایی cmsp3r9yn0015nehfak9kx6yy
+# ۹۱ ثانیه برای ۳۰ ثانیه خروجی روی مک M2. سرور ۳٫۸ برابر کندتر است
+# (evidence/probe-route-c.txt بند ۳) ⇒ همان کار روی سرور ~۵٫۵ دقیقه
+
+
+## ۵) فایل قابل تماشا
+$ ffprobe -show_entries format=duration,size -show_entries stream=codec_name,width,height,nb_frames
+codec_name=h264
+width=1080
+height=1920
+nb_frames=900
+duration=30.000000
+size=4054210
+
+# فریم‌های ۶۰ / ۳۰۰ / ۵۶۰ / ۸۰۰ کنار هم گذاشته شد:
+#   ⭐ فارسی درست است — چسبش حروف، جهت راست‌به‌چپ، نیم‌فاصله، ارقام فارسی
+#   ⭐ «نمای ۱ از ۵» تا «نمای ۵ از ۵» — شماره در کل فیلم، نه در سکانس
+#   ⭐ هر نما رنگ خودش را دارد (چرخش زاویه طلایی روی چرخه رنگ)
+#   ⭐ متن روی زمینه متحرک ثابت مانده — لایه مستقل، نه drawtext
+
+
+## ۶) وضعیت زنده در رابط
+$ curl -s localhost:3250/api/projects/<id>/render
+progress: 100 % | 15 / 15 steps | counts: {'PENDING': 0, 'RUNNING': 0, 'DONE': 5, 'FAILED': 0}
+finalized: 2026-08-11T20:18:01.155Z
+final asset: {'mimeType': 'video/mp4', 'byteSize': 4054210, 'durationSec': 30}
+  DONE shot 1 6s | ['html2image@chromium/background', 'html2image@chromium/text', 'programmatic_motion@ffmpeg/still']
+  DONE shot 2 6s | [… 'programmatic_motion@ffmpeg/kenburns_in']
+  DONE shot 3 6s | [… 'programmatic_motion@ffmpeg/pan_rl']
+  DONE shot 4 6s | [… 'programmatic_motion@ffmpeg/still']
+  DONE shot 5 6s | [… 'programmatic_motion@ffmpeg/kenburns_out', 'montage@ffmpeg/concat']
+
+
+## ۷) خاموشی نرم — ری‌استارت کانتینر کار را نمی‌کشد
+$ kill -TERM <worker>          # ۰٫۷ ثانیه بعد از شروع یک نما
+[…] کار cmsp63qyn003c — 7s · تازه ورز داده می‌شود…
+[…] SIGTERM گرفته شد — منتظر تمام‌شدن کار جاری…
+[…] ✅ کار cmsp63qyn003c در 20.9 ثانیه — 3 گام
+[…] کارگر خاموش شد
+⇒ کارگر ۲۰ ثانیه صبر کرد تا نما تمام شود، بعد خارج شد. کار DONE ماند، نه یخ‌زده.
+
+
+## ۸) کرش وسط زنجیره — کار برمی‌گردد و گام تمام‌شده دوباره اجرا نمی‌شود
+$ kill -9 <worker>             # بعد از ۲ گام از ۳ گام
+ status  |  lockedBy
+ RUNNING | crash-test           ⇒ کار یخ‌زده، دست هیچ‌کس
+
+ orderIndex |     capability      | gens
+          0 | html2image          |    1
+          1 | html2image          |    1
+          2 | programmatic_motion |    0   ⇒ گام سوم نرسیده بود
+
+$ WORKER_RECLAIM_MINUTES=1 node apps/worker/dist/main.js
+[…] ♻️ 1 کار یخ‌زده به صف برگشت
+[…] کار cmsp68wpp0052 — 6s · آموزشگاه موسیقی آوا…
+[…] ✅ کار cmsp68wpp0052 در 11.6 ثانیه — 3 گام
+
+ orderIndex |     capability      | gens
+          0 | html2image          |    1   ⇐ دوباره ساخته نشد
+          1 | html2image          |    1   ⇐ دوباره ساخته نشد
+          2 | programmatic_motion |    1   ⇐ فقط همین اجرا شد
+⇒ ۱۱٫۶ ثانیه در برابر ~۱۸ ثانیه اجرای کامل. تفاوت دقیقا همان دو گام بازاستفاده‌شده.
+
+
+## ۹) ردیف تولید — قلم ۸
+$ psql -c 'select "modelKeySnap", count(*), round(avg("latencyMs")) as avg_ms, sum("costActual") as coins from "Generation" group by 1'
+              modelKeySnap               | count | avg_ms | coins
+ html2image@chromium/background          |    18 |   3165 |     0
+ html2image@chromium/text                |    18 |   2386 |     0
+ programmatic_motion@ffmpeg/still        |     7 |  12236 |     0
+ programmatic_motion@ffmpeg/kenburns_in  |     5 |  13835 |     0
+ programmatic_motion@ffmpeg/pan_rl       |     4 |  13047 |     0
+ programmatic_motion@ffmpeg/kenburns_out |     2 |  14401 |     0
+ montage@ffmpeg/concat                   |     3 |        |     0
+⇒ هر گام یک ردیف با نسخه دقیق موتور، زمان، هش پارامتر، و هش خروجی.
+⇒ مخرج CPAS هم ثبت می‌شود (outputDurationSec) پس معیار انتخاب مدل
+   از امروز محاسبه‌پذیر است — چیزی که قلم ۸ می‌خواست.
+
+$ psql -c 'select role, count(*), pg_size_pretty(sum("byteSize")) from "Asset" group by 1'
+ final_output |     3 | 13 MB
+ shot_output  |    18 | 13 MB
+⇒ قاعده ۸ منشور: خروجی در سطح نما هم ذخیره شده، نه فقط فایل نهایی.
+
+$ psql -c 'select balance, held from "Wallet" …'
+ balance | held
+       0 |    0
+⇒ هیچ سکه‌ای خرج نشد و هیچ رزروی باز نماند. مسیر ج واقعا رایگان است.
+
+
+## ۱۰) چهار گرپ قرارداد جدایش
+$ grep -rniE "gpt-|claude-|gemini|veo|runway|kling" apps/api/src --include='*.ts' | wc -l
+0
+$ grep -rnE "^\s*@Cron\(" apps/api/src packages --include='*.ts' | wc -l
+0
+$ grep -rni "webcasting" apps/api/src --include='*.ts' | wc -l
+0
+$ grep -rniE "queryRaw" apps/api/src apps/worker/src packages/ledger/src --include='*.ts'
+apps/api/src/app.service.ts:14:      await this.prisma.$queryRaw`SELECT 1`;
+apps/api/src/modules/jobs/jobs.service.ts:37:   * چرا `$queryRaw` … ننوشتیم: (توضیح در کامنت)
+apps/worker/src/main.ts:35: * ⚠️ عمدا همان الگوی `JobsService.claim` است و نه `$queryRaw` … (کامنت)
+⇒ تنها مصداق واقعی، بررسی سلامت دیتابیس است که از قبل بود. دو مورد دیگر
+  متن کامنت‌اند. کارگر هم مثل API با updateMany شرطی قفل می‌گیرد، نه SQL خام.
+
+
+## ۱۱) بیلد وب — تله WORKDIR
+$ npm run build --workspace=@flowstudio/web
+Route (app)                              Size     First Load JS
+┌ ○ /                                    1.38 kB        88.6 kB
+├ ○ /app                                 142 B          87.3 kB
+⇒ اندازه `/` با `/app` فرق دارد ⇒ تله «Next بی‌صدا / را با محتوای /app می‌سازد»
+  برقرار نشده.

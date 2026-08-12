@@ -176,7 +176,7 @@ export default function Home() {
                   <div style={{ fontWeight: 700, color: 'var(--white)', fontSize: 14.5, marginBottom: 4 }}>
                     {p.title}
                   </div>
-                  <div style={{ fontSize: 13.2, color: 'var(--muted)', lineHeight: 1.95 }}>{p.body}</div>
+                  <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.95 }}>{p.body}</div>
                 </div>
               ))}
             </div>
@@ -246,7 +246,7 @@ export default function Home() {
               <div className="brand-mark" />
               <div className="brand-name">FlowStudio</div>
             </div>
-            <p style={{ margin: '0 0 16px', fontSize: 13.2, color: 'var(--dim)', lineHeight: 2, maxWidth: '34ch' }}>
+            <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--dim)', lineHeight: 2, maxWidth: '34ch' }}>
               ارکستراتورِ تولید ویدیو با هوش مصنوعی — از ایده تا خروجیِ آمادهٔ انتشار، در یک پنل.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>

@@ -181,7 +181,7 @@ export default function AdminDashboard() {
             autoFocus
           />
           <button className="btn btn-sm">ورود</button>
-          {gateNote && <div style={{ color: '#e08a8a', fontSize: 13 }}>{gateNote}</div>}
+          {gateNote && <div style={{ color: '#e08a8a', fontSize: 14 }}>{gateNote}</div>}
         </form>
       </main>
     );
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
         }}
       >
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>پنل راهبر</h1>
-        <a href="/admin/models" style={{ fontSize: 13, color: 'var(--muted)' }}>
+        <a href="/admin/models" style={{ fontSize: 14, color: 'var(--muted)' }}>
           رجیستری مدل‌ها ←
         </a>
         <button
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
                 borderRadius: 9,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
-                fontSize: 13.5,
+                fontSize: 14,
                 border: `1px solid ${on ? 'var(--accent-line-2, #7c8cff)' : 'var(--line)'}`,
                 background: on ? 'var(--accent-bg, rgba(124,140,255,.12))' : 'transparent',
                 color: on ? 'var(--accent-soft, #a8b3ff)' : 'var(--muted)',
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
           </div>
 
           {overview.projects.total === 0 && (
-            <div className="card" style={{ fontSize: 13.5, lineHeight: 1.95, color: 'var(--muted)' }}>
+            <div className="card" style={{ fontSize: 14, lineHeight: 1.95, color: 'var(--muted)' }}>
               هنوز هیچ اثری ساخته نشده. تا وقتی یک درگاه با کلید واقعی در رجیستری ثبت نشود،
               مرحله ایده تا شات‌لیست خطای صادقانه می‌دهد و این جدول‌ها خالی می‌مانند.
             </div>
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
       {tab === 'providers' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {providers.length === 0 && (
-            <div className="card" style={{ color: 'var(--muted)', fontSize: 13.5 }}>
+            <div className="card" style={{ color: 'var(--muted)', fontSize: 14 }}>
               هیچ درگاهی ثبت نشده. از رجیستری مدل‌ها یکی اضافه کن.
             </div>
           )}
@@ -339,25 +339,25 @@ export default function AdminDashboard() {
             <div key={p.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
                 <b>{p.name}</b>
-                <span style={{ fontSize: 12, color: 'var(--muted)', direction: 'ltr' }}>{p.host}</span>
+                <span style={{ fontSize: 13.5, color: 'var(--muted)', direction: 'ltr' }}>{p.host}</span>
                 <span
                   style={{
                     marginInlineStart: 'auto',
-                    fontSize: 13,
+                    fontSize: 14,
                     color: p.errorRate !== null && p.errorRate > 10 ? '#e08a8a' : 'var(--muted)',
                   }}
                 >
                   {p.errorRate === null ? 'هنوز فراخوانی نشده' : `نرخ خطا ${fa(p.errorRate)}٪`}
                 </span>
               </div>
-              <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+              <div style={{ fontSize: 13.5, color: 'var(--muted)' }}>
                 {fa(p.calls)} فراخوان در ۷ روز · {fa(p.failed)} ناموفق
                 {p.avgLatencyMs !== null && ` · میانگین پاسخ ${fa(p.avgLatencyMs)} میلی‌ثانیه`}
               </div>
               {p.errorKinds.length > 0 && (
                 <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                   {p.errorKinds.map((e) => (
-                    <span key={e.kind} className="chip" style={{ fontSize: 11.5, padding: '3px 9px' }}>
+                    <span key={e.kind} className="chip" style={{ fontSize: 13, padding: '3px 9px' }}>
                       {e.kind}: {fa(e.count)}
                     </span>
                   ))}
@@ -400,7 +400,7 @@ function Stat({
 }) {
   return (
     <div className="card" style={{ padding: '15px 17px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{label}</span>
+      <span style={{ fontSize: 13.5, color: 'var(--muted)' }}>{label}</span>
       <span
         style={{
           fontSize: 24,
@@ -411,7 +411,7 @@ function Stat({
       >
         {value}
       </span>
-      {sub && <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{sub}</span>}
+      {sub && <span style={{ fontSize: 13, color: 'var(--muted)' }}>{sub}</span>}
     </div>
   );
 }
@@ -420,11 +420,11 @@ function Breakdown({ title, rows }: { title: string; rows: { label: string; coun
   const total = rows.reduce((n, r) => n + r.count, 0);
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <b style={{ fontSize: 13.5 }}>{title}</b>
-      {rows.length === 0 && <span style={{ fontSize: 13, color: 'var(--muted)' }}>داده‌ای نیست.</span>}
+      <b style={{ fontSize: 14 }}>{title}</b>
+      {rows.length === 0 && <span style={{ fontSize: 14, color: 'var(--muted)' }}>داده‌ای نیست.</span>}
       {rows.map((r) => (
         <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, minWidth: 130 }}>{r.label}</span>
+          <span style={{ fontSize: 14, minWidth: 130 }}>{r.label}</span>
           <span
             style={{
               flex: 1,
@@ -444,7 +444,7 @@ function Breakdown({ title, rows }: { title: string; rows: { label: string; coun
               }}
             />
           </span>
-          <span style={{ fontSize: 12.5, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontSize: 13.5, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
             {fa(r.count)}
           </span>
         </div>
@@ -456,14 +456,14 @@ function Breakdown({ title, rows }: { title: string; rows: { label: string; coun
 function Table({ head, rows, empty }: { head: string[]; rows: string[][]; empty: string }) {
   if (rows.length === 0) {
     return (
-      <div className="card" style={{ color: 'var(--muted)', fontSize: 13.5 }}>
+      <div className="card" style={{ color: 'var(--muted)', fontSize: 14 }}>
         {empty}
       </div>
     );
   }
   return (
     <div style={{ overflowX: 'auto', border: '1px solid var(--line)', borderRadius: 10 }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
         <thead>
           <tr style={{ color: 'var(--muted)', textAlign: 'right' }}>
             {head.map((h) => (

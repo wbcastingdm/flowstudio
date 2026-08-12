@@ -1,0 +1,17 @@
+{
+  "name": "@flowstudio/ledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "دفترِ سکه — رزرو، تسویه، آزادسازی و پاکتِ بودجه، روی PrismaClientِ خام و بدونِ هیچ فریم‌ورکی. مشترکِ APIی نست و پروسهٔ کارگر.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}

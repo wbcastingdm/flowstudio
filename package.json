@@ -5,10 +5,15 @@
   "description": "FlowStudio — مونوریپوی api/engine/media + پکیج‌های مشترک. apps/web عمداً بیرونِ این workspace می‌ماند (دیپلویِ مستقلِ زنده، دست‌نخورده).",
   "workspaces": [
     "apps/api",
+    "apps/worker",
     "packages/*"
   ],
   "scripts": {
     "db:push": "npm run db:push --workspace=@flowstudio/api",
-    "start:dev": "npm run start:dev --workspace=@flowstudio/api"
+    "start:dev": "npm run start:dev --workspace=@flowstudio/api",
+    "build:ledger": "npm run build --workspace=@flowstudio/ledger",
+    "build:api": "npm run build:ledger && npm run build --workspace=@flowstudio/api",
+    "build:worker": "npm run build:ledger && npm run build --workspace=@flowstudio/worker",
+    "start:worker": "npm run start --workspace=@flowstudio/worker"
   }
 }

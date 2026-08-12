@@ -29,6 +29,21 @@ type AiModelRow = {
 };
 
 /**
+ * درگاهِ نمونه — **ثبت‌نشده**. فقط فرم را پر می‌کند.
+ * `registered` یعنی مالک قبلاً درگاهی با همین آدرس ساخته.
+ */
+type GatewayPreset = {
+  key: string;
+  title: string;
+  baseUrl: string;
+  summary: string;
+  bearerAuth: boolean;
+  stepTypes: string[];
+  sampleModels: string[];
+  registered: boolean;
+};
+
+/**
  * رازِ ادمین در `sessionStorage` می‌ماند، نه `localStorage` — با بستنِ تب
  * پاک می‌شود. روی مرورگرِ مشترک این تفاوت مهم است.
  */
@@ -62,6 +77,7 @@ export default function AdminModelsPage() {
   const [acceptsSeed, setAcceptsSeed] = useState(false);
   // افزوده‌های سندِ ۸۱ — تاکسونومیِ گام‌ها از خودِ API می‌آید، نه فهرستِ تکراری.
   const [allStepTypes, setAllStepTypes] = useState<string[]>([]);
+  const [presets, setPresets] = useState<GatewayPreset[]>([]);
   const [stepTypes, setStepTypes] = useState<string[]>([]);
   const [listPrice, setListPrice] = useState('');
   const [listCurrency, setListCurrency] = useState('USD');
@@ -98,6 +114,10 @@ export default function AdminModelsPage() {
           .then((r) => (r.ok ? r.json() : []))
           .then(setAllStepTypes)
           .catch(() => setAllStepTypes([]));
+        void fetch(`${apiBase()}/api/admin/gateway-presets`, { headers: { 'x-admin-key': key } })
+          .then((r) => (r.ok ? r.json() : []))
+          .then(setPresets)
+          .catch(() => setPresets([]));
         return true;
       }
       window.sessionStorage.removeItem(ADMIN_KEY);
@@ -142,7 +162,7 @@ export default function AdminModelsPage() {
             autoFocus
           />
           <button className="btn btn-sm">ورود</button>
-          {gateNote && <div style={{ color: '#e08a8a', fontSize: 13 }}>{gateNote}</div>}
+          {gateNote && <div style={{ color: '#e08a8a', fontSize: 14 }}>{gateNote}</div>}
         </form>
       </main>
     );
@@ -219,6 +239,44 @@ export default function AdminModelsPage() {
         </div>
       )}
 
+      {/* ─── کاتالوگِ نمونه ───
+          این‌ها **ثبت‌شده نیستند**؛ فقط فرمِ کناری را پر می‌کنند. تا کلیدِ
+          واقعی زده نشود هیچ‌کدام در انتخابِ روتر شرکت نمی‌کنند. */}
+      {presets.length > 0 && (
+        <div className="card" style={{ marginBottom: 18 }}>
+          <b className="card-title">درگاه‌های شناخته‌شده</b>
+          <p className="meta" style={{ margin: '8px 0 14px' }}>
+            روی هر کدام بزنی، فرمِ «درگاهِ جدید» با نام و آدرسش پر می‌شود — کلید را خودت
+            می‌زنی. تا آن لحظه هیچ‌کدام ثبت نشده‌اند و چیزی عوض نمی‌شود.
+          </p>
+          <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
+            {presets.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => {
+                  setProviderName(p.title);
+                  setProviderBaseUrl(p.baseUrl);
+                  setModelKey(p.sampleModels[0] ?? '');
+                  setStepTypes(p.stepTypes);
+                  setNote(
+                    p.bearerAuth
+                      ? `${p.title} — کلید را در همان فرم بزن.`
+                      : `${p.title} — کلیدش داخلِ خودِ آدرس می‌رود، نه در هدر. آدرسِ کامل را بگذار و کلید را خالی.`,
+                  );
+                }}
+                title={p.summary}
+                className={p.registered ? 'tag tag-green' : 'tag'}
+                style={{ cursor: 'pointer', fontSize: 14, padding: '8px 14px' }}
+              >
+                {p.title}
+                {p.registered ? ' ✓' : ''}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 26 }}>
         <form onSubmit={addProvider} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <b>درگاهِ جدید</b>
@@ -244,16 +302,16 @@ export default function AdminModelsPage() {
             value={costPerUnit}
             onChange={(e) => setCostPerUnit(Number(e.target.value))}
           />
-          <label style={{ fontSize: 13 }}>
+          <label style={{ fontSize: 14 }}>
             <input type="checkbox" checked={commercialUse} onChange={(e) => setCommercialUse(e.target.checked)} /> مصرفِ تجاری مجاز
           </label>
-          <label style={{ fontSize: 13 }}>
+          <label style={{ fontSize: 14 }}>
             <input type="checkbox" checked={acceptsSeed} onChange={(e) => setAcceptsSeed(e.target.checked)} /> پشتیبانیِ سید
           </label>
 
           {/* سندِ ۸۱ / D-O15 — قابلیتِ ریز. خالی بماند، روتر به modality می‌افتد. */}
           <div style={{ borderTop: '1px solid var(--line)', paddingTop: 8, marginTop: 2 }}>
-            <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 6 }}>
+            <div style={{ fontSize: 13.5, color: 'var(--muted)', marginBottom: 6 }}>
               گام‌هایی که این مدل اجرا می‌کند (اختیاری)
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -267,7 +325,7 @@ export default function AdminModelsPage() {
                       setStepTypes(on ? stepTypes.filter((x) => x !== s) : [...stepTypes, s])
                     }
                     style={{
-                      fontSize: 11.5,
+                      fontSize: 13,
                       padding: '4px 9px',
                       borderRadius: 999,
                       cursor: 'pointer',
@@ -304,7 +362,7 @@ export default function AdminModelsPage() {
 
       {note && <div className="card" style={{ marginBottom: 20 }}>{note}</div>}
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--muted)', textAlign: 'right' }}>
             <th style={{ padding: 8 }}>مدل</th>
