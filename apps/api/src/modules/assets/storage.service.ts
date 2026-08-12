@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
-import { mkdir, readFile, unlink, writeFile } from 'fs/promises';
+import { createReadStream, type ReadStream } from 'fs';
+import { mkdir, readFile, stat, unlink, writeFile } from 'fs/promises';
 import { dirname, join, resolve, sep } from 'path';
 
 /**
@@ -45,6 +46,23 @@ export class StorageService {
 
   async read(key: string): Promise<Buffer> {
     return readFile(this.absolutePath(key));
+  }
+
+  /** اندازه فایل بدون خواندنش. پاسخ بازه‌ای بدون این عدد ساخته نمی‌شود. */
+  async size(key: string): Promise<number> {
+    return (await stat(this.absolutePath(key))).size;
+  }
+
+  /**
+   * جریان خواندن، با بازه اختیاری.
+   *
+   * چرا جریان و نه `read`: ویدیو با `<video>` پخش می‌شود و مرورگر برای
+   * جابه‌جا شدن روی نوار زمان درخواست بازه‌ای می‌فرستد. اگر کل فایل هر بار
+   * در حافظه خوانده شود، چند بیننده همزمان روی یک فایل چندمگابایتی حافظه
+   * کانتینر را می‌بلعند — و سافاری بدون پاسخ بازه‌ای اصلا پخش نمی‌کند.
+   */
+  stream(key: string, range?: { start: number; end: number }): ReadStream {
+    return createReadStream(this.absolutePath(key), range);
   }
 
   async remove(key: string): Promise<void> {

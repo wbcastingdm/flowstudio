@@ -20,6 +20,7 @@ type Work = {
   materialStyle: string | null;
   productionType: { title: string } | null;
   user: { id: string; name: string };
+  video: { durationSec: number | null; byteSize: number } | null;
   views: number;
   publishedAt: string | null;
   sequences: { id: string; order: number; title: string; shots: Shot[] }[];
@@ -97,7 +98,7 @@ export default function WorkPage() {
           </span>
         )}
         <span className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
-          {total} ثانیه
+          {(work.video?.durationSec ?? total).toLocaleString('fa-IR')} ثانیه
         </span>
         <span className="chip" style={{ fontSize: 13.5, padding: '4px 10px' }}>
           {work.views.toLocaleString('fa-IR')} بازدید
@@ -107,10 +108,32 @@ export default function WorkPage() {
         </a>
       </div>
 
+      {/*
+        فایل از مسیر عمومی می‌آید، نه از `/api/assets/:id/file` که ورود
+        می‌خواهد و همیشه `attachment` می‌فرستد. آدرس از شناسه اثر ساخته
+        می‌شود و هیچ شناسه دارایی‌ای در صفحه نمی‌نشیند.
+      */}
+      {work.video && (
+        <video
+          src={`${apiBase()}/api/public/works/${params.id}/video`}
+          controls
+          playsInline
+          preload="metadata"
+          style={{
+            width: 'min(300px, 100%)',
+            borderRadius: 12,
+            border: '1px solid var(--line)',
+            background: '#000',
+            display: 'block',
+            marginBottom: 26,
+          }}
+        />
+      )}
+
       {work.sequences.map((seq) => (
         <div key={seq.id} style={{ marginBottom: 22 }}>
           <div style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 10 }}>
-            سکانس {seq.order} — {seq.title}
+            سکانس {seq.order.toLocaleString('fa-IR')} — {seq.title}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {seq.shots.map((shot) => (
@@ -129,7 +152,7 @@ export default function WorkPage() {
                     fontSize: 14,
                   }}
                 >
-                  {shot.order}
+                  {shot.order.toLocaleString('fa-IR')}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ lineHeight: 1.95, fontSize: 14 }}>{shot.description}</div>
@@ -139,7 +162,7 @@ export default function WorkPage() {
                     </div>
                   )}
                   <div style={{ marginTop: 6, fontSize: 13.5, color: 'var(--muted)' }}>
-                    {shot.durationSec} ثانیه
+                    {shot.durationSec.toLocaleString('fa-IR')} ثانیه
                   </div>
                 </div>
               </div>

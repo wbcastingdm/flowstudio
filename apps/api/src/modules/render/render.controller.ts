@@ -23,6 +23,15 @@ export class RenderController {
     return this.render.enqueueProject(session.sub, id, { budgetCap: body?.budgetCap });
   }
 
+  /**
+   * برآورد پیش از ساخت. رابط با این عدد تصمیم می‌گیرد خودش کار را روی صف
+   * بگذارد (صفر سکه) یا اول از کاربر تأیید بگیرد (گاردریلِ ۵).
+   */
+  @Get(':id/render/estimate')
+  estimate(@CurrentUser() session: SessionPayload, @Param('id') id: string) {
+    return this.render.estimate(session.sub, id);
+  }
+
   /** صفحهٔ زنده هر چند ثانیه همین را می‌پرسد. `null` یعنی هنوز صف نشده. */
   @Get(':id/render')
   latest(@CurrentUser() session: SessionPayload, @Param('id') id: string) {

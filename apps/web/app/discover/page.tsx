@@ -9,6 +9,7 @@ type Work = {
   type: string | null;
   typeKey: string | null;
   durationSec: number | null;
+  hasVideo: boolean;
   material: string | null;
   creator: { id: string; name: string };
   views: number;
@@ -25,11 +26,15 @@ const MATERIAL_FA: Record<string, string> = {
   STOP_MOTION: 'استاپ موشن',
 };
 
+function fa(n: number): string {
+  return n.toLocaleString('fa-IR');
+}
+
 function dur(sec: number | null): string {
   if (!sec) return '';
-  if (sec < 60) return `${sec} ثانیه`;
-  if (sec < 3600) return `${Math.round(sec / 60)} دقیقه`;
-  return `${Math.round((sec / 3600) * 10) / 10} ساعت`;
+  if (sec < 60) return `${fa(sec)} ثانیه`;
+  if (sec < 3600) return `${fa(Math.round(sec / 60))} دقیقه`;
+  return `${fa(Math.round((sec / 3600) * 10) / 10)} ساعت`;
 }
 
 export default function DiscoverPage() {
@@ -88,6 +93,11 @@ export default function DiscoverPage() {
               {w.durationSec && (
                 <span className="chip" style={{ fontSize: 13, padding: '3px 9px' }}>
                   {dur(w.durationSec)}
+                </span>
+              )}
+              {w.hasVideo && (
+                <span className="tag tag-green" style={{ fontSize: 13, padding: '3px 9px' }}>
+                  ▸ ویدیو
                 </span>
               )}
             </div>

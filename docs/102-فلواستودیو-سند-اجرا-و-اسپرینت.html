@@ -191,12 +191,12 @@
     <div class="eyebrow">سند اجرا · همراه سند حاکم ۱۰۱</div>
     <h1>فازها، وظایف، و معیار تمام شدن</h1>
     <p class="dek">
-      سند ۱۰۱ می‌گوید محصول چیست. این سند می‌گوید چطور ساخته می‌شود: سیزده فاز،
+      سند ۱۰۱ می‌گوید محصول چیست. این سند می‌گوید چطور ساخته می‌شود: پانزده فاز،
       هر فاز با هدف روشن، فهرست وظایف قابل تیک زدن، و یک معیار تمام شدن که با
       حرف قابل ادعا نیست و باید دیده شود.
     </p>
     <div class="stamp">
-      <span>۱۳ فاز</span>
+      <span>۱۵ فاز</span>
       <span>۸ جریان کاری</span>
       <span>قابل انتقال به دی‌تسک</span>
     </div>
@@ -236,6 +236,8 @@
       <li><a href="#p10">فاز ۱۰ — پنل راهبر</a></li>
       <li><a href="#p11">فاز ۱۱ — پرداخت و سطوح</a></li>
       <li><a href="#p12">فاز ۱۲ — شاخه بازیگر</a></li>
+      <li><a href="#p13">فاز ۱۳ — لایه زبان</a></li>
+      <li><a href="#p14">فاز ۱۴ — دوبله محتوای ورودی</a></li>
       <li><a href="#rules">قواعد اجرا</a></li>
     </ol>
   </nav>
@@ -272,7 +274,7 @@
       <table>
         <thead><tr><th>عنصر دی‌تسک</th><th>معادلش در این سند</th><th>نکته</th></tr></thead>
         <tbody>
-          <tr><td><strong>برد</strong></td><td>یک فاز</td><td>نام برد دقیقا شناسه فاز باشد: <span class="mono">P0</span> تا <span class="mono">P12</span>. با این کار ارجاع دادن ساده می‌ماند.</td></tr>
+          <tr><td><strong>برد</strong></td><td>یک فاز</td><td>نام برد دقیقا شناسه فاز باشد: <span class="mono">P0</span> تا <span class="mono">P14</span>. با این کار ارجاع دادن ساده می‌ماند.</td></tr>
           <tr><td><strong>ستون</strong></td><td>وضعیت کار</td><td>در انتظار · در حال انجام · بازبینی · انجام شده. ستون بازبینی حذف نشود؛ همان جایی است که شواهد چک می‌شود.</td></tr>
           <tr><td><strong>تیکت</strong></td><td>یک وظیفه چک‌باکس‌دار</td><td>عنوان تیکت عین متن وظیفه. برچسب تیکت همان جریان کاری: <span class="mono">RES</span>, <span class="mono">UX</span>, …</td></tr>
           <tr><td><strong>فایل</strong></td><td>خروجی فاز</td><td>سند طراحی، عکس صفحه، فایل شواهد.</td></tr>
@@ -364,7 +366,7 @@
           <div class="task"><input type="checkbox" id="t-p2-8"><label for="t-p2-8">بستن تصمیم تجمیع‌کننده ویدیو با عدد، نه با ادعا</label><span class="lane">DOC</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> یک فایل ویدیوی پنج ثانیه‌ای واقعی از راه رجیستری تولید شود و هزینه‌اش در دفتر سکه ثبت شده باشد.</div>
-        <p class="dep">وابسته به: P1 · نیازمند تصمیم مالک درباره خرید حساب</p>
+        <p class="dep">وابسته به: P1 · نیازمند خرید حداقل اعتبار روی دو نامزد میزبان مدل باز (D-206)</p>
       </div>
     </div>
   </section>
@@ -383,19 +385,21 @@
           ندارد و عمدا هم ندارد — تا بازنویسی رابط دو بار اتفاق نیفتد.
         </p>
         <div class="tasks">
-          <div class="task"><input type="checkbox" id="t-p3-1"><label for="t-p3-1">بررسی سه نمونه بازار و ثبت اینکه هر کدام ورودی چندرسانه‌ای را چطور می‌گیرند</label><span class="lane">RES</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-2"><label for="t-p3-2">نوشتن مسیر کاربر برای سه نوع تولید منتخب، گام به گام</label><span class="lane">UX</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-3"><label for="t-p3-3">طراحی فرم چندمرحله‌ای وابسته به نوع، با تعیین اینکه هر گام چه می‌پرسد</label><span class="lane">UX</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-4"><label for="t-p3-4">طراحی نمایش پیشنهاد ماشین به شکلی که از نوشته کاربر تفکیک‌پذیر بماند</label><span class="lane">UX</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-5"><label for="t-p3-5">نوشتن متن رابط: عنوان‌ها، راهنماها، پیام‌های خطا و انتظار</label><span class="lane">UX</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-6"><label for="t-p3-6">طراحی حالت انتظار برای کاری که چند دقیقه طول می‌کشد</label><span class="lane">UX</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-7"><label for="t-p3-7">طرح صفحه آرشیو رسانه و صفحه اثر</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-1" checked><label for="t-p3-1">بررسی سه نمونه بازار و ثبت اینکه هر کدام ورودی چندرسانه‌ای را چطور می‌گیرند</label><span class="lane">RES</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-2" checked><label for="t-p3-2">نوشتن مسیر کاربر برای سه نوع تولید منتخب، گام به گام</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-3" checked><label for="t-p3-3">طراحی فرم چندمرحله‌ای وابسته به نوع، با تعیین اینکه هر گام چه می‌پرسد</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-4" checked><label for="t-p3-4">طراحی نمایش پیشنهاد ماشین به شکلی که از نوشته کاربر تفکیک‌پذیر بماند</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-5" checked><label for="t-p3-5">نوشتن متن رابط: عنوان‌ها، راهنماها، پیام‌های خطا و انتظار</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-6" checked><label for="t-p3-6">طراحی حالت انتظار برای کاری که چند دقیقه طول می‌کشد</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-7" checked><label for="t-p3-7">طرح صفحه آرشیو رسانه و صفحه اثر</label><span class="lane">UX</span></div>
           <div class="task"><input type="checkbox" id="t-p3-8" checked><label for="t-p3-8">قفل کردن مدل داده تازه: دارایی، نوع تولید، سطح خدمت، کارگردانی نما، نمایش</label><span class="lane">ARC</span></div>
           <div class="task"><input type="checkbox" id="t-p3-9" checked><label for="t-p3-9">تعیین مرز ماژول‌ها و قرارداد میان پنج لایه</label><span class="lane">ARC</span></div>
-          <div class="task"><input type="checkbox" id="t-p3-10"><label for="t-p3-10">نوشتن سند طراحی و افزودنش به فهرست مستندات</label><span class="lane">DOC</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-11" checked><label for="t-p3-11">طراحی سامانه متن روی تصویر: هفت گونه، ناحیه امن هر مقصد، قواعد زیرنویس فارسی</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-12" checked><label for="t-p3-12">بستن ساختار نسخه زبانی و جای زبان در مدل داده، پیش از هر کد</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p3-10" checked><label for="t-p3-10">نوشتن سند طراحی و افزودنش به فهرست مستندات</label><span class="lane">DOC</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> یک نفر ناآشنا بتواند فقط از روی سند طراحی، مسیر ساخت یک فیلم کوتاه را قدم به قدم تعریف کند بدون اینکه به سوالی بربخورد که جوابش نوشته نشده.</div>
-        <p class="dep">وابسته به: تصمیم درباره نوع‌های تولید نسخه اول</p>
+        <p class="dep">نوع‌های نسخه اول: تبلیغی، فیلم کوتاه، مستند (D-101 · بسته)</p>
       </div>
     </div>
   </section>
@@ -448,6 +452,7 @@
           <div class="task"><input type="checkbox" id="t-p5-6"><label for="t-p5-6">پر کردن قلاب پیوستگی شخصیت و لوکیشن بین نماها</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p5-7"><label for="t-p5-7">آزمون با یک متن خام بدون هیچ جزئیات کارگردانی</label><span class="lane">QA</span></div>
           <div class="task"><input type="checkbox" id="t-p5-8"><label for="t-p5-8">آزمون با یک فیلمنامه حرفه‌ای که خودش همه چیز را نوشته</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p5-9"><label for="t-p5-9">پیشنهاد ماشین برای متن کارت مشخصات و لوئر ثرد، از دل فیلمنامه و با تفکیک مبدا</label><span class="lane">DEV</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> یک متن خام سه خطی وارد شود و شات‌لیستی برگردد که برای هر نما میزان‌سن و دوربین و نور و زاویه دارد، و کاربر ببیند کدام‌ها را ماشین اضافه کرده است.</div>
         <p class="dep">وابسته به: P1 و P4</p>
@@ -505,6 +510,9 @@
           <div class="task"><input type="checkbox" id="t-p7-6"><label for="t-p7-6">افزودن واترمارک متنی برای سطوحی که واترمارک دارند</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p7-7"><label for="t-p7-7">نمایش پیشرفت زنده به کاربر: کدام نما در چه مرحله‌ای است</label><span class="lane">UX</span></div>
           <div class="task"><input type="checkbox" id="t-p7-8"><label for="t-p7-8">آزمون شکست وسط کار: کاربر نباید سکه از دست بدهد</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-10"><label for="t-p7-10">موتور لایه شفاف: خروجی آلفادار از اچ‌تی‌ام‌ال، برای نشستن روی نما</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-11"><label for="t-p7-11">کارت آغاز و پایان، لوئر ثرد، کارت مشخصات، و نشان برند — با رعایت ناحیه امن</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p7-12"><label for="t-p7-12">زیرنویس سوخته با زمان‌بندی مرز نما، به‌علاوه خروجی فایل زیرنویس جانبی</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p7-9"><label for="t-p7-9">ثبت شواهد با فایل خروجی و گزارش هزینه</label><span class="lane">QA</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> یک ایده فارسی وارد شود و یک فایل ویدیوی قابل تماشا بیرون بیاید؛ هزینه واقعی‌اش در دفتر ثبت باشد؛ و با قطع عمدی وسط کار، موجودی کاربر دقیقا به حالت قبل برگردد.</div>
@@ -533,6 +541,11 @@
           <div class="task"><input type="checkbox" id="t-p8-7"><label for="t-p8-7">هم‌گامی لب برای نماهایی که گفتار دارند</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p8-8"><label for="t-p8-8">میکس صدا: موسیقی، گفتار، و تراز شنیداری</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p8-9"><label for="t-p8-9">صفحه کنترل نهایی: بازبینی کیفی و بازبینی انطباق روی نسخه کامل</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-11"><label for="t-p8-11">افزودن ضرب، نقطه حلقه، و داشتن مقدمه و پایان‌بندی به کاتالوگ رسانه</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-12"><label for="t-p8-12">برش موسیقی به اندازه اثر روی مرز موسیقایی، نه محو کردن وسط جمله</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-13"><label for="t-p8-13">خوابیدن موسیقی زیر گفتار، و افزودن صدای محیط</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-14"><label for="t-p8-14">نرمال‌سازی بلندی خروجی، با عدد اندازه‌گیری‌شده روی خروجی خودمان</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p8-15"><label for="t-p8-15">همگام‌سازی دقیق زیرنویس با مهر زمانی گفتار</label><span class="lane">DEV</span></div>
           <div class="task"><input type="checkbox" id="t-p8-10"><label for="t-p8-10">پیوست شدن پرونده مجوز موسیقی به پرونده اثر</label><span class="lane">LAW</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> یک اثر با موسیقی و گفتار بیرون بیاید، مجوز موسیقی‌اش در پرونده اثر ثبت باشد، و ترکی که برای مقصد انتخابی مجاز نیست اصلا در فهرست انتخاب دیده نشود.</div>
@@ -648,7 +661,69 @@
           <div class="task"><input type="checkbox" id="t-p12-9"><label for="t-p12-9">بازتاب نتیجه رقابت در فلک</label><span class="lane">DEV</span></div>
         </div>
         <div class="dod"><b>معیار تمام شدن:</b> کاربر با کلیپ و چهره خودش یک خروجی بگیرد که واترمارک دارد و رضایتش ثبت شده؛ و تلاش برای همین کار بدون رضایت، پیش از هر خرج رد شود.</div>
-        <p class="dep">وابسته به: P7 · نیازمند تصمیم منبع کلیپ</p>
+        <p class="dep">وابسته به: P7 · منبع کلیپ: فقط آپلود خود کاربر (D-201)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱۳ ═══ -->
+  <section id="p13">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P13</span>
+        <span class="phase-t">لایه زبان — نسخه دوم اثر</span>
+        <span class="phase-meter" data-meter="p13"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          یک اثر ساخته‌شده، نسخه زبان دیگرش را بگیرد بدون اینکه یک فریم تصویر
+          دوباره تولید شود. چون متن از روز اول لایه جداست، تنها هزینه واقعی
+          گفتار زبان مقصد است.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p13-1"><label for="t-p13-1">افزودن موجودیت نسخه با دو محور زبان مستقل: زبان صدا و زبان زیرنویس</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-2"><label for="t-p13-2">اشاره دادن نمایش به نسخه، به‌جای مستقیم به پروژه</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-3"><label for="t-p13-3">افزودن گام ترجمه به تاکسونومی بسته گام‌ها</label><span class="lane">ARC</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-4"><label for="t-p13-4">ترجمه زیرنویس و متن‌های روی تصویر به زبان مقصد</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-5"><label for="t-p13-5">رندر دوباره لایه شفاف در زبان مقصد: جهت نوشتار، ارقام محلی، اندازه خودکار قلم</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-6"><label for="t-p13-6">گفتار زبان مقصد و همگام‌سازی دوباره زیرنویس با آن</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p13-7"><label for="t-p13-7">آزمون عربی: برندی با حرف «گ» و کارت قیمت با ارقام محلی</label><span class="lane">QA</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک آگهی فارسی ساخته‌شده، نسخه عربی و انگلیسی‌اش با یک درخواست بیرون بیاید؛ گزارش هزینه نشان دهد که هیچ فریمی دوباره تولید نشده؛ کارت قیمت در نسخه عربی ارقام درست داشته باشد و نام برند حرف کم نیاورده باشد؛ و برداشتن اثر از پنل راهبر، هر سه نسخه را با هم بردارد.</div>
+        <p class="dep">وابسته به: P7 و P8 · زبان پایه فارسی، نسخه‌های مشتق عربی و انگلیسی (D-210, D-211)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ فاز ۱۴ ═══ -->
+  <section id="p14">
+    <div class="phase">
+      <div class="phase-head">
+        <span class="phase-id">P14</span>
+        <span class="phase-t">دوبله محتوای ورودی — خط محصول دوم</span>
+        <span class="phase-meter" data-meter="p14"></span>
+      </div>
+      <div class="phase-body">
+        <p class="goal">
+          کاربر یک فایل ویدیویی می‌آورد و صدایش به زبان دیگری می‌رود، یا زیرنویس
+          می‌گیرد، یا هر دو با هر ترکیبی. متنش را نداریم، پس چهار گام اضافه لازم
+          است. مصرف‌کننده همان موتوری است که برای تولید ساخته شده.
+        </p>
+        <div class="tasks">
+          <div class="task"><input type="checkbox" id="t-p14-1"><label for="t-p14-1">دروازه حقوقی پیش از هر خرج: مالکیت کلیپ، رضایت صدا، و عبور خود فایل از بررسی انطباق</label><span class="lane">LAW</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-2"><label for="t-p14-2">تشخیص زبان مبدا و استخراج گفتار با مهر زمانی واژه‌ای</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-3"><label for="t-p14-3">تفکیک گوینده</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-4"><label for="t-p14-4">جداسازی گفتار از موسیقی و محیط — بدون آن صدای اصلی زیر دوبله باقی می‌ماند</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-5"><label for="t-p14-5">ترجمه با قید زمان: متن مقصد باید در همان بازه جا شود</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-6"><label for="t-p14-6">گفتار زبان مقصد با تنظیم سرعت در بازه طبیعی، و اعلام بند سرریزدار به کاربر</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-7"><label for="t-p14-7">میکس دوباره: گفتار تازه روی موسیقی و محیط اصلی</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-8"><label for="t-p14-8">انتخاب مستقل زبان صدا و زبان زیرنویس در رابط، با پنج ترکیب معتبر</label><span class="lane">UX</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-9"><label for="t-p14-9">هم‌گامی لب به شکل انتخاب صریح و خاموش به‌طور پیش‌فرض، با نمایش هزینه پیش از تایید</label><span class="lane">DEV</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-10"><label for="t-p14-10">آزمون: ویدیوی انگلیسی پنج دقیقه‌ای با موسیقی زمینه ⇒ خروجی عربی با موسیقی سالم</label><span class="lane">QA</span></div>
+          <div class="task"><input type="checkbox" id="t-p14-11"><label for="t-p14-11">اندازه‌گیری هزینه جداسازی صدا روی سرور و ثبتش</label><span class="lane">RES</span></div>
+        </div>
+        <div class="dod"><b>معیار تمام شدن:</b> یک ویدیوی انگلیسی پنج دقیقه‌ای با موسیقی زمینه آپلود شود و نسخه عربی‌اش بیرون بیاید که صدای انگلیسی اصلا شنیده نمی‌شود، موسیقی و صدای محیط سالم مانده‌اند، هیچ بند گفتاری از بازه زمانی خودش سرریز نکرده، و زیرنویسش به زبانی است که کاربر جدا انتخاب کرده. تلاش برای دوبله بدون تعهد مالکیت، پیش از هر خرج رد شود.</div>
+        <p class="dep">وابسته به: P4 و P13 · صدای بومی تازه، جداسازی روی سرور خودمان، لب پیش‌فرض خاموش (D-214, D-215, D-216)</p>
       </div>
     </div>
   </section>
