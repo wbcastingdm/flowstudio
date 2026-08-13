@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { estimatePlanCoins } from '@flowstudio/ledger';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import type { Prisma } from '@prisma/client';
 
@@ -47,6 +48,60 @@ export class RenderService {
   }
 
   /**
+   * زنجیرهٔ گام‌های یک نما — **یک تعریف، دو مصرف‌کننده**.
+   *
+   * تا امروز این زنجیره فقط داخلِ حلقهٔ `enqueueProject` وجود داشت. حالا
+   * رابط پیش از ساخت می‌پرسد «چقدر آب می‌خورد؟» و اگر برآورد از روی یک
+   * تعریفِ دوم حساب شود، اولین گامِ پولی عددِ غلط نشان می‌دهد و گیتِ
+   * تأیید سرِ جای اشتباه ظاهر می‌شود.
+   */
+  private chainFor(shot: { cameraMovement: string }) {
+    return [
+      { capability: 'html2image', params: { layer: 'background' }, dependsOn: [] as number[] },
+      { capability: 'html2image', params: { layer: 'text' }, dependsOn: [] as number[] },
+      {
+        capability: 'programmatic_motion',
+        params: { preset: this.presetFor(shot.cameraMovement) },
+        // گرافِ جهت‌دار: حرکت تا وقتی هر دو لایه آماده نشوند شروع نمی‌شود.
+        dependsOn: [0, 1],
+      },
+    ];
+  }
+
+  /**
+   * برآوردِ پلان **پیش از** ساخته شدنش — گاردریلِ ۵.
+   *
+   * 🔑 رابط با همین عدد تصمیم می‌گیرد دکمهٔ «بساز» یک حرکت باشد یا دو:
+   * صفر یعنی هیچ پولی خرج نمی‌شود و تأیید گرفتن از کاربر فقط یک کلیکِ
+   * بی‌معناست؛ هر عددِ بزرگ‌تر از صفر یعنی گیتِ انسانی **اجباری** است.
+   * چون عدد از جدولِ مشترکِ دفتر می‌آید، روزِ افزودنِ گامِ پولی این گیت
+   * بدونِ یک خط تغییر در رابط خودش ظاهر می‌شود.
+   */
+  async estimate(userId: string, projectId: string) {
+    const project = await this.prisma.project.findFirst({
+      where: { id: projectId, userId },
+      include: {
+        sequences: {
+          orderBy: { order: 'asc' },
+          include: { shots: { orderBy: { order: 'asc' } } },
+        },
+      },
+    });
+    if (!project) throw new NotFoundException('پروژه پیدا نشد.');
+
+    const shots = project.sequences.flatMap((s) => s.shots);
+    const capabilities = shots.flatMap((shot) => this.chainFor(shot).map((s) => s.capability));
+
+    return {
+      projectId,
+      shots: shots.length,
+      steps: capabilities.length,
+      durationSec: shots.reduce((n, s) => n + s.durationSec, 0),
+      estimatedCoins: estimatePlanCoins(capabilities),
+    };
+  }
+
+  /**
    * صف‌کردنِ یک پروژه.
    *
    * بی‌اثر در تکرار: اگر گروهی از همین پروژه هنوز بسته نشده، همان برمی‌گردد.
@@ -91,35 +146,22 @@ export class RenderService {
       });
 
       for (const shot of shots) {
-        const background = await tx.planStep.create({
-          data: {
-            jobGroupId: created.id,
-            shotId: shot.id,
-            capability: 'html2image',
-            params: { layer: 'background' } as Prisma.InputJsonValue,
-            orderIndex: 0,
-          },
-        });
-        const text = await tx.planStep.create({
-          data: {
-            jobGroupId: created.id,
-            shotId: shot.id,
-            capability: 'html2image',
-            params: { layer: 'text' } as Prisma.InputJsonValue,
-            orderIndex: 1,
-          },
-        });
-        await tx.planStep.create({
-          data: {
-            jobGroupId: created.id,
-            shotId: shot.id,
-            capability: 'programmatic_motion',
-            params: { preset: this.presetFor(shot.cameraMovement) } as Prisma.InputJsonValue,
-            // گرافِ جهت‌دار: حرکت تا وقتی هر دو لایه آماده نشوند شروع نمی‌شود.
-            dependsOn: [background.id, text.id] as Prisma.InputJsonValue,
-            orderIndex: 2,
-          },
-        });
+        // اندیسِ داخلِ زنجیره به شناسهٔ واقعیِ گامِ ساخته‌شده ترجمه می‌شود؛
+        // `dependsOn` باید شناسه باشد وگرنه کارگر پیش‌نیاز را پیدا نمی‌کند.
+        const createdIds: string[] = [];
+        for (const [orderIndex, step] of this.chainFor(shot).entries()) {
+          const row = await tx.planStep.create({
+            data: {
+              jobGroupId: created.id,
+              shotId: shot.id,
+              capability: step.capability,
+              params: step.params as Prisma.InputJsonValue,
+              dependsOn: step.dependsOn.map((i) => createdIds[i]) as Prisma.InputJsonValue,
+              orderIndex,
+            },
+          });
+          createdIds.push(row.id);
+        }
 
         // `aiModelId` خالی می‌ماند — این زنجیره هیچ مدلی صدا نمی‌زند.
         await tx.job.create({

@@ -6,8 +6,22 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypt
  */
 const ALGO = 'aes-256-gcm';
 
+/**
+ * 🔴 **بدونِ پیش‌فرض — عمدی.**
+ *
+ * تا ۲۱ مرداد این `?? 'dev-only-insecure-secret-change-me'` بود؛ رشته‌ای که
+ * در خودِ مخزن نوشته شده. یعنی هرکسی که هم کد را دیده باشد و هم به دیتابیس
+ * برسد، می‌توانست **کلیدهای درگاه‌های هوش مصنوعی را رمزگشایی کند** — همان
+ * چیزی که «هرگز متنِ خام» قرار بود جلویش را بگیرد. رمزنگاری با کلیدِ
+ * همگان‌دانسته، رمزنگاری نیست؛ فقط شبیهش است.
+ */
 function deriveKey(): Buffer {
-  const secret = process.env.FLOWSTUDIO_SECRET ?? 'dev-only-insecure-secret-change-me';
+  const secret = (process.env.FLOWSTUDIO_SECRET ?? '').trim();
+  if (!secret) {
+    throw new Error(
+      'FLOWSTUDIO_SECRET ست نشده — کلیدهای درگاه با رازِ پیش‌فرض رمز نمی‌شوند.',
+    );
+  }
   return scryptSync(secret, 'flowstudio-ai-provider-salt', 32);
 }
 

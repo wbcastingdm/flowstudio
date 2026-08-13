@@ -137,6 +137,22 @@ function durationChoices(min: number, max: number): number[] {
   return inRange;
 }
 
+/**
+ * پیش‌فرضِ زیرشاخه‌های یک نوع.
+ *
+ * 🔑 هر فیلدِ انتخابی گزینهٔ اولش را از پیش می‌گیرد. بدونِ این، فیلدِ
+ * انتخابیِ اجباری در کشوی بستهٔ «تنظیم دقیق‌تر» می‌ماند و کاربر خطای
+ * «این فیلد لازم است» می‌گیرد بدونِ اینکه ببیند کجاست. فیلدِ متنی پیش‌فرض
+ * نمی‌گیرد — حدسِ ما به‌جای کاربر روی تصویر می‌نشیند.
+ */
+function defaultAttributes(type: ProductionType | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const f of type?.fieldSchema ?? []) {
+    if (f.kind === 'select' && f.options?.length) out[f.key] = f.options[0].value;
+  }
+  return out;
+}
+
 export default function StudioPage() {
   const router = useRouter();
 
@@ -173,6 +189,7 @@ export default function StudioPage() {
         setTypes(list);
         if (list.length > 0) {
           setTypeKey(list[0].key);
+          setAttributes(defaultAttributes(list[0]));
           setDurationSec(durationChoices(list[0].minDurationSec, list[0].maxDurationSec)[0]);
         }
       })
@@ -191,10 +208,10 @@ export default function StudioPage() {
   const pickType = useCallback(
     (key: string) => {
       setTypeKey(key);
-      setAttributes({});
       setResult(null);
       setError(null);
       const t = types?.find((x) => x.key === key);
+      setAttributes(defaultAttributes(t));
       if (t) {
         const choices = durationChoices(t.minDurationSec, t.maxDurationSec);
         setDurationSec(choices[0]);
@@ -270,12 +287,20 @@ export default function StudioPage() {
     <main style={{ padding: '40px 22px', maxWidth: 1000, margin: '0 auto' }}>
       <UserBar active="studio" />
       <div className="pill">استودیو تولید · از ایده تا فایل · رایگان</div>
-      <h1 className="page-title">ایده را بده، شات‌لیست و فایل بگیر</h1>
-      <p className="page-lead">
-        متن را بنویس یا فایلش را بده؛ عکس مرجع و کلیپ پایه هم می‌توانی اضافه کنی. سیستم
-        برای هر نما میزان‌سن، حرکت دوربین، اندازه و زاویه نما و نور را مشخص می‌کند و بعد
-        از هر نما یک کلیپ می‌سازد.
-      </p>
+      <h1 className="page-title">ایده را بنویس، فایل بگیر</h1>
+
+      {/*
+        سه حرکت، صریح و شمرده. بدون این ردیف، کاربر نمی‌داند چند قدم مانده و
+        هر فیلدِ اضافه شبیهِ یک قدمِ دیگر به نظر می‌رسد.
+      */}
+      <div className="steps-rail">
+        {['ایده‌ات را بنویس', 'بساز را بزن', 'تماشا کن یا منتشر کن'].map((label, i) => (
+          <span key={label} className={`steps-rail-item${result && i === 0 ? ' is-done' : ''}`}>
+            <b>{toFa(i + 1)}</b>
+            {label}
+          </span>
+        ))}
+      </div>
 
       {types !== null && types.length === 0 && (
         <div className="note note-red">
@@ -284,9 +309,13 @@ export default function StudioPage() {
       )}
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* ── گام ۱: نوع تولید ── */}
+        {/*
+          ── یک جعبه: نوع، ایده، فایل‌ها، مدت ──
+          پیش‌تر این‌ها چهار کارتِ شماره‌دار بودند و همه هم‌زمان باز. چهار قابِ
+          جدا یعنی چهار تصمیمِ ظاهراً واجب، در حالی که فقط یکی‌شان واقعاً از
+          کاربر چیزی می‌خواهد: خودِ ایده.
+        */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-          <b className="card-title">۱ · چه چیزی می‌سازی؟</b>
           <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
             {(types ?? []).map((t) => {
               const on = t.key === typeKey;
@@ -313,24 +342,34 @@ export default function StudioPage() {
               );
             })}
           </div>
-          {type?.description && (
-            <div className="meta">
-              {type.description} · مدت مجاز: {humanDuration(type.minDurationSec)} تا{' '}
-              {humanDuration(type.maxDurationSec)}
-            </div>
-          )}
-        </div>
-
-        {/* ── گام ۲: ایده و فایل‌ها ── */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-          <b className="card-title">۲ · ایده یا فیلمنامه</b>
           <textarea
             value={rawIdea}
             onChange={(e) => setRawIdea(e.target.value)}
+            autoFocus
             placeholder="به زبان خودت بنویس. از چند خط تا چند صفحه — هر چه دقیق‌تر، خروجی نزدیک‌تر."
             rows={7}
             style={{ fontSize: 15.5, lineHeight: 2, resize: 'vertical', padding: 15 }}
           />
+
+          {/* مدت کنارِ ایده می‌ماند، نه در کشو: تنها چیزی جز خودِ ایده که
+              کاربر واقعاً عوضش می‌کند. */}
+          <label
+            style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, flexWrap: 'wrap' }}
+          >
+            <span style={{ color: 'var(--muted)' }}>مدت</span>
+            <select
+              value={durationSec}
+              onChange={(e) => setDurationSec(Number(e.target.value))}
+              style={{ maxWidth: 190 }}
+            >
+              {durationChoices(type?.minDurationSec ?? 6, type?.maxDurationSec ?? 60).map((d) => (
+                <option key={d} value={d}>
+                  {humanDuration(d)}
+                </option>
+              ))}
+            </select>
+            {type?.description && <span className="meta">{type.description}</span>}
+          </label>
 
           <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', alignItems: 'center' }}>
             <input
@@ -368,7 +407,7 @@ export default function StudioPage() {
             />
             <button
               type="button"
-              className="btn btn-sm"
+              className="btn btn-sm btn-ghost"
               disabled={!!uploading}
               onClick={() => scriptRef.current?.click()}
             >
@@ -376,7 +415,7 @@ export default function StudioPage() {
             </button>
             <button
               type="button"
-              className="btn btn-sm"
+              className="btn btn-sm btn-ghost"
               disabled={!!uploading}
               onClick={() => imageRef.current?.click()}
             >
@@ -384,7 +423,7 @@ export default function StudioPage() {
             </button>
             <button
               type="button"
-              className="btn btn-sm"
+              className="btn btn-sm btn-ghost"
               disabled={!!uploading}
               onClick={() => clipRef.current?.click()}
             >
@@ -431,11 +470,18 @@ export default function StudioPage() {
           )}
         </div>
 
-        {/* ── گام ۳: زیرشاخه‌های وابسته به نوع ── */}
-        {type && type.fieldSchema.length > 0 && (
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-            <b className="card-title">۳ · جزئیات {type.title}</b>
-            <div className="grid-fields">
+        {/*
+          ── کشوی تنظیم دقیق‌تر ──
+          🔑 هر چیزی که پیش‌فرضِ قابلِ دفاع دارد این‌جاست، نه جلوی چشم. هیچ‌کدام
+          از این‌ها برای گرفتنِ اولین فایل لازم نیست؛ گذاشتنشان در مسیرِ اصلی
+          فقط کاربر را وادار می‌کرد دربارهٔ چیزی تصمیم بگیرد که هنوز خروجی‌اش
+          را ندیده.
+        */}
+        <details className="tune">
+          <summary>تنظیم دقیق‌تر — اختیاری</summary>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 14 }}>
+            {type && type.fieldSchema.length > 0 && (
+              <div className="grid-fields">
               {type.fieldSchema.map((f) => (
                 <label key={f.key} className="field-row">
                   <span className="field-name">
@@ -465,86 +511,80 @@ export default function StudioPage() {
                       }
                     />
                   )}
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── گام ۴: جنس تصویر، مدت، سطح ── */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-          <b className="card-title">۴ · جنس تصویر و مدت</b>
-          <div className="grid-fields">
-            <label className="field-row">
-              <span className="field-name">جنس تصویر</span>
-              <select value={material} onChange={(e) => setMaterial(e.target.value)}>
-                {MATERIALS.map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
+                  </label>
                 ))}
-              </select>
-            </label>
+              </div>
+            )}
 
-            <label className="field-row">
-              <span className="field-name">نزدیکی به این جنس: {toFa(fidelity)}٪</span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={5}
-                value={fidelity}
-                onChange={(e) => setFidelity(Number(e.target.value))}
-              />
-            </label>
-
-            <label className="field-row">
-              <span className="field-name">مدت هدف</span>
-              <select value={durationSec} onChange={(e) => setDurationSec(Number(e.target.value))}>
-                {durationChoices(type?.minDurationSec ?? 6, type?.maxDurationSec ?? 60).map((d) => (
-                  <option key={d} value={d}>
-                    {humanDuration(d)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {tiers.length > 0 && (
+            <div className="grid-fields">
               <label className="field-row">
-                <span className="field-name">سطح خدمت</span>
-                <select value={tierKey} onChange={(e) => setTierKey(e.target.value)}>
-                  <option value="">— بدون سطح (آزمایشی) —</option>
-                  {tiers.map((t) => (
-                    <option key={t.key} value={t.key}>
-                      {t.title}
+                <span className="field-name">جنس تصویر</span>
+                <select value={material} onChange={(e) => setMaterial(e.target.value)}>
+                  {MATERIALS.map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
                     </option>
                   ))}
                 </select>
               </label>
-            )}
-          </div>
 
-          {tier && (
-            <div className="meta">
-              {tier.title}: تا {humanDuration(tier.maxDurationSec)} · سقف {toFa(tier.coinAllowance)}{' '}
-              سکه
-              {tier.watermark ? ' · با واترمارک' : ' · بدون واترمارک'}
-              {tier.priceIrt == null
-                ? ' · قیمت هنوز تعیین نشده'
-                : ` · ${toFa(tier.priceIrt)} تومان`}
-              {durationSec > tier.maxDurationSec && (
-                <span style={{ color: 'var(--red)' }}> — مدت انتخابی از سقف این سطح بیشتر است</span>
+              <label className="field-row">
+                <span className="field-name">نزدیکی به این جنس: {toFa(fidelity)}٪</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={fidelity}
+                  onChange={(e) => setFidelity(Number(e.target.value))}
+                />
+              </label>
+
+              {tiers.length > 0 && (
+                <label className="field-row">
+                  <span className="field-name">سطح خدمت</span>
+                  <select value={tierKey} onChange={(e) => setTierKey(e.target.value)}>
+                    <option value="">— بدون سطح (آزمایشی) —</option>
+                    {tiers.map((t) => (
+                      <option key={t.key} value={t.key}>
+                        {t.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
             </div>
-          )}
-        </div>
 
+            {tier && (
+              <div className="meta">
+                {tier.title}: تا {humanDuration(tier.maxDurationSec)} · سقف{' '}
+                {toFa(tier.coinAllowance)} سکه
+                {tier.watermark ? ' · با واترمارک' : ' · بدون واترمارک'}
+                {tier.priceIrt == null
+                  ? ' · قیمت هنوز تعیین نشده'
+                  : ` · ${toFa(tier.priceIrt)} تومان`}
+                {durationSec > tier.maxDurationSec && (
+                  <span style={{ color: 'var(--red)' }}>
+                    {' '}
+                    — مدت انتخابی از سقف این سطح بیشتر است
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </details>
+
+        {/*
+          یک دکمه، نه دو. شات‌لیست و رندر پشتِ هم می‌روند و کاربر بینشان
+          دکمهٔ دومی نمی‌زند — مگر آن روز که پلان سکه بخواهد؛ آن وقت خودِ
+          پنل می‌ایستد و تأیید می‌خواهد (گاردریلِ ۵).
+        */}
         <button
           className="btn"
           disabled={busy || !rawIdea.trim() || !typeKey}
           style={{ alignSelf: 'flex-start' }}
         >
-          {busy ? 'در حال ساخت…' : 'ساخت شات‌لیست'}
+          {busy ? 'در حال ساخت…' : 'بساز'}
         </button>
       </form>
 
@@ -588,18 +628,26 @@ export default function StudioPage() {
             </div>
           )}
 
-          {result.project.sequences.map((seq) => (
-            <div key={seq.id} style={{ marginBottom: 20 }}>
-              <div className="meta-strong" style={{ marginBottom: 9 }}>
-                سکانس {toFa(seq.order)} — {seq.title}
-              </div>
-              {seq.shots.map((shot) => (
-                <ShotCard key={shot.id} shot={shot} />
+          {/* پنل بالای شات‌لیست است: چیزی که کاربر منتظرش است فایل است، نه
+              فهرستِ نماها. فهرست زیرش می‌ماند برای وقتی بخواهد بداند چه
+              ساخته می‌شود. */}
+          <RenderPanel projectId={result.project.id} title={result.project.title} autoStart />
+
+          <details className="tune" style={{ marginTop: 18 }}>
+            <summary>شات‌لیست — {toFa(shotCount)} نما</summary>
+            <div style={{ paddingTop: 14 }}>
+              {result.project.sequences.map((seq) => (
+                <div key={seq.id} style={{ marginBottom: 20 }}>
+                  <div className="meta-strong" style={{ marginBottom: 9 }}>
+                    سکانس {toFa(seq.order)} — {seq.title}
+                  </div>
+                  {seq.shots.map((shot) => (
+                    <ShotCard key={shot.id} shot={shot} />
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
-
-          <RenderPanel projectId={result.project.id} title={result.project.title} />
+          </details>
         </section>
       )}
     </main>

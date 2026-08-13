@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { mkdir, readFile, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
 import type { PlanStep, PrismaClient } from '@prisma/client';
-import { Ledger } from '@flowstudio/ledger';
+import { Ledger, stepCost } from '@flowstudio/ledger';
 import { config } from './config';
 import { engines } from './engines';
 import { backgroundHtml, textHtml, ASPECTS, type LayerInput } from './render/html';
@@ -28,11 +28,8 @@ import { load, store } from './storage';
  *      مانده ادامه پیدا می‌کند، نه از اول.
  */
 
-/** هزینهٔ سکه‌ایِ هر قابلیت. مسیرِ ج صفر است — هیچ فراخوانِ پولی ندارد. */
-const STEP_COST_COINS: Record<string, number> = {
-  html2image: 0,
-  programmatic_motion: 0,
-};
+// هزینهٔ هر قابلیت به `@flowstudio/ledger` رفت — رابط هم پیش از ساخت به
+// همین عددها نیاز دارد و دو جدول فردا واگرا می‌شوند.
 
 const WATERMARK = process.env.WATERMARK_TEXT ?? 'ساختهٔ فلواستودیو';
 
@@ -86,7 +83,7 @@ export async function runJobChain(
       const done = await reuseIfDone(prisma, step, workDir, outputs);
       if (done) continue;
 
-      const cost = STEP_COST_COINS[step.capability] ?? 0;
+      const cost = stepCost(step.capability);
       await ledger.runWithHold(
         {
           userId: job.group.userId,
@@ -248,7 +245,7 @@ async function executeStep(
       paramHash: hashParams(step, job),
       resultUrl: output.key,
       resultHash: output.hash,
-      costActual: STEP_COST_COINS[step.capability] ?? 0,
+      costActual: stepCost(step.capability),
       latencyMs: Date.now() - startedAt,
       outputDurationSec: output.durationSec,
       c2paWatermarkText: step.capability === 'programmatic_motion' ? WATERMARK : null,

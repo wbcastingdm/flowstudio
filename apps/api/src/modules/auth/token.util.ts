@@ -17,12 +17,30 @@ export interface SessionPayload {
   exp: number; // ثانیهٔ یونیکس
 }
 
+/**
+ * 🔴 **بدونِ پیش‌فرض — عمدی.**
+ *
+ * تا ۲۱ مرداد این `?? 'dev-only-insecure-secret-change-me'` بود. آن رشته در
+ * مخزن نوشته شده و هرکسی که کد را دیده باشد می‌توانست با آن **توکنِ نشستِ
+ * معتبر برای هر کاربری بسازد** — یعنی دورزدنِ کاملِ ورود، بدونِ نیاز به هیچ
+ * رمزی. پیش‌فرضِ «فقط برای توسعه» چیزی است که در تولید هم اجرا می‌شود، چون
+ * هیچ‌چیز جلویش را نمی‌گیرد.
+ *
+ * نبودنش حالا خطای صریح می‌دهد: سرویس بالا نمی‌آید به‌جای اینکه با امضای
+ * همگان‌دانسته کار کند.
+ */
 function secret(): string {
-  return (
+  const value = (
     process.env.AUTH_TOKEN_SECRET ??
     process.env.FLOWSTUDIO_SECRET ??
-    'dev-only-insecure-secret-change-me'
-  );
+    ''
+  ).trim();
+  if (!value) {
+    throw new Error(
+      'AUTH_TOKEN_SECRET یا FLOWSTUDIO_SECRET ست نشده — امضای نشست بدونِ رازِ واقعی انجام نمی‌شود.',
+    );
+  }
+  return value;
 }
 
 function b64url(buf: Buffer): string {

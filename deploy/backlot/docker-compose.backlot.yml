@@ -1,0 +1,45 @@
+# ─── Backlot — بردِ زندهٔ OpenMontage ───
+#
+# سرویسِ **کاملاً جدا** از فلواستودیو (تصمیمِ D-O16، سندِ 82):
+# پروژهٔ compose جدا، بدونِ شبکهٔ مشترک، بدونِ دیتابیس، بدونِ کدِ مشترک.
+# فقط یک بردِ **خواندنی** که نشان می‌دهد موتورِ OpenMontage چطور کار می‌کند.
+#
+# اجرا روی سرور:
+#   cd /opt/backlot && docker compose -p backlot \
+#     -f /opt/flowstudio/deploy/backlot/docker-compose.backlot.yml up -d --build
+#
+# ⚠️ 172.18.0.1 گیت‌ویِ شبکهٔ wbc_wbc روی هاست است. nginxِ سرور کانتینر است،
+#    پس 127.0.0.1 برایش خودش می‌شود و ما را نمی‌بیند.
+#    اگر شبکه بازساخته شد، دوباره بگیرش:
+#      docker network inspect wbc_wbc --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
+#
+# 🔒 پورت عمداً فقط روی گیت‌ویِ داخلی باز است، نه 0.0.0.0 —
+#    تنها راهِ رسیدن به آن، بلوکِ nginx با basic auth است.
+
+services:
+  backlot:
+    build:
+      context: /opt/backlot
+      dockerfile: /opt/flowstudio/deploy/backlot/Dockerfile
+    container_name: backlot_board
+    restart: unless-stopped
+    ports:
+      - "172.18.0.1:4750:4750"
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # پروژه‌های نمایشی. خودِ برد فقط می‌خواند و چیزی نمی‌نویسد، ولی
+      # ساختِ اجرای نمایشی (`backlot_simulate_run.py`) این‌جا می‌نویسد،
+      # پس `:ro` نمی‌شود.
+      - /opt/backlot/projects:/srv/backlot/projects
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:4750/api/health',timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

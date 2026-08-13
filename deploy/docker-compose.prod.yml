@@ -46,9 +46,14 @@ services:
     environment:
       NODE_ENV: production
       API_PORT: 3200
-      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:-flowstudio_dev_password}@postgres:5432/flowstudio?schema=public
+      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD باید ست شود — پیش‌فرضِ ناامن حذف شد}@postgres:5432/flowstudio?schema=public
       REDIS_URL: redis://redis:6379
-      FLOWSTUDIO_SECRET: ${FLOWSTUDIO_SECRET:-change-me-in-env-file}
+      # 🔴 این راز **دو کارِ حیاتی** می‌کند: امضای توکنِ نشست و رمزکردنِ
+      #    کلیدهای درگاه‌های هوش مصنوعی. پیش‌فرضِ `change-me-in-env-file`
+      #    برداشته شد (۲۱ مرداد): با یک رازِ نوشته‌شده در مخزن، هر کسی
+      #    می‌توانست توکنِ نشستِ معتبر برای هر کاربری بسازد.
+      #    تولید با: openssl rand -hex 32
+      FLOWSTUDIO_SECRET: ${FLOWSTUDIO_SECRET:?FLOWSTUDIO_SECRET باید ست شود — با openssl rand -hex 32 بسازید}
       # 🔒 قفلِ پنلِ راهبر. عمدا پیش‌فرض ندارد: اگر تنظیم نشود، گارد
       # fail-closed می‌شود و پنل ۵۰۳ می‌دهد — که از پنلِ بازِ اینترنتی بهتر است.
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
@@ -57,10 +62,18 @@ services:
       STORAGE_DIR: /data/storage
       # 🟡 ورود با شماره + رمزِ عددیِ مشترک. بدونِ درگاهِ پیامک، هر «کد
       # فرستادم» یک نمایشِ توخالی بود؛ این دستِ‌کم دروغ نمی‌گوید.
-      # 🔴 این یک درِ باز است — روزِ اتصالِ درگاهِ پیامک بسته می‌شود (قلمِ ۲۱).
-      AUTH_PASSWORD: ${AUTH_PASSWORD:-123456}
-      # صفحهٔ ورود رمز را نشان بدهد یا نه. روزِ بستنِ در ⇒ false
-      AUTH_PASSWORD_HINT: ${AUTH_PASSWORD_HINT:-true}
+      #
+      # 🔴 **پیش‌فرضِ `123456` برداشته شد (۲۱ مرداد).** با آن، هر استقراری که
+      #    یادش می‌رفت این متغیر را ست کند با رمزِ همگان‌دانسته بالا می‌آمد و
+      #    همه‌چیز «کار می‌کرد» پس کسی خبردار نمی‌شد.
+      #    حالا نبودنش یعنی هیچ ورودی پذیرفته نمی‌شود — عمدی، نه خرابی.
+      #    ⛔ **پیش از دیپلوی این را در `.env` سرور ست کنید، وگرنه ورود می‌بندد.**
+      AUTH_PASSWORD: ${AUTH_PASSWORD:?AUTH_PASSWORD باید ست شود — پیش‌فرضِ ناامن حذف شد}
+      # 🔴 پیش‌فرض **خاموش**. با پیش‌فرضِ قبلیِ `true`، اندپوینتِ عمومیِ
+      #    `/api/auth/policy` روی تولید رمزِ خودش را به هر کسی می‌داد:
+      #    {"mode":"shared_password","digits":6,"hint":"123456"}
+      #    فقط برای محیطِ نمایش صریحاً `true` کنید.
+      AUTH_PASSWORD_HINT: ${AUTH_PASSWORD_HINT:-false}
     volumes:
       - fs_storage:/data/storage
     healthcheck:
@@ -90,7 +103,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:-flowstudio_dev_password}@postgres:5432/flowstudio?schema=public
+      DATABASE_URL: postgresql://flowstudio:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD باید ست شود — پیش‌فرضِ ناامن حذف شد}@postgres:5432/flowstudio?schema=public
       STORAGE_DIR: /data/storage
       WORKER_TMP: /tmp/flowstudio-worker
       # سرور سه هسته دارد؛ دو نخ برایِ ffmpeg و یکی برایِ باقیِ سیستم.
@@ -101,6 +114,28 @@ services:
     # خاموشیِ نرم: کارگر منتظرِ تمام‌شدنِ نمای جاری می‌ماند. یک نما روی این
     # سرور تا ~۹۰ ثانیه طول می‌کشد، پس مهلتِ پیش‌فرضِ ۱۰ ثانیه کوتاه است.
     stop_grace_period: 120s
+    # 🔴 سقفِ منابع — این سرور با **۳۲ سایتِ مشتریِ واقعی** مشترک است.
+    #    ffmpeg و کرومیوم هر دو ذاتاً همهٔ چیزی را که بدهی می‌خورند: ffmpeg
+    #    تا سقفِ نخ‌ها CPU می‌گیرد و کرومیوم روی صفحهٔ سنگین چند صد مگابایت
+    #    RAM. بدونِ سقف، یک رندرِ سنگین کلِ سرور را می‌خواباند و آن ۳۲ سایت
+    #    با آن پایین می‌روند — قطعیِ سراسری برایِ کاری که اصلاً فوری نیست.
+    #
+    #    ⚠️ `cpus` سهمیه است نه رزرو: کارگر می‌تواند کمتر بگیرد، ولی هرگز
+    #    بیشتر. با `FFMPEG_THREADS=2` روی سرورِ سه‌هسته‌ای، ۲.۰ یعنی همیشه
+    #    دستِ‌کم یک هسته برایِ nginx و بقیهٔ سرویس‌ها آزاد می‌ماند.
+    #
+    #    🔴 `mem_limit` سختِ‌ سخت است: عبور از آن یعنی OOM-killِ **کارگر**،
+    #    نه خوابیدنِ سرور. مردنِ یک کارگر برگشت‌پذیر است (کار به صف برمی‌گردد)
+    #    و مردنِ سرور نیست. همین معاوضه دلیلِ وجودِ این چند خط است.
+    cpus: ${WORKER_CPUS:-2.0}
+    mem_limit: ${WORKER_MEMORY:-2g}
+    # کرومیوم بدونِ /dev/shmِ بزرگ روی صفحاتِ سنگین با «Target closed» می‌افتد
+    # و خطایش هیچ ربطی به حافظه نشان نمی‌دهد. پیش‌فرضِ داکر ۶۴ مگابایت است.
+    shm_size: ${WORKER_SHM:-512m}
+    # فایلِ موقتِ رندر روی لایهٔ نوشتنیِ کانتینر جمع می‌شود و با هر بازسازی
+    # می‌ماند؛ tmpfs یعنی هر ری‌استارت خودبه‌خود پاک می‌شود.
+    tmpfs:
+      - /tmp/flowstudio-worker:size=${WORKER_TMP_SIZE:-2g}
 
   postgres:
     image: postgres:16
@@ -108,7 +143,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: flowstudio
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flowstudio_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD باید ست شود — پیش‌فرضِ ناامن حذف شد}
       POSTGRES_DB: flowstudio
     volumes:
       - fs_postgres:/var/lib/postgresql/data

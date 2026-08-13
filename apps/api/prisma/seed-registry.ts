@@ -15,6 +15,16 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // ─── نوع تولید ───
+//
+// 🔑 قاعدهٔ فیلدهای اجباری — ۲۱ مرداد ۱۴۰۵:
+// **هیچ فیلدِ متنی‌ای اجباری نیست.** فیلدِ متنیِ اجباری یعنی کاربر پیش از
+// دیدنِ هر خروجی باید چیزی تایپ کند که هنوز نمی‌داند لازم است یا نه — و
+// همان یک فیلد راهِ «ایده بنویس و ببین چه می‌شود» را می‌بندد. آنچه در متنِ
+// ایده هست، برنامه‌ریز خودش درمی‌آورد.
+//
+// فیلدِ **انتخابی** می‌تواند اجباری بماند، چون رابط گزینهٔ اول را از پیش
+// انتخاب می‌کند و کاربر هیچ حرکتی خرج نمی‌کند. اگر روزی گزینهٔ اول پیش‌فرضِ
+// بدی شد، ترتیبِ همین آرایه عوض می‌شود — نه اجباری بودنش.
 
 const PRODUCTION_TYPES = [
   {
@@ -40,7 +50,7 @@ const PRODUCTION_TYPES = [
           { value: 'energetic', label: 'پرانرژی' },
         ],
       },
-      { key: 'brand', label: 'نام برند یا محصول', kind: 'text', required: true },
+      { key: 'brand', label: 'نام برند یا محصول', kind: 'text', required: false },
       { key: 'cta', label: 'فراخوان اقدام', kind: 'text', required: false },
     ],
   },
@@ -96,7 +106,7 @@ const PRODUCTION_TYPES = [
           { value: 'observational', label: 'مشاهده‌گر بدون راوی' },
         ],
       },
-      { key: 'subject', label: 'موضوع دقیق', kind: 'text', required: true },
+      { key: 'subject', label: 'موضوع دقیق', kind: 'text', required: false },
       { key: 'sources', label: 'منابع و آرشیو در دسترس', kind: 'text', required: false },
     ],
   },
@@ -139,7 +149,7 @@ const PRODUCTION_TYPES = [
       'تو یک کارگردان موزیک ویدیو فارسی‌زبانی. برش‌ها باید با ریتم قطعه هماهنگ ' +
       'باشند و حال و هوای بصری از خود موسیقی بیرون بیاید.',
     fieldSchema: [
-      { key: 'mood', label: 'حال و هوا', kind: 'text', required: true },
+      { key: 'mood', label: 'حال و هوا', kind: 'text', required: false },
       { key: 'bpm', label: 'ضرب در دقیقه', kind: 'number', required: false },
     ],
   },
@@ -155,7 +165,7 @@ const PRODUCTION_TYPES = [
       'تو یک کارگردان ویدیوی آموزشی فارسی‌زبانی. هر نما باید یک گام از یادگیری ' +
       'را پیش ببرد؛ تصویر باید مفهوم را نشان دهد نه تزئین کند.',
     fieldSchema: [
-      { key: 'audience', label: 'سطح مخاطب', kind: 'text', required: true },
+      { key: 'audience', label: 'سطح مخاطب', kind: 'text', required: false },
       { key: 'outline', label: 'سرفصل‌ها', kind: 'text', required: false },
     ],
   },

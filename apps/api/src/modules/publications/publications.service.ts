@@ -51,6 +51,19 @@ export class PublicationsService {
       }));
   }
 
+  /**
+   * فایل نهایی اثر — تازه‌ترین دارایی با نقش `final_output`.
+   *
+   * چرا تازه‌ترین: هر «تلاش دوباره» یک مونتاژ نو و یک ردیف دارایی نو
+   * می‌سازد. آنچه منتشر می‌شود همان چیزی است که کاربر آخرین بار دید.
+   */
+  private finalAsset(projectId: string) {
+    return this.prisma.asset.findFirst({
+      where: { projectId, role: 'final_output' },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   /** وضعیت انتشار اثر در همه مقصدها — آنچه کاربر در آرشیو رسانه می‌بیند. */
   async statusFor(userId: string, projectId: string) {
     const project = await this.prisma.project.findFirst({
@@ -58,6 +71,10 @@ export class PublicationsService {
       include: { publications: true, serviceTier: true },
     });
     if (!project) throw new NotFoundException('اثر پیدا نشد.');
+
+    // رابط باید پیش از فشردن دکمه بداند فایلی هست یا نه — وگرنه تنها راه
+    // فهمیدنش خوردن یک خطای ۴۰۰ است.
+    const file = await this.finalAsset(projectId);
 
     const targets: PublicationTarget[] = [
       'DOWNLOAD',
@@ -80,7 +97,14 @@ export class PublicationsService {
         };
       }),
     );
-    return { projectId, title: project.title, targets: rows };
+    return {
+      projectId,
+      title: project.title,
+      finalFile: file
+        ? { assetId: file.id, byteSize: file.byteSize, durationSec: file.durationSec }
+        : null,
+      targets: rows,
+    };
   }
 
   async publish(userId: string, projectId: string, target: PublicationTarget) {
@@ -93,6 +117,16 @@ export class PublicationsService {
     if (NOT_WIRED.includes(target)) {
       throw new BadRequestException(
         'رابط فنی فلک هنوز روشن نیست، پس انتشار در آن مقصد ممکن نیست. فعلا دانلود و سایت عمومی در دسترس‌اند.',
+      );
+    }
+
+    // دروازه ۰ — فایل. انتشار اثری که هنوز فایلی ندارد یعنی صفحه‌ای که
+    // بازدیدکننده بازش می‌کند و چیزی برای دیدن نیست. تا امروز این شرط نبود
+    // و `assetId` هرگز پر نمی‌شد ⇒ صفحه عمومی فقط متن شات‌لیست بود.
+    const file = await this.finalAsset(projectId);
+    if (!file) {
+      throw new BadRequestException(
+        'این اثر هنوز فایل نهایی ندارد. اول در پنل ساخت دکمه «بساز» را بزن و صبر کن مونتاژ تمام شود.',
       );
     }
 
@@ -128,9 +162,13 @@ export class PublicationsService {
       }
     }
 
+    // 🔑 `assetId` همین‌جا قفل می‌شود، نه در زمان خواندن صفحه. یعنی اگر
+    // کاربر بعدا دوباره بسازد، صفحه عمومی همان فایلی را نشان می‌دهد که
+    // آگاهانه منتشر شده — تا دوباره دکمه انتشار را نزند.
     return this.prisma.publication.upsert({
       where: { projectId_target: { projectId, target } },
       update: {
+        assetId: file.id,
         status,
         publishedAt: status === 'PUBLISHED' ? new Date() : null,
         withdrawnAt: null,
@@ -140,6 +178,7 @@ export class PublicationsService {
       create: {
         projectId,
         target,
+        assetId: file.id,
         status,
         publishedAt: status === 'PUBLISHED' ? new Date() : null,
       },
@@ -222,6 +261,7 @@ export class PublicationsService {
       select: {
         viewCount: true,
         publishedAt: true,
+        asset: { select: { durationSec: true } },
         project: {
           select: {
             id: true,
@@ -231,31 +271,80 @@ export class PublicationsService {
             productionType: { select: { key: true, title: true } },
             user: { select: { id: true, displayName: true } },
             _count: { select: { comments: true } },
+            // ⚠️ ردیف‌های انتشاری که پیش از وصل شدن این لایه ساخته شده‌اند
+            // `assetId` خالی دارند. بدون این جایگزین، کارت همان اثری که
+            // صفحه‌اش ویدیو دارد بی‌ویدیو نشان داده می‌شود.
+            assets: {
+              where: { role: 'final_output' },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              select: { durationSec: true },
+            },
           },
         },
       },
     });
 
-    return rows.map((r) => ({
-      id: r.project.id,
-      title: r.project.title,
-      type: r.project.productionType?.title ?? null,
-      typeKey: r.project.productionType?.key ?? null,
-      durationSec: r.project.targetDurationSec,
-      material: r.project.materialStyle,
-      creator: { id: r.project.user.id, name: this.publicName(r.project.user) },
-      views: r.viewCount,
-      comments: r.project._count.comments,
-      publishedAt: r.publishedAt,
-    }));
+    return rows.map((r) => {
+      const file = r.asset ?? r.project.assets[0] ?? null;
+      return {
+        id: r.project.id,
+        title: r.project.title,
+        type: r.project.productionType?.title ?? null,
+        typeKey: r.project.productionType?.key ?? null,
+        // مدت واقعی فایل ملاک است؛ `targetDurationSec` فقط خواسته کاربر بود.
+        durationSec: file?.durationSec ?? r.project.targetDurationSec,
+        hasVideo: Boolean(file),
+        material: r.project.materialStyle,
+        creator: { id: r.project.user.id, name: this.publicName(r.project.user) },
+        views: r.viewCount,
+        comments: r.project._count.comments,
+        publishedAt: r.publishedAt,
+      };
+    });
+  }
+
+  /**
+   * دارایی قابل پخش یک اثر عمومی.
+   *
+   * 🔒 شرط انتشار داخل خود کوئری است، نه در یک بررسی جدا: اگر اثر منتشر
+   * نباشد یا برداشته شده باشد، هیچ ردیفی برنمی‌گردد و بایتی هم بیرون
+   * نمی‌رود. `assetId` هم از ردیف انتشار می‌آید نه از ورودی کاربر — پس با
+   * دست‌کاری آدرس نمی‌شود دارایی خصوصی کس دیگری را خواند.
+   */
+  private async publishedAsset(projectId: string) {
+    const pub = await this.prisma.publication.findFirst({
+      where: { projectId, target: 'PUBLIC_SITE', status: 'PUBLISHED' },
+      include: { asset: true },
+    });
+    if (!pub) throw new NotFoundException('این اثر عمومی نیست.');
+    return pub.asset ?? (await this.finalAsset(projectId));
+  }
+
+  /** بایت ویدیوی اثر عمومی — تنها راه رسیدن به فایل بدون ورود. */
+  async publicVideo(projectId: string) {
+    const asset = await this.publishedAsset(projectId);
+    if (!asset) throw new NotFoundException('این اثر فایلی برای پخش ندارد.');
+
+    // 🔒 این مسیر فایل را **درون‌خطی** سرو می‌کند، برخلاف مسیر محافظت‌شده
+    // دارایی‌ها که همیشه `attachment` می‌فرستد. پس نوع فایل باید همین‌جا
+    // به ویدیو محدود شود؛ وگرنه اگر فردا نقشی با HTML یا SVG به این‌جا
+    // برسد، همین مسیر تبدیل به اجرای اسکریپت در مبدا خودمان می‌شود.
+    if (!asset.mimeType.startsWith('video/')) {
+      throw new NotFoundException('این اثر فایل قابل پخشی ندارد.');
+    }
+    return asset;
   }
 
   /** صفحه عمومی اثر. فقط اثری که واقعا منتشر شده. */
   async publicWork(projectId: string) {
     const pub = await this.prisma.publication.findFirst({
       where: { projectId, target: 'PUBLIC_SITE', status: 'PUBLISHED' },
+      include: { asset: true },
     });
     if (!pub) throw new NotFoundException('این اثر عمومی نیست.');
+
+    const file = pub.asset ?? (await this.finalAsset(projectId));
 
     const project = await this.prisma.project.findUniqueOrThrow({
       where: { id: projectId },
@@ -309,6 +398,12 @@ export class PublicationsService {
     return {
       ...project,
       user: { id: project.user.id, name: this.publicName(project.user) },
+      // کلید ذخیره‌سازی هرگز بیرون نمی‌رود؛ صفحه فقط باید بداند ویدیویی
+      // هست و چقدر است. آدرس پخش ثابت و مشتق از شناسه اثر است.
+      video:
+        file && file.mimeType.startsWith('video/')
+          ? { durationSec: file.durationSec, byteSize: file.byteSize }
+          : null,
       views: pub.viewCount + 1,
       publishedAt: pub.publishedAt,
       comments: comments.map((c) => ({

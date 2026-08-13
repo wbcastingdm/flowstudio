@@ -39,6 +39,27 @@ interface RenderStatus {
   jobs: RenderJob[];
 }
 
+/**
+ * برآورد پیش از ساخت — همان عددی که تصمیم می‌گیرد این پنل یک حرکت باشد یا دو.
+ */
+interface Estimate {
+  shots: number;
+  steps: number;
+  durationSec: number;
+  estimatedCoins: number;
+}
+
+/** وضعیت انتشار روی سایت عمومی — تنها مقصدی که امروز رابط فنی دارد. */
+type PubStatus = 'DRAFT' | 'PUBLISHED' | 'PENDING_REVIEW' | 'WITHDRAWN';
+
+interface PublicationRow {
+  target: string;
+  status: PubStatus;
+  publishedAt: string | null;
+  viewCount: number;
+  blockers: { role: string; license: string; why: string }[];
+}
+
 const STATUS_FA: Record<JobStatus, { label: string; cls: string }> = {
   PENDING: { label: 'در صف', cls: 'tag' },
   RUNNING: { label: 'در حال ساخت', cls: 'tag tag-accent' },
@@ -55,12 +76,33 @@ function humanSize(bytes: number): string {
   return mb >= 1 ? `${toFa(mb.toFixed(1))} مگابایت` : `${toFa(Math.round(bytes / 1024))} کیلوبایت`;
 }
 
-export function RenderPanel({ projectId, title }: { projectId: string; title: string }) {
+export function RenderPanel({
+  projectId,
+  title,
+  autoStart = false,
+}: {
+  projectId: string;
+  title: string;
+  /**
+   * 🔑 گاردریلِ ۵ — گیتِ انسانی پیش از خرجِ پول، نه بعد از آن.
+   *
+   * استودیو این را روشن می‌گذارد تا کاربر بعد از نوشتنِ ایده دکمهٔ دومی
+   * نزند. ولی خودکار شدن **مشروط** است: فقط وقتی برآورد صفر سکه باشد.
+   * روزی که یک گامِ پولی به زنجیره اضافه شود، برآورد از صفر درمی‌آید و
+   * همین پنل خودش می‌ایستد و عدد را نشان می‌دهد — بدون یک خط تغییر این‌جا.
+   */
+  autoStart?: boolean;
+}) {
   const [status, setStatus] = useState<RenderStatus | null>(null);
+  const [estimate, setEstimate] = useState<Estimate | null>(null);
+  const autoStartedRef = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const fetchedAssetRef = useRef<string | null>(null);
+  const [pub, setPub] = useState<PublicationRow | null>(null);
+  const [pubBusy, setPubBusy] = useState(false);
+  const [pubError, setPubError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     const res = await apiFetch(`/api/projects/${projectId}/render`);
@@ -108,7 +150,41 @@ export function RenderPanel({ projectId, title }: { projectId: string; title: st
     };
   }, [videoUrl]);
 
-  async function start() {
+  /**
+   * وضعیت انتشار فقط وقتی معنا دارد که فایلی وجود داشته باشد — پیش از آن
+   * API هم انتشار را رد می‌کند. پس پرسیدنش را به همان لحظه گره می‌زنیم.
+   */
+  const refreshPub = useCallback(async () => {
+    const res = await apiFetch(`/api/publications/${projectId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    setPub(data.targets?.find((t: PublicationRow) => t.target === 'PUBLIC_SITE') ?? null);
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!status?.finalAsset) return;
+    void refreshPub();
+  }, [status?.finalAsset, refreshPub]);
+
+  async function togglePublish(publish: boolean) {
+    setPubBusy(true);
+    setPubError(null);
+    try {
+      const res = await apiFetch(
+        `/api/publications/${projectId}/${publish ? 'publish' : 'withdraw'}`,
+        { method: 'POST', body: JSON.stringify({ target: 'PUBLIC_SITE' }) },
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message ?? `HTTP ${res.status}`);
+      await refreshPub();
+    } catch (err) {
+      setPubError(String(err instanceof Error ? err.message : err));
+    } finally {
+      setPubBusy(false);
+    }
+  }
+
+  const start = useCallback(async () => {
     setBusy(true);
     setError(null);
     try {
@@ -124,7 +200,29 @@ export function RenderPanel({ projectId, title }: { projectId: string; title: st
     } finally {
       setBusy(false);
     }
-  }
+  }, [projectId]);
+
+  // برآورد فقط تا وقتی چیزی صف نشده معنا دارد.
+  useEffect(() => {
+    if (status) return;
+    let alive = true;
+    void apiFetch(`/api/projects/${projectId}/render/estimate`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((e) => alive && setEstimate(e))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [projectId, status]);
+
+  useEffect(() => {
+    if (!autoStart || status || autoStartedRef.current) return;
+    // ⚠️ شرطِ صریحِ صفر، نه «کوچک یا مساویِ صفر» و نه «falsy» — برآوردِ
+    // نیامده هم falsy است و نباید کار را خودکار روی صف بگذارد.
+    if (!estimate || estimate.estimatedCoins !== 0) return;
+    autoStartedRef.current = true;
+    void start();
+  }, [autoStart, status, estimate, start]);
 
   const working = status ? status.counts.PENDING > 0 || status.counts.RUNNING > 0 : false;
 
@@ -133,9 +231,13 @@ export function RenderPanel({ projectId, title }: { projectId: string; title: st
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         <span className="card-title">ساخت فایل</span>
         <span style={{ flex: 1 }} />
-        {!status && (
+        {!status && !(autoStart && estimate?.estimatedCoins === 0) && (
           <button type="button" className="btn btn-sm" onClick={start} disabled={busy}>
-            {busy ? 'در حال فرستادن…' : 'بساز'}
+            {busy
+              ? 'در حال فرستادن…'
+              : estimate && estimate.estimatedCoins > 0
+                ? `تأیید و بساز — ${toFa(estimate.estimatedCoins)} سکه`
+                : 'بساز'}
           </button>
         )}
         {status && !working && !status.finalAsset && (
@@ -147,8 +249,18 @@ export function RenderPanel({ projectId, title }: { projectId: string; title: st
 
       {!status && (
         <p className="meta" style={{ marginTop: 10 }}>
-          از هر نما یک کلیپ ساخته می‌شود و آخرش همه به یک فایل می‌چسبند. این مسیر هیچ
-          مدل هوش مصنوعی صدا نمی‌زند، پس هزینه‌اش صفر سکه است.
+          {estimate && estimate.estimatedCoins > 0 ? (
+            <>
+              این پلان {toFa(estimate.shots)} نما و {toFa(estimate.steps)} گام دارد و{' '}
+              <b>{toFa(estimate.estimatedCoins)} سکه</b> خرج می‌کند. تا تأیید نکنی هیچ سکه‌ای
+              برداشته نمی‌شود.
+            </>
+          ) : (
+            <>
+              از هر نما یک کلیپ ساخته می‌شود و آخرش همه به یک فایل می‌چسبند. این مسیر هیچ
+              مدل هوش مصنوعی صدا نمی‌زند، پس هزینه‌اش صفر سکه است.
+            </>
+          )}
         </p>
       )}
 
@@ -240,6 +352,58 @@ export function RenderPanel({ projectId, title }: { projectId: string; title: st
                   </a>
                 )}
               </div>
+
+              <div
+                style={{
+                  marginTop: 14,
+                  paddingTop: 14,
+                  borderTop: '1px solid var(--line)',
+                  display: 'flex',
+                  gap: 10,
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {pub?.status === 'PUBLISHED' ? (
+                  <>
+                    <span className="tag tag-green">عمومی شده</span>
+                    <a className="btn btn-sm" href={`/w/${projectId}`}>
+                      صفحه عمومی
+                    </a>
+                    <span className="tag">{toFa(pub.viewCount)} بازدید</span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-ghost"
+                      onClick={() => togglePublish(false)}
+                      disabled={pubBusy}
+                    >
+                      {pubBusy ? 'صبر کن…' : 'برداشتن'}
+                    </button>
+                  </>
+                ) : pub?.status === 'PENDING_REVIEW' ? (
+                  <span className="tag tag-amber">در انتظار بازبینی راهبر</span>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => togglePublish(true)}
+                      disabled={pubBusy}
+                    >
+                      {pubBusy ? 'صبر کن…' : 'عمومی کن'}
+                    </button>
+                    <span className="meta" style={{ fontSize: 13.5 }}>
+                      روی صفحه «کارهای منتشرشده» دیده می‌شود و هر کسی می‌تواند تماشا کند.
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {pubError && (
+                <div className="note note-red" style={{ marginTop: 10 }}>
+                  {pubError}
+                </div>
+              )}
             </div>
           )}
         </div>
